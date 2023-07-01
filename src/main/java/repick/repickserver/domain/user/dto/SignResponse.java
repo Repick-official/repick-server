@@ -16,8 +16,6 @@ public class SignResponse {
 
     private Long id;
 
-    private String account;
-
     private String nickname;
 
     private String name;
@@ -30,7 +28,6 @@ public class SignResponse {
 
     public SignResponse(Member member) {
         this.id = member.getId();
-        this.account = member.getAccount();
         this.nickname = member.getNickname();
         this.name = member.getName();
         this.email = member.getEmail();

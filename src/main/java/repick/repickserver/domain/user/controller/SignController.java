@@ -28,12 +28,12 @@ public class SignController {
     }
 
     @GetMapping("/user/get")
-    public ResponseEntity<SignResponse> getUser(@RequestParam String account) throws Exception {
-        return new ResponseEntity<>( memberService.getMember(account), HttpStatus.OK);
+    public ResponseEntity<SignResponse> getUser(@RequestParam String email) throws Exception {
+        return new ResponseEntity<>( memberService.getMember(email), HttpStatus.OK);
     }
 
     @GetMapping("/admin/get")
-    public ResponseEntity<SignResponse> getUserForAdmin(@RequestParam String account) throws Exception {
-        return new ResponseEntity<>( memberService.getMember(account), HttpStatus.OK);
+    public ResponseEntity<SignResponse> getUserForAdmin(@RequestParam String email) throws Exception {
+        return new ResponseEntity<>( memberService.getMember(email), HttpStatus.OK);
     }
 }

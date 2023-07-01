@@ -24,7 +24,7 @@ public class SignService {
     private final JwtProvider jwtProvider;
 
     public SignResponse login(SignRequest request) throws Exception {
-        Member member = memberRepository.findByAccount(request.getAccount()).orElseThrow(() ->
+        Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new BadCredentialsException("잘못된 계정정보입니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
@@ -33,12 +33,11 @@ public class SignService {
 
         return SignResponse.builder()
                 .id(member.getId())
-                .account(member.getAccount())
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .roles(member.getRoles())
-                .token(jwtProvider.createToken(member.getAccount(), member.getRoles()))
+                .token(jwtProvider.createToken(member.getEmail(), member.getRoles()))
                 .build();
 
     }
@@ -46,7 +45,6 @@ public class SignService {
     public boolean register(SignRequest request) throws Exception {
         try {
             Member member = Member.builder()
-                    .account(request.getAccount())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .name(request.getName())
                     .nickname(request.getNickname())
@@ -63,8 +61,8 @@ public class SignService {
         return true;
     }
 
-    public SignResponse getMember(String account) throws Exception {
-        Member member = memberRepository.findByAccount(account)
+    public SignResponse getMember(String email) throws Exception {
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
         return new SignResponse(member);
     }
