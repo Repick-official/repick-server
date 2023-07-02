@@ -60,7 +60,9 @@ jobs:
       - name: make application-database.yaml
         run: |
           ## create application-database.yaml
-          cd ./src/main/resources
+          cd ./src/main
+          mkdir resources
+          cd ./resources
           
           # application-database.yaml 파일 생성
           touch ./application-database.yaml
