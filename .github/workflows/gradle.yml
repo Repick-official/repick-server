@@ -83,7 +83,15 @@ jobs:
           docker build -t ${{ secrets.DOCKER_REPO }}/repick-web .
           docker push ${{ secrets.DOCKER_REPO }}/repick-web
 
-      ## docker compose up
+      - name: copy source via ssh key
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avzr --delete
+          remote_path: /home/ubuntu/srv/ubuntu/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ubuntu
+          remote_key: ${{ secrets.KEY }}
+
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
@@ -92,8 +100,18 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             sh /home/ubuntu/srv/ubuntu/scripts/deploy.sh
-            sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
-            docker-compose up -d
-            docker image prune -f
+
+      ## docker compose up
+#      - name: executing remote ssh commands using password
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.HOST }}
+#          username: ubuntu
+#          key: ${{ secrets.KEY }}
+#          script: |
+#            sh /home/ubuntu/srv/ubuntu/scripts/deploy.sh
+#            sudo docker rm -f $(docker ps -qa)
+#            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web
+#            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
+#            docker-compose up -d
+#            docker image prune -f
