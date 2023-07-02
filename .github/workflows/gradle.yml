@@ -80,6 +80,8 @@ jobs:
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DOCKER_REPO }}/repick-web .
           docker push ${{ secrets.DOCKER_REPO }}/repick-web
+          docker build -f dockerfile-nginx -t repick/repick-nginx .
+          docker push repick/repick-nginx
 
       ## docker compose up
       - name: executing remote ssh commands using password
