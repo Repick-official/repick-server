@@ -92,6 +92,8 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             sudo chmod 666 /var/run/docker.sock
+            sudo systemctl start docker
+            sudo systemctl enable docker
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
