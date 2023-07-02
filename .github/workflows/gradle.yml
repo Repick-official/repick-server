@@ -91,9 +91,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sh /home/ubuntu/srv/ubuntu/scripts/deploy.sh
-            sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
+            docker rm -f $(docker ps -qa)
+            docker pull ${{ secrets.DOCKER_REPO }}/repick-web
+            docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
             docker-compose up -d
             docker image prune -f
