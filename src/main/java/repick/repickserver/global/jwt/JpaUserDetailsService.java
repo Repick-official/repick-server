@@ -21,6 +21,6 @@ public class JpaUserDetailsService implements UserDetailsService {
                 () -> new UsernameNotFoundException("Invalid authentication!")
         );
 
-        return new CustomUserDetails(member);
+        return new UserDetailsImpl(member);
     }
 }
