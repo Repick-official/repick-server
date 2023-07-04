@@ -37,15 +37,25 @@ public class JwtProvider {
         secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
+    // access 토큰 생성
+    public String createAccessToken(String email, List<Authority> roles) {
+        return createToken(email, roles, jwtProperties.getAccessTokenExpirationTime());
+    }
+
+    // refresh 토큰 생성
+    public String createRefreshToken(String email, List<Authority> roles) {
+        return createToken(email, roles, jwtProperties.getRefreshTokenExpirationTime());
+    }
+
     // 토큰 생성
-    public String createToken(String email, List<Authority> roles) {
+    private String createToken(String email, List<Authority> roles, Long expirationTime) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + jwtProperties.getAccessTokenExpirationTime()))
+                .setExpiration(new Date(now.getTime() + expirationTime))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
