@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -31,6 +29,11 @@ public class Member {
     private String name;
 
     private Role role;
+
+    @Embedded
+    private Address address;
+
+    private String phoneNumber;
 
 
 }

@@ -5,6 +5,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.user.dao.MemberRepository;
+import repick.repickserver.domain.user.domain.Address;
 import repick.repickserver.domain.user.domain.Member;
 import repick.repickserver.domain.user.domain.Role;
 import repick.repickserver.domain.user.dto.SignRequest;
@@ -13,12 +14,11 @@ import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
 
 import javax.transaction.Transactional;
-import java.util.Collections;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SignService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -46,11 +46,18 @@ public class SignService {
 
     public boolean register(SignRequest request) throws Exception {
         try {
+            Address address = Address.builder()
+                    .mainAddress(request.getMainAddress())
+                    .detailAddress(request.getDetailAddress())
+                    .zipCode(request.getZipCode())
+                    .build();
             Member member = Member.builder()
                     .password(passwordEncoder.encode(request.getPassword()))
                     .name(request.getName())
                     .nickname(request.getNickname())
                     .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .address(address)
                     .role(Role.USER)
                     .build();
 
@@ -68,4 +75,21 @@ public class SignService {
         return new SignResponse(member);
     }
 
+    // update
+    public boolean update(SignRequest request) throws Exception {
+        // TODO : find user using token
+    
+
+
+//        member = Member.builder()
+//                        .name(request.getName())
+//                        .nickname(request.getNickname())
+//                        .password(passwordEncoder.encode(request.getPassword()))
+//                        .role(Role.USER)
+//                        .build();
+//
+//        memberRepository.save(member);
+
+        return true;
+    }
 }
