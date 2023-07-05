@@ -46,11 +46,6 @@ public class MemberService {
 
     public boolean register(SignRequest request) throws Exception {
         try {
-//            Address address = Address.builder()
-//                    .mainAddress(request.getMainAddress())
-//                    .detailAddress(request.getDetailAddress())
-//                    .zipCode(request.getZipCode())
-//                    .build();
             Member member = Member.builder()
                     .password(passwordEncoder.encode(request.getPassword()))
                     .name(request.getName())
@@ -77,18 +72,12 @@ public class MemberService {
 
     // update
     public boolean update(SignRequest request) throws Exception {
-        // TODO : find user using token
-    
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
 
+        member.update(passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());
 
-//        member = Member.builder()
-//                        .name(request.getName())
-//                        .nickname(request.getNickname())
-//                        .password(passwordEncoder.encode(request.getPassword()))
-//                        .role(Role.USER)
-//                        .build();
-//
-//        memberRepository.save(member);
+        memberRepository.save(member);
 
         return true;
     }

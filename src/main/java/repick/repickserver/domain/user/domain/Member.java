@@ -35,5 +35,13 @@ public class Member {
 
     private String phoneNumber;
 
+    public void update(String password, String nickname, String name, String phoneNumber, Address address) {
+        this.password = password;
+        this.nickname = nickname;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
+
 
 }

@@ -11,6 +11,7 @@ import repick.repickserver.domain.user.dto.SignRequest;
 import repick.repickserver.domain.user.dto.SignResponse;
 
 @RestController
+@RequestMapping("/sign")
 @RequiredArgsConstructor
 public class SignController {
 
