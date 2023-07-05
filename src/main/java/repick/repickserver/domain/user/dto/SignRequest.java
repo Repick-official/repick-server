@@ -17,11 +17,13 @@ public class SignRequest {
 
     private String email;
 
-    private String mainAddress;
+    private Address address;
 
-    private String detailAddress;
-
-    private String zipCode;
+//    private String mainAddress;
+//
+//    private String detailAddress;
+//
+//    private String zipCode;
 
     private String phoneNumber;
 

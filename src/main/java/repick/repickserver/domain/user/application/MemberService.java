@@ -46,18 +46,18 @@ public class MemberService {
 
     public boolean register(SignRequest request) throws Exception {
         try {
-            Address address = Address.builder()
-                    .mainAddress(request.getMainAddress())
-                    .detailAddress(request.getDetailAddress())
-                    .zipCode(request.getZipCode())
-                    .build();
+//            Address address = Address.builder()
+//                    .mainAddress(request.getMainAddress())
+//                    .detailAddress(request.getDetailAddress())
+//                    .zipCode(request.getZipCode())
+//                    .build();
             Member member = Member.builder()
                     .password(passwordEncoder.encode(request.getPassword()))
                     .name(request.getName())
                     .nickname(request.getNickname())
                     .email(request.getEmail())
                     .phoneNumber(request.getPhoneNumber())
-                    .address(address)
+                    .address(request.getAddress())
                     .role(Role.USER)
                     .build();
 
