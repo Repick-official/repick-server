@@ -30,7 +30,7 @@ public class Order {
     private Address address;
 
     // 주문/배달시 요청사항
-    private String request_detail;
+    private String requestDetail;
 
     private String phoneNumber;
 

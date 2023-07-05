@@ -12,7 +12,7 @@ public class SellOrderRequest {
     // info of order
     @Embedded
     private Address address;
-    private String request_detail;
+    private String requestDetail;
     private String phoneNumber;
 
     // info of sell order
