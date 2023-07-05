@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/sign/register", "/sign/login").permitAll()
                 .antMatchers("/sign/update").hasAuthority("USER")
+                .antMatchers("/order/**").hasAuthority("USER")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasAuthority("ADMIN")

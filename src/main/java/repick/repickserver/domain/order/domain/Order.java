@@ -1,5 +1,9 @@
 package repick.repickserver.domain.order.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -9,9 +13,12 @@ import repick.repickserver.domain.member.domain.Member;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "orders")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Order {
 
     @Id @GeneratedValue

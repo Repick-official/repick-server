@@ -1,8 +1,16 @@
 package repick.repickserver.domain.order.domain;
 
-import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Builder
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class SellInfo {
 
     @Id @GeneratedValue
@@ -11,5 +19,11 @@ public class SellInfo {
     @OneToOne
     @JoinColumn(name = "order_id")
     private Order order;
+
+    private Integer bagQuantity;
+
+    private Integer productQuantity;
+
+    private LocalDateTime returnDate;
 
 }
