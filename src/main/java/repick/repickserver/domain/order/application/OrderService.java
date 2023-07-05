@@ -32,7 +32,7 @@ public class OrderService {
                     .member(member)
                     .address(request.getAddress())
                     .phoneNumber(request.getPhoneNumber())
-                    .request_detail(request.getRequest_detail())
+                    .requestDetail(request.getRequestDetail())
                     .orderState(OrderState.SELL_ORDERED)
                     .build();
 
