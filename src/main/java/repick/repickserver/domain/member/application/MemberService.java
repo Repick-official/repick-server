@@ -70,11 +70,9 @@ public class MemberService {
     }
 
     // update
-    public boolean update(SignRequest request) throws Exception {
-        Member member = memberRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
+    public boolean update(SignRequest request, Member member) throws Exception {
 
-        member.update(passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());
+        member.update(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());
 
         memberRepository.save(member);
 

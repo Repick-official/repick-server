@@ -46,7 +46,8 @@ public class Member {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public void update(String password, String nickname, String name, String phoneNumber, Address address) {
+    public void update(String email, String password, String nickname, String name, String phoneNumber, Address address) {
+        this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
