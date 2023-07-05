@@ -1,8 +1,8 @@
-package repick.repickserver.domain.user.dto;
+package repick.repickserver.domain.member.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import repick.repickserver.domain.user.domain.Address;
+import repick.repickserver.domain.member.domain.Address;
 
 @Getter @Setter
 public class SignRequest {

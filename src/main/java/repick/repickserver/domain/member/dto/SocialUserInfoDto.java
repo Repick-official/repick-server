@@ -1,4 +1,4 @@
-package repick.repickserver.domain.user.dto;
+package repick.repickserver.domain.member.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

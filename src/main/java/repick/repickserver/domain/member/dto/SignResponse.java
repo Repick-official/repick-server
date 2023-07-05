@@ -1,12 +1,12 @@
-package repick.repickserver.domain.user.dto;
+package repick.repickserver.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import repick.repickserver.domain.user.domain.Address;
-import repick.repickserver.domain.user.domain.Member;
-import repick.repickserver.domain.user.domain.Role;
+import repick.repickserver.domain.member.domain.Address;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.member.domain.Role;
 
 
 @Getter

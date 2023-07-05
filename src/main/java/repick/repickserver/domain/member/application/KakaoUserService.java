@@ -1,4 +1,4 @@
-package repick.repickserver.domain.user.application;
+package repick.repickserver.domain.member.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import repick.repickserver.domain.user.dao.MemberRepository;
-import repick.repickserver.domain.user.domain.Member;
-import repick.repickserver.domain.user.domain.Role;
-import repick.repickserver.domain.user.dto.SocialUserInfoDto;
+import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.member.domain.Role;
+import repick.repickserver.domain.member.dto.SocialUserInfoDto;
 import repick.repickserver.global.config.OauthProperties;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;

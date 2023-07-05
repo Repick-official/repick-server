@@ -11,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import repick.repickserver.domain.user.domain.Role;
+import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.global.config.JwtProperties;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Component

@@ -16,7 +16,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import repick.repickserver.domain.user.domain.Role;
 import repick.repickserver.global.jwt.JwtAuthenticationFilter;
 import repick.repickserver.global.jwt.JwtProvider;
 

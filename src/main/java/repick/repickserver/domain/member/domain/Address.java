@@ -1,4 +1,4 @@
-package repick.repickserver.domain.user.domain;
+package repick.repickserver.domain.member.domain;
 
 
 import lombok.AllArgsConstructor;

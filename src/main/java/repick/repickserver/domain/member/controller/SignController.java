@@ -1,14 +1,14 @@
-package repick.repickserver.domain.user.controller;
+package repick.repickserver.domain.member.controller;
 
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import repick.repickserver.domain.user.application.MemberService;
-import repick.repickserver.domain.user.dao.MemberRepository;
-import repick.repickserver.domain.user.dto.SignRequest;
-import repick.repickserver.domain.user.dto.SignResponse;
+import repick.repickserver.domain.member.application.MemberService;
+import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.dto.SignRequest;
+import repick.repickserver.domain.member.dto.SignResponse;
 
 @RestController
 @RequestMapping("/sign")

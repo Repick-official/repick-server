@@ -1,15 +1,14 @@
-package repick.repickserver.domain.user.application;
+package repick.repickserver.domain.member.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.user.dao.MemberRepository;
-import repick.repickserver.domain.user.domain.Address;
-import repick.repickserver.domain.user.domain.Member;
-import repick.repickserver.domain.user.domain.Role;
-import repick.repickserver.domain.user.dto.SignRequest;
-import repick.repickserver.domain.user.dto.SignResponse;
+import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.member.domain.Role;
+import repick.repickserver.domain.member.dto.SignRequest;
+import repick.repickserver.domain.member.dto.SignResponse;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
 

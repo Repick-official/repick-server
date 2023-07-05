@@ -3,7 +3,7 @@ package repick.repickserver.global.jwt;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import repick.repickserver.domain.user.domain.Member;
+import repick.repickserver.domain.member.domain.Member;
 
 import java.util.ArrayList;
 import java.util.Collection;
