@@ -1,23 +1,23 @@
-package repick.repickserver.domain.user.application;
+package repick.repickserver.domain.member.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.user.dao.MemberRepository;
-import repick.repickserver.domain.user.domain.Authority;
-import repick.repickserver.domain.user.domain.Member;
-import repick.repickserver.domain.user.dto.SignRequest;
-import repick.repickserver.domain.user.dto.SignResponse;
+import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.member.domain.Role;
+import repick.repickserver.domain.member.dto.SignRequest;
+import repick.repickserver.domain.member.dto.SignResponse;
 import repick.repickserver.global.jwt.JwtProvider;
+import repick.repickserver.global.jwt.UserDetailsImpl;
 
 import javax.transaction.Transactional;
-import java.util.Collections;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SignService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,8 +36,9 @@ public class SignService {
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .roles(member.getRoles())
-                .token(jwtProvider.createToken(member.getEmail(), member.getRoles()))
+                .role(member.getRole())
+                .accessToken(jwtProvider.createAccessToken(new UserDetailsImpl(member)))
+                .refreshToken(jwtProvider.createRefreshToken(new UserDetailsImpl(member)))
                 .build();
 
     }
@@ -49,9 +50,10 @@ public class SignService {
                     .name(request.getName())
                     .nickname(request.getNickname())
                     .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .address(request.getAddress())
+                    .role(Role.USER)
                     .build();
-
-            member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
 
             memberRepository.save(member);
         } catch (Exception e) {
@@ -67,4 +69,15 @@ public class SignService {
         return new SignResponse(member);
     }
 
+    // update
+    public boolean update(SignRequest request) throws Exception {
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
+
+        member.update(passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());
+
+        memberRepository.save(member);
+
+        return true;
+    }
 }

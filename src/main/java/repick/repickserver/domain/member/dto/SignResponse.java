@@ -1,14 +1,13 @@
-package repick.repickserver.domain.user.dto;
+package repick.repickserver.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import repick.repickserver.domain.user.domain.Authority;
-import repick.repickserver.domain.user.domain.Member;
+import repick.repickserver.domain.member.domain.Address;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.member.domain.Role;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Builder @AllArgsConstructor @NoArgsConstructor
@@ -22,15 +21,22 @@ public class SignResponse {
 
     private String email;
 
-    private List<Authority> roles = new ArrayList<>();
+    private Role role;
 
-    private String token;
+    private String phoneNumber;
+
+    private Address address;
+
+    private String accessToken;
+    private String refreshToken;
 
     public SignResponse(Member member) {
         this.id = member.getId();
         this.nickname = member.getNickname();
         this.name = member.getName();
         this.email = member.getEmail();
-        this.roles = member.getRoles();
+        this.role = member.getRole();
+        this.address = member.getAddress();
+        this.phoneNumber = member.getPhoneNumber();
     }
 }

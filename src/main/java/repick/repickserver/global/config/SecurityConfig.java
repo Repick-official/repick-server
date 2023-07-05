@@ -61,11 +61,14 @@ public class SecurityConfig {
                 // 조건별로 요청 허용/제한 설정
                 .authorizeRequests()
                 // 회원가입과 로그인은 모두 승인
-                .antMatchers("/register", "/login").permitAll()
+                .antMatchers("/swagger-ui.html").permitAll()
+                .antMatchers("/sign/register", "/sign/login").permitAll()
+                .antMatchers("/sign/update").hasAuthority("USER")
+                .antMatchers("카카오 로그인 요청 API").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/admin/**").hasAuthority("ADMIN")
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
-                .antMatchers("/user/**").hasRole("USER")
+                .antMatchers("/user/**").hasAuthority("USER")
                 .anyRequest().permitAll()
                 .and()
                 // JWT 인증 필터 적용

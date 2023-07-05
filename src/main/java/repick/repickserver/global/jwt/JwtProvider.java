@@ -11,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import repick.repickserver.domain.user.domain.Authority;
+import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.global.config.JwtProperties;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -37,15 +36,25 @@ public class JwtProvider {
         secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
+    // access 토큰 생성
+    public String createAccessToken(UserDetailsImpl userDetailsImpl) {
+        return createToken(userDetailsImpl.getUser().getEmail(), userDetailsImpl.getUser().getRole(), jwtProperties.getAccessTokenExpirationTime());
+    }
+
+    // refresh 토큰 생성
+    public String createRefreshToken(UserDetailsImpl userDetailsImpl) {
+        return createToken(userDetailsImpl.getUser().getEmail(), userDetailsImpl.getUser().getRole(), jwtProperties.getRefreshTokenExpirationTime());
+    }
+
     // 토큰 생성
-    public String createToken(String email, List<Authority> roles) {
+    private String createToken(String email, Role role, Long expirationTime) {
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", roles);
+        claims.put("role", role);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + jwtProperties.getAccessTokenExpirationTime()))
+                .setExpiration(new Date(now.getTime() + expirationTime))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -77,6 +86,9 @@ public class JwtProvider {
                 token = token.split(" ")[1].trim();
             }
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+
+            // TODO : 토큰 종류 검사
+
             // 만료되었을 시 false
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
