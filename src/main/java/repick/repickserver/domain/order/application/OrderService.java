@@ -9,8 +9,13 @@ import repick.repickserver.domain.order.domain.Order;
 import repick.repickserver.domain.order.domain.OrderState;
 import repick.repickserver.domain.order.domain.SellInfo;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
+import repick.repickserver.domain.order.dto.SellOrderResponse;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -47,6 +52,27 @@ public class OrderService {
             throw new Exception("주문 등록에 실패했습니다.");
         }
 
+
+    }
+
+    public List<SellOrderResponse> getSellOrders(Member member) {
+
+        List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
+
+        Stream<SellInfo> sellInfoStream = sellInfoRepository.findAll()
+                .stream().filter(m -> m.getOrder().getMember().getId().equals(member.getId()));
+
+        sellInfoStream.forEach(sellInfo -> {
+            SellOrderResponse sellOrderResponse = SellOrderResponse.builder()
+                    .order(sellInfo.getOrder())
+                    .bagQuantity(sellInfo.getBagQuantity())
+                    .productQuantity(sellInfo.getProductQuantity())
+                    .returnDate(sellInfo.getReturnDate())
+                    .build();
+            sellOrderResponses.add(sellOrderResponse);
+        });
+
+        return sellOrderResponses;
 
     }
 }

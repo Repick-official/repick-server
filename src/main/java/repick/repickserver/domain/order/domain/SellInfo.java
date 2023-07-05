@@ -2,11 +2,13 @@ package repick.repickserver.domain.order.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 @Entity
 @AllArgsConstructor

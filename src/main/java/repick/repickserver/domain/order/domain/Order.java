@@ -1,9 +1,6 @@
 package repick.repickserver.domain.order.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,6 +10,7 @@ import repick.repickserver.domain.member.domain.Member;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -38,9 +36,6 @@ public class Order {
 
     //주문상태
     private OrderState orderState;
-
-    @OneToOne(mappedBy = "order")
-    private SellInfo sellInfo;
 
     // 주문자 (한명의 멤버는 여러개의 주문을 가질 수 있음)
     @ManyToOne
