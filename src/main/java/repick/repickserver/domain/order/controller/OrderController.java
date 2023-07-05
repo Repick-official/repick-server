@@ -27,11 +27,7 @@ public class OrderController {
 
     @PostMapping(value = "/user/sell")
     public ResponseEntity<Boolean> postSellOrder(@RequestBody SellOrderRequest request, @RequestHeader("Authorization") String token) throws Exception {
-        // 토큰으로부터 이메일을 얻음
-        token = token.split(" ")[1].trim();
-        String email = jwtProvider.getEmail(token);
-        // 이메일로 멤버 인스턴스를 얻음
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new Exception("회원정보 오류: 이메일에 맞는 회원을 찾을 수 없습니다."));
+        Member member = jwtProvider.getMember(token);
         return new ResponseEntity<>(orderService.postSellOrder(request, member), HttpStatus.OK);
     }
 
