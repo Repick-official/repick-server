@@ -42,6 +42,8 @@ public class OrderService {
                     .bagQuantity(request.getBagQuantity())
                     .productQuantity(request.getProductQuantity())
                     .returnDate(request.getReturnDate())
+                    .bankName(request.getBankName())
+                    .accountNumber(request.getAccountNumber())
                     .build();
 
             orderRepository.save(order);

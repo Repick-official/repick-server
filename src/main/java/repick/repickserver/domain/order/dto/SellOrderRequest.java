@@ -20,5 +20,7 @@ public class SellOrderRequest {
     private Integer bagQuantity;
     private Integer productQuantity;
     private LocalDateTime returnDate;
+    private String bankName;
+    private String accountNumber;
 
 }
