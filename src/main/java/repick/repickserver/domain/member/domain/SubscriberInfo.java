@@ -19,7 +19,8 @@ public class SubscriberInfo {
     @Id @GeneratedValue
     private Long id;
 
-    @OneToOne(mappedBy = "subscriberInfo")
+    @OneToOne
+    @JoinColumn(name = "member_id")
     private Member member;
 
     private LocalDateTime expireDate;

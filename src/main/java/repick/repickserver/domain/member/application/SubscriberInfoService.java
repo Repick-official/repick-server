@@ -8,6 +8,7 @@ import repick.repickserver.domain.member.domain.SubscriberInfo;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,7 +20,18 @@ public class SubscriberInfoService {
 
     private final SubscriberInfoRepository subscriberInfoRepository;
 
-    public List<SubscriberInfoResponse> check(Member member) {
+    public Boolean check(Member member) {
+        List<SubscriberInfo> subscriberInfoRepositoryAll = subscriberInfoRepository.findAll();
+
+        return subscriberInfoRepositoryAll.stream()
+                .anyMatch(subscriberInfo ->
+            subscriberInfo.getMember().equals(member) &&
+            subscriberInfo.getExpireDate().isAfter(LocalDateTime.now())
+            );
+
+    }
+
+    public List<SubscriberInfoResponse> history(Member member) {
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
 
         List<SubscriberInfo> subscriberInfoRepositoryAll = subscriberInfoRepository.findAll();

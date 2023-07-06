@@ -23,9 +23,14 @@ public class SubscribeController {
     private final JwtProvider jwtProvider;
 
     @GetMapping("/check")
-    public ResponseEntity<List<SubscriberInfoResponse>> check(@RequestHeader("Authorization") String token) throws Exception {
+    public ResponseEntity<Boolean> check(@RequestHeader("Authorization") String token) throws Exception {
         Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<List<SubscriberInfoResponse>>(subscriberInfoService.check(member), HttpStatus.OK);
+        return new ResponseEntity<Boolean>(subscriberInfoService.check(member), HttpStatus.OK);
+    }
 
+    @GetMapping("/history")
+    public ResponseEntity<List<SubscriberInfoResponse>> history(@RequestHeader("Authorization") String token) throws Exception {
+        Member member = jwtProvider.getMember(token);
+        return new ResponseEntity<List<SubscriberInfoResponse>>(subscriberInfoService.history(member), HttpStatus.OK);
     }
 }
