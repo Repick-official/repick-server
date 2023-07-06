@@ -8,6 +8,7 @@ import repick.repickserver.domain.order.dao.SellInfoRepository;
 import repick.repickserver.domain.order.domain.Order;
 import repick.repickserver.domain.order.domain.OrderState;
 import repick.repickserver.domain.order.domain.SellInfo;
+import repick.repickserver.domain.order.domain.SellState;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
 
@@ -34,7 +35,6 @@ public class OrderService {
                     .address(request.getAddress())
                     .phoneNumber(request.getPhoneNumber())
                     .requestDetail(request.getRequestDetail())
-                    .orderState(OrderState.SELL_ORDERED)
                     .build();
 
             SellInfo sellInfo = SellInfo.builder()
@@ -44,6 +44,7 @@ public class OrderService {
                     .returnDate(request.getReturnDate())
                     .bankName(request.getBankName())
                     .accountNumber(request.getAccountNumber())
+                    .sellState(SellState.ORDERED)
                     .build();
 
             orderRepository.save(order);

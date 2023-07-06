@@ -41,4 +41,6 @@ public class SellInfo {
     @NotNull
     private String accountNumber;
 
+    private SellState sellState;
+
 }
