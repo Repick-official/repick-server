@@ -22,6 +22,9 @@ public class Order {
     @Id @GeneratedValue
     private Long id;
 
+    // 주문자 이름 (회원 이름과 다를 수 있음에 주의)
+    private String name;
+
     // 주문수량 (ERD에서 orderNumber -> Quantity 이름 변경)
     private Integer Quantity;
 

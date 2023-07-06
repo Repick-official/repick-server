@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class SellOrderRequest {
 
     // info of order
+    private String name;
     @Embedded
     private Address address;
     private String requestDetail;

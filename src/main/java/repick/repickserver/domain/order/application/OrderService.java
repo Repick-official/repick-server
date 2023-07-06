@@ -30,6 +30,7 @@ public class OrderService {
         try {
             Order order = Order.builder()
                     .member(member)
+                    .name(request.getName())
                     .address(request.getAddress())
                     .phoneNumber(request.getPhoneNumber())
                     .requestDetail(request.getRequestDetail())
