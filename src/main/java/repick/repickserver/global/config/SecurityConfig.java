@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .antMatchers("/order/**").hasAuthority("USER")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
                 .antMatchers("/subscribe/add").hasAuthority("ADMIN")
+                .antMatchers("/subscribe/get").hasAuthority("ADMIN")
                 .antMatchers("/subscribe/**").hasAuthority("USER")
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasAuthority("ADMIN")

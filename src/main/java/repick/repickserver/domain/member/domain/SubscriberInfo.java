@@ -23,6 +23,9 @@ public class SubscriberInfo {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Enumerated
+    private SubscribeState subscribeState;
+
     private LocalDateTime expireDate;
 
     @CreatedDate

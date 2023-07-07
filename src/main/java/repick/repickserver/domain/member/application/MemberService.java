@@ -70,7 +70,8 @@ public class MemberService {
     }
 
     // update
-    public boolean update(SignRequest request, Member member) throws Exception {
+    public boolean update(SignRequest request, String token) throws Exception {
+        Member member = jwtProvider.getMemberByRawToken(token);
 
         member.update(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());
 
