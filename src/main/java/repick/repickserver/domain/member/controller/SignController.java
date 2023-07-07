@@ -32,9 +32,8 @@ public class SignController {
     }
 
     @GetMapping(value = "/update")
-    public ResponseEntity<Member> update(@RequestHeader("Authorization") String token) throws Exception {
-        Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<>(member, HttpStatus.OK);
+    public ResponseEntity<Boolean> update(@RequestHeader("Authorization") String token, @RequestBody SignRequest request) throws Exception {
+        return new ResponseEntity<>(memberService.update(request, token), HttpStatus.OK);
     }
 
     @PatchMapping(value = "/update")
