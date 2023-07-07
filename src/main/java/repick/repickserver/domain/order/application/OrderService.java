@@ -10,6 +10,7 @@ import repick.repickserver.domain.order.domain.OrderState;
 import repick.repickserver.domain.order.domain.SellInfo;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
+import repick.repickserver.global.jwt.JwtProvider;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -24,8 +25,10 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final SellInfoRepository sellInfoRepository;
+    private final JwtProvider jwtProvider;
 
-    public boolean postSellOrder(SellOrderRequest request, Member member) throws Exception {
+    public boolean postSellOrder(SellOrderRequest request, String token) throws Exception {
+        Member member = jwtProvider.getMemberByRawToken(token);
 
         try {
             Order order = Order.builder()
@@ -58,7 +61,8 @@ public class OrderService {
 
     }
 
-    public List<SellOrderResponse> getSellOrders(Member member) {
+    public List<SellOrderResponse> getSellOrders(String token) throws Exception {
+        Member member = jwtProvider.getMemberByRawToken(token);
 
         List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
 
