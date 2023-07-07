@@ -31,10 +31,15 @@ public class SignController {
         return new ResponseEntity<>(memberService.register(request), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/update")
+    public ResponseEntity<Member> update(@RequestHeader("Authorization") String token) throws Exception {
+        Member member = jwtProvider.getMember(token);
+        return new ResponseEntity<>(member, HttpStatus.OK);
+    }
+
     @PatchMapping(value = "/update")
     public ResponseEntity<Boolean> update(@RequestBody SignRequest request, @RequestHeader("Authorization") String token) throws Exception {
-        Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<>(memberService.update(request, member), HttpStatus.OK);
+        return new ResponseEntity<>(memberService.update(request, token), HttpStatus.OK);
     }
 
     @GetMapping("/user/get")
