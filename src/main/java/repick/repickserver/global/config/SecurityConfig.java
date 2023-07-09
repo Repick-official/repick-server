@@ -66,6 +66,9 @@ public class SecurityConfig {
                 .antMatchers("/sign/update").hasAuthority("USER")
                 .antMatchers("/order/**").hasAuthority("USER")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
+                // S3 파일 업로드 요청은 모두 승인
+                .antMatchers("/products/register").permitAll()
+                .antMatchers("/s3/**").permitAll()
                 .antMatchers("/subscribe/add").hasAuthority("ADMIN")
                 .antMatchers("/subscribe/get").hasAuthority("ADMIN")
                 .antMatchers("/subscribe/**").hasAuthority("USER")
