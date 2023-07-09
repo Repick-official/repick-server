@@ -69,6 +69,9 @@ public class SecurityConfig {
                 // S3 파일 업로드 요청은 모두 승인
                 .antMatchers("/products/register").permitAll()
                 .antMatchers("/s3/**").permitAll()
+                .antMatchers("/subscribe/add").hasAuthority("ADMIN")
+                .antMatchers("/subscribe/get").hasAuthority("ADMIN")
+                .antMatchers("/subscribe/**").hasAuthority("USER")
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasAuthority("ADMIN")
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용

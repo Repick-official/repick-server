@@ -12,6 +12,8 @@ import repick.repickserver.domain.member.dto.SignRequest;
 import repick.repickserver.domain.member.dto.SignResponse;
 import repick.repickserver.global.jwt.JwtProvider;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/sign")
 @RequiredArgsConstructor
@@ -22,8 +24,8 @@ public class SignController {
     private final JwtProvider jwtProvider;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<SignResponse> signin(@RequestBody SignRequest request) throws Exception {
-        return new ResponseEntity<>(memberService.login(request), HttpStatus.OK);
+    public ResponseEntity<SignResponse> signin(@RequestBody SignRequest request, HttpServletResponse response) throws Exception {
+        return new ResponseEntity<>(memberService.login(request, response), HttpStatus.OK);
     }
 
     @PostMapping(value = "/register")
@@ -31,16 +33,14 @@ public class SignController {
         return new ResponseEntity<>(memberService.register(request), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/update")
-    public ResponseEntity<Member> update(@RequestHeader("Authorization") String token) throws Exception {
-        Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<>(member, HttpStatus.OK);
+    @GetMapping(value = "/userInfo")
+    public ResponseEntity<SignResponse> update(@RequestHeader("Authorization") String token) throws Exception {
+        return new ResponseEntity<>(memberService.userInfo(token), HttpStatus.OK);
     }
 
     @PatchMapping(value = "/update")
     public ResponseEntity<Boolean> update(@RequestBody SignRequest request, @RequestHeader("Authorization") String token) throws Exception {
-        Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<>(memberService.update(request, member), HttpStatus.OK);
+        return new ResponseEntity<>(memberService.update(request, token), HttpStatus.OK);
     }
 
     @GetMapping("/user/get")

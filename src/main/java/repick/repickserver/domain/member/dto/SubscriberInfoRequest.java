@@ -1,15 +1,19 @@
 package repick.repickserver.domain.member.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class SocialUserInfoDto {
-    private Long id;
-    private String nickname;
+@NoArgsConstructor
+public class SubscriberInfoRequest {
+
     private String email;
+    private LocalDateTime expireDate;
 
 }

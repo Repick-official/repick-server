@@ -25,14 +25,12 @@ public class OrderController {
 
     @GetMapping(value = "/sell")
     public ResponseEntity<List<SellOrderResponse>> getSellOrders(@RequestHeader("Authorization") String token) throws Exception {
-        Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<List<SellOrderResponse>>(orderService.getSellOrders(member), HttpStatus.OK);
+        return new ResponseEntity<List<SellOrderResponse>>(orderService.getSellOrders(token), HttpStatus.OK);
     }
 
     @PostMapping(value = "/sell")
     public ResponseEntity<Boolean> postSellOrder(@RequestBody SellOrderRequest request, @RequestHeader("Authorization") String token) throws Exception {
-        Member member = jwtProvider.getMember(token);
-        return new ResponseEntity<>(orderService.postSellOrder(request, member), HttpStatus.OK);
+        return new ResponseEntity<>(orderService.postSellOrder(request, token), HttpStatus.OK);
     }
 
 }
