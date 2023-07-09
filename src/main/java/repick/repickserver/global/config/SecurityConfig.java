@@ -66,6 +66,9 @@ public class SecurityConfig {
                 .antMatchers("/sign/update").hasAuthority("USER")
                 .antMatchers("/order/**").hasAuthority("USER")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
+                // S3 파일 업로드 요청은 모두 승인
+                .antMatchers("/products/register").permitAll()
+                .antMatchers("/s3/**").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasAuthority("ADMIN")
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
