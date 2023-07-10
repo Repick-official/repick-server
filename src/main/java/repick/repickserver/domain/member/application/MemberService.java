@@ -9,10 +9,17 @@ import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.member.dto.SignRequest;
 import repick.repickserver.domain.member.dto.SignResponse;
+import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.UUID;
+
+import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_REGISTER_FAIL;
+import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_NOT_FOUND;
 
 @Service
 @Transactional
@@ -23,7 +30,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public SignResponse login(SignRequest request) throws Exception {
+    public SignResponse login(SignRequest request, HttpServletResponse response) throws Exception {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new BadCredentialsException("잘못된 계정정보입니다."));
 
@@ -31,14 +38,14 @@ public class MemberService {
             throw new BadCredentialsException("잘못된 계정정보입니다.");
         }
 
+        response.addCookie(new Cookie("accessToken", jwtProvider.createAccessToken(new UserDetailsImpl(member))));
+        response.addCookie(new Cookie("refreshToken", jwtProvider.createAccessToken(new UserDetailsImpl(member))));
+
         return SignResponse.builder()
-                .id(member.getId())
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
-                .accessToken(jwtProvider.createAccessToken(new UserDetailsImpl(member)))
-                .refreshToken(jwtProvider.createRefreshToken(new UserDetailsImpl(member)))
                 .build();
 
     }
@@ -46,6 +53,7 @@ public class MemberService {
     public boolean register(SignRequest request) throws Exception {
         try {
             Member member = Member.builder()
+                    .userId(UUID.randomUUID().toString())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .name(request.getName())
                     .nickname(request.getNickname())
@@ -58,15 +66,34 @@ public class MemberService {
             memberRepository.save(member);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new Exception("잘못된 요청입니다.");
+            throw new CustomException(MEMBER_REGISTER_FAIL);
         }
         return true;
     }
 
-    public SignResponse getMember(String email) throws Exception {
+    public SignResponse getMember(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
-        return new SignResponse(member);
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        return SignResponse.builder()
+                .name(member.getName())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .role(member.getRole())
+                .phoneNumber(member.getPhoneNumber())
+                .address(member.getAddress())
+                .build();
+    }
+
+    public SignResponse userInfo(String token) throws Exception {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        return SignResponse.builder()
+                .name(member.getName())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .role(member.getRole())
+                .address(member.getAddress())
+                .phoneNumber(member.getPhoneNumber())
+                .build();
     }
 
     // update
@@ -79,4 +106,6 @@ public class MemberService {
 
         return true;
     }
+
+
 }

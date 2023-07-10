@@ -15,12 +15,15 @@ import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.global.config.JwtProperties;
+import repick.repickserver.global.error.exception.CustomException;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+
+import static repick.repickserver.global.error.exception.ErrorCode.TOKEN_MEMBER_NO_MATCH;
 
 @RequiredArgsConstructor
 @Component
@@ -41,17 +44,17 @@ public class JwtProvider {
 
     // access 토큰 생성
     public String createAccessToken(UserDetailsImpl userDetailsImpl) {
-        return createToken(userDetailsImpl.getUser().getEmail(), userDetailsImpl.getUser().getRole(), jwtProperties.getAccessTokenExpirationTime());
+        return createToken(userDetailsImpl.getUser().getUserId(), userDetailsImpl.getUser().getRole(), jwtProperties.getAccessTokenExpirationTime());
     }
 
     // refresh 토큰 생성
     public String createRefreshToken(UserDetailsImpl userDetailsImpl) {
-        return createToken(userDetailsImpl.getUser().getEmail(), userDetailsImpl.getUser().getRole(), jwtProperties.getRefreshTokenExpirationTime());
+        return createToken(userDetailsImpl.getUser().getUserId(), userDetailsImpl.getUser().getRole(), jwtProperties.getRefreshTokenExpirationTime());
     }
 
     // 토큰 생성
-    private String createToken(String email, Role role, Long expirationTime) {
-        Claims claims = Jwts.claims().setSubject(email);
+    private String createToken(String userId, Role role, Long expirationTime) {
+        Claims claims = Jwts.claims().setSubject(userId);
         claims.put("role", role);
         Date now = new Date();
         return Jwts.builder()
@@ -65,12 +68,12 @@ public class JwtProvider {
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getEmail(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    // 토큰에 담겨있는 유저 email 획득
-    public String getEmail(String token) {
+    // 토큰에 담겨있는 유저 userId 획득
+    public String getUserId(String token) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
@@ -81,9 +84,9 @@ public class JwtProvider {
     public Member getMemberByRawToken(String token) throws Exception {
         // 토큰으로부터 이메일을 얻음
         token = token.split(" ")[1].trim();
-        String email = getEmail(token);
+        String userId = getUserId(token);
         // 이메일로 멤버 인스턴스를 얻음
-        return memberRepository.findByEmail(email).orElseThrow(Exception::new);
+        return memberRepository.findByUserId(userId).orElseThrow(() -> new CustomException(TOKEN_MEMBER_NO_MATCH));
     }
 
     // Authorization Header를 통해 인증을 한다.

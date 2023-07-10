@@ -11,13 +11,15 @@ import repick.repickserver.domain.order.domain.SellInfo;
 import repick.repickserver.domain.order.domain.SellState;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
+import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static repick.repickserver.global.error.exception.ErrorCode.ORDER_FAIL;
 
 @Service
 @Transactional
@@ -56,7 +58,7 @@ public class OrderService {
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new Exception("주문 등록에 실패했습니다.");
+            throw new CustomException(ORDER_FAIL);
         }
 
 

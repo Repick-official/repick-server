@@ -1,3 +1,5 @@
 spring:
     profiles:
-        include: database
+        include:
+        - database
+        - aws

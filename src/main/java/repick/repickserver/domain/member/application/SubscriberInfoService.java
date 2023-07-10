@@ -35,10 +35,15 @@ public class SubscriberInfoService {
 
         return subscriberInfoRepositoryAll.stream()
                 .anyMatch(subscriberInfo ->
-            subscriberInfo.getMember().equals(member) &&
-            subscriberInfo.getExpireDate().isAfter(LocalDateTime.now()) &&
-            subscriberInfo.getSubscribeState().equals(SubscribeState.APPROVED)
-            );
+                // member 가 일치
+                subscriberInfo.getMember().equals(member) &&
+                // 승인됨
+                subscriberInfo.getSubscribeState().equals(SubscribeState.APPROVED) &&
+                // expireDate 가 null 인 경우(deny 됨) 제외 (사실 필요없으나 assert 하는것임)
+                subscriberInfo.getExpireDate() != null &&
+                // 만료되지 않음
+                subscriberInfo.getExpireDate().isAfter(LocalDateTime.now())
+        );
 
     }
 
@@ -46,14 +51,15 @@ public class SubscriberInfoService {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
 
-        List<SubscriberInfo> subscriberInfoRepositoryAll = subscriberInfoRepository.findAll();
-
-        Stream<SubscriberInfo> subscriberInfoStream = subscriberInfoRepositoryAll
+        // 모든 subscriberInfo 중 멤버가 일치하는것만 필터링
+        Stream<SubscriberInfo> subscriberInfoStream = subscriberInfoRepository.findAll()
                 .stream().filter(subscriberInfo -> subscriberInfo.getMember().equals(member));
 
+
         subscriberInfoStream.forEach(subscriberInfo -> {
+            // 각각을 반환 dto 에 담음
             subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                    .createdAt(subscriberInfo.getCreatedAt())
+                    .createdDate(subscriberInfo.getCreatedDate())
                     .expireDate(subscriberInfo.getExpireDate())
                     .subscribeState(subscriberInfo.getSubscribeState())
                     .build());
@@ -67,7 +73,8 @@ public class SubscriberInfoService {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(member)
-                .expireDate(request.getExpireDate())
+                // 승인 시점으로부터 한 달 뒤 만료
+                .expireDate(LocalDateTime.now().plusMonths(1))
                 .subscribeState(SubscribeState.APPROVED)
                 .build();
 
@@ -77,11 +84,11 @@ public class SubscriberInfoService {
 
     }
 
-    public Boolean deny(SubscriberInfoRequest request) throws Exception {
+    public Boolean deny(SubscriberInfoRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(member)
-                .expireDate(request.getExpireDate())
+                // deny 된 경우 expireDate 는 null
                 .subscribeState(SubscribeState.DENIED)
                 .build();
 

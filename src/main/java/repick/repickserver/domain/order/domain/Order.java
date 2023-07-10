@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 import repick.repickserver.domain.member.domain.Address;
 import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 @Table(name = "orders")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order {
+public class Order extends BaseTimeEntity {
 
     @Id @GeneratedValue
     private Long id;
@@ -51,12 +52,12 @@ public class Order {
     @ManyToOne
     private Member member;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    // updatedAt : 주문상태 업데이트 추적하기 위해 넣었음
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    // BaseTimeEntity 사용
+    //    @CreatedDate
+    //    private LocalDateTime createdAt;
+    //
+    //    @LastModifiedDate
+    //    private LocalDateTime updatedAt;
 
 
 }

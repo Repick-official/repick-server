@@ -4,24 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder @AllArgsConstructor @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
+    private String userId;
 
     @Column(unique = true)
     private String email;
@@ -40,11 +39,12 @@ public class Member {
 
     private String phoneNumber;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    // BaseTimeEntity 사용
+    //    @CreatedDate
+    //    private LocalDateTime createdAt;
+    //
+    //    @LastModifiedDate
+    //    private LocalDateTime updatedAt;
 
     public void update(String email, String password, String nickname, String name, String phoneNumber, Address address) {
         this.email = email;

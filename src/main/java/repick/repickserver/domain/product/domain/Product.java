@@ -1,29 +1,38 @@
 package repick.repickserver.domain.product.domain;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import lombok.*;
+import repick.repickserver.domain.model.BaseTimeEntity;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Product {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class Product extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String name;
 
     private String detail;
 
-    private Integer price;
+    @NotNull
+    private Long price;
 
     private String size;
 
-    // TODO: Long / Integer 중 뭐하지
     private Long discountRate;
 
+    @Builder
+    public Product(String name, String detail, Long price, String size, Long discountRate) {
+        this.name = name;
+        this.detail = detail;
+        this.price = price;
+        this.size = size;
+        this.discountRate = discountRate;
+    }
 
 }

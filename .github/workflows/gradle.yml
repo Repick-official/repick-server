@@ -69,6 +69,19 @@ jobs:
           echo "${{ secrets.DATABASE }}" >> ./application-database.yaml
         shell: bash
 
+      ## create application-aws.yaml
+      - name: make application-aws.yaml
+        run: |
+          ## create application-aws.yaml
+          cd ./src/main/resources
+
+          # application-aws.yaml 파일 생성
+          touch ./application-aws.yaml
+
+          # GitHub-Actions 에서 설정한 값을 application-aws.yaml 파일에 쓰기
+          echo "${{ secrets.AMAZON_S3 }}" >> ./application-aws.yaml
+        shell: bash
+
       ## gradle build
       - name: Build with Gradle
         run: ./gradlew bootJar

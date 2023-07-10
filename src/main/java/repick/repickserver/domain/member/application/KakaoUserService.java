@@ -126,9 +126,10 @@ public class KakaoUserService {
     // 3. 카카오ID로 회원가입 처리
     private Member registerKakaoUserIfNeed (SocialUserInfoDto kakaoUserInfo) {
         // DB 에 중복된 email이 있는지 확인
+        String userId = kakaoUserInfo.getId().toString();
         String kakaoEmail = kakaoUserInfo.getEmail();
         String nickname = kakaoUserInfo.getNickname();
-        Member kakaoUser = memberRepository.findByEmail(kakaoEmail)
+        Member kakaoUser = memberRepository.findByUserId(userId)
                 .orElse(null);
 
         if (kakaoUser == null) {
@@ -140,6 +141,7 @@ public class KakaoUserService {
             String profile = "https://ossack.s3.ap-northeast-2.amazonaws.com/basicprofile.png";
 
             kakaoUser = Member.builder()
+                    .userId(userId)
                     .email(kakaoEmail)
                     .nickname(nickname)
                     .password(encodedPassword)

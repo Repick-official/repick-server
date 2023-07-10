@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder @AllArgsConstructor @NoArgsConstructor
 public class SubscriberInfoResponse {
     private LocalDateTime expireDate;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
     private SubscribeState subscribeState;
 
 }
