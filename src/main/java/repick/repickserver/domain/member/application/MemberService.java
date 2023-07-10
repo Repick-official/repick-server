@@ -9,6 +9,7 @@ import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.member.dto.SignRequest;
 import repick.repickserver.domain.member.dto.SignResponse;
+import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
 
@@ -16,6 +17,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.UUID;
+
+import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_REGISTER_FAIL;
+import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_NOT_FOUND;
 
 @Service
 @Transactional
@@ -62,14 +66,14 @@ public class MemberService {
             memberRepository.save(member);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new Exception("잘못된 요청입니다.");
+            throw new CustomException(MEMBER_REGISTER_FAIL);
         }
         return true;
     }
 
-    public SignResponse getMember(String email) throws Exception {
+    public SignResponse getMember(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         return SignResponse.builder()
                 .name(member.getName())
                 .email(member.getEmail())

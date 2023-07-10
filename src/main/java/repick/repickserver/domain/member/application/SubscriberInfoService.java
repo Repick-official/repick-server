@@ -84,7 +84,7 @@ public class SubscriberInfoService {
 
     }
 
-    public Boolean deny(SubscriberInfoRequest request) throws Exception {
+    public Boolean deny(SubscriberInfoRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(member)

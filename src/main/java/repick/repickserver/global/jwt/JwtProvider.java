@@ -15,12 +15,15 @@ import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.global.config.JwtProperties;
+import repick.repickserver.global.error.exception.CustomException;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+
+import static repick.repickserver.global.error.exception.ErrorCode.TOKEN_MEMBER_NO_MATCH;
 
 @RequiredArgsConstructor
 @Component
@@ -83,7 +86,7 @@ public class JwtProvider {
         token = token.split(" ")[1].trim();
         String userId = getUserId(token);
         // 이메일로 멤버 인스턴스를 얻음
-        return memberRepository.findByUserId(userId).orElseThrow(Exception::new);
+        return memberRepository.findByUserId(userId).orElseThrow(() -> new CustomException(TOKEN_MEMBER_NO_MATCH));
     }
 
     // Authorization Header를 통해 인증을 한다.
