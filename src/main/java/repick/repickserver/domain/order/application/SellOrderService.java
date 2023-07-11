@@ -26,6 +26,14 @@ public class SellOrderService {
     private final SellOrderRepository sellOrderRepository;
     private final JwtProvider jwtProvider;
 
+    /**
+     * 판매 수거 요청
+     * @param request (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate)
+     * @param token (accessToken)
+     * @return true
+     * @throws Exception (ORDER_FAIL)
+     * @author seochanhyeok
+     */
     public boolean postSellOrder(SellOrderRequest request, String token) throws Exception {
         Member member = jwtProvider.getMemberByRawToken(token);
 
@@ -55,14 +63,18 @@ public class SellOrderService {
 
     }
 
+    /**
+     * 판매 요청 조회
+     * @param state (requested | canceled | delivered | published)
+     * @param token (accessToken)
+     * @return List<SellOrderResponse> (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
+     * @throws Exception (PATH_NOT_RESOLVED)
+     * @author seochanhyeok
+     */
     public List<SellOrderResponse> getSellOrders(String state, String token) throws Exception {
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        System.out.println("member = " + member.toString());
-        System.out.println("state = " + state);
-
         SellState reqState;
-
         switch (state) {
             case "requested":
                 reqState = SellState.REQUESTED;
