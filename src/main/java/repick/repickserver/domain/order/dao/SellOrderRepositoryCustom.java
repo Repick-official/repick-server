@@ -8,4 +8,6 @@ import java.util.List;
 public interface SellOrderRepositoryCustom {
 
     List<SellOrder> getSellOrders(Long id, SellState state);
+
+    List<SellOrder> getRequestedSellOrders();
 }

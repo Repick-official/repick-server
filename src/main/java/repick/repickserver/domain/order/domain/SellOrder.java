@@ -21,6 +21,12 @@ public class SellOrder extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long id;
 
+    /*
+    * 주문 번호
+    * 업데이트 시 주문 번호 추적하기 위함
+     */
+    private Long orderId;
+
     @NotNull
     private String name;
 

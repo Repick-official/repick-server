@@ -27,4 +27,12 @@ public class SellOrderRepositoryImpl implements SellOrderRepositoryCustom {
             .and(sellOrder.sellState.eq(state)))
             .fetch();
     }
+
+    @Override
+    public List<SellOrder> getRequestedSellOrders() {
+        return jpaQueryFactory
+            .selectFrom(sellOrder)
+            .where(sellOrder.sellState.eq(SellState.REQUESTED))
+            .fetch();
+    }
 }

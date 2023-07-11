@@ -44,6 +44,8 @@ public class QSellOrder extends EntityPathBase<SellOrder> {
 
     public final StringPath name = createString("name");
 
+    public final NumberPath<Long> orderId = createNumber("orderId", Long.class);
+
     public final StringPath phoneNumber = createString("phoneNumber");
 
     public final NumberPath<Integer> productQuantity = createNumber("productQuantity", Integer.class);

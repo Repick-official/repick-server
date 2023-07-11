@@ -14,9 +14,9 @@ import repick.repickserver.global.jwt.JwtProvider;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static repick.repickserver.global.error.exception.ErrorCode.ORDER_FAIL;
-import static repick.repickserver.global.error.exception.ErrorCode.PATH_NOT_RESOLVED;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
 @Transactional
@@ -112,5 +112,67 @@ public class SellOrderService {
         return sellOrderResponses;
 
 
+    }
+
+    /**
+     * 관리자가 모든 REQUESTED 상태의 판매 요청 조회함
+     * @return List<SellOrderResponse> (id, name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
+     * @author seochanhyeok
+     */
+    public List<SellOrderResponse> getRequestedSellOrders() {
+        List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
+        List<SellOrder> sellOrders = sellOrderRepository.getRequestedSellOrders();
+        sellOrders.forEach(sellOrder ->
+                sellOrderResponses.add(
+                        SellOrderResponse.builder()
+                                .id(sellOrder.getId())
+                                .name(sellOrder.getName())
+                                .phoneNumber(sellOrder.getPhoneNumber())
+                                .bankName(sellOrder.getBankName())
+                                .accountNumber(sellOrder.getAccountNumber())
+                                .bagQuantity(sellOrder.getBagQuantity())
+                                .productQuantity(sellOrder.getProductQuantity())
+                                .address(sellOrder.getAddress())
+                                .requestDetail(sellOrder.getRequestDetail())
+                                .returnDate(sellOrder.getReturnDate())
+                                .sellState(sellOrder.getSellState())
+                                .build())
+        );
+
+        return sellOrderResponses;
+    }
+
+    /**
+     * 관리자가 판매 요청을 업데이트함
+     * @param request (id, sellState)
+     * @return SellOrder (orderId, name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
+     * @exception CustomException id에 해당하는 order를 조회하지 못할 경우 ORDER_NOT_FOUND "판매 요청을 찾을 수 없음" 에러 발생
+     * @author seochanhyeok
+     */
+    public SellOrder updateSellOrder(SellOrderRequest request) {
+        // request에서 id를 받아서 해당 id의 sellOrder를 찾음
+        SellOrder foundOrder = sellOrderRepository.findById(request.getId())
+                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+
+
+        // request에서 받은 state로 sellOrder를 업데이트
+        SellOrder sellOrder = SellOrder.builder()
+                .orderId(foundOrder.getId())
+                .name(foundOrder.getName())
+                .phoneNumber(foundOrder.getPhoneNumber())
+                .bankName(foundOrder.getBankName())
+                .accountNumber(foundOrder.getAccountNumber())
+                .bagQuantity(foundOrder.getBagQuantity())
+                .productQuantity(foundOrder.getProductQuantity())
+                .address(foundOrder.getAddress())
+                .requestDetail(foundOrder.getRequestDetail())
+                .returnDate(foundOrder.getReturnDate())
+                .sellState(request.getSellState())
+                .member(foundOrder.getMember())
+                .build();
+
+        sellOrderRepository.save(sellOrder);
+
+        return sellOrder;
     }
 }
