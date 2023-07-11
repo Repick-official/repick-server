@@ -79,7 +79,7 @@ public class KakaoUserService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", oauthProperties.getClientId());
-        body.add("redirect_uri", "http://localhost:9000/oauth/kakao");
+        body.add("redirect_uri", "http://localhost:3000/login/kakaoLogin");
         body.add("client_secret", oauthProperties.getClientSecret());
         body.add("code", code);
 
