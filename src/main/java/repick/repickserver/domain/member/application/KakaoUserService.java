@@ -3,6 +3,8 @@ package repick.repickserver.domain.member.application;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,14 +39,20 @@ public class KakaoUserService {
     private final JwtProvider jwtProvider;
     private final OauthProperties oauthProperties;
 
+    /**
+     * 카카오 로그인
+     * @param code 카카오 로그인 요청 시 발급받은 인가 코드
+     * @param response JWT 토큰을 response Header에 추가하기 위해 사용
+     * @return SocialUserInfoDto id, nickname, email(선택)
+     * @throws JsonProcessingException JSON 파싱 오류
+     * @author seochanhyeok
+     */
     public SocialUserInfoDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code);
 
         // 2. 토큰으로 카카오 API 호출
         SocialUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
-
-        System.out.println("kakaoUserInfo = " + kakaoUserInfo.toString());
 
         // 3. 카카오ID로 회원가입 처리
         Member kakaoUser = registerKakaoUserIfNeed(kakaoUserInfo);
@@ -57,7 +65,13 @@ public class KakaoUserService {
         return kakaoUserInfo;
     }
 
-    // 1. "인가 코드"로 "액세스 토큰" 요청
+    /**
+     * 카카오 API 호출 시 사용하는 액세스 토큰 발급
+     * @param code 카카오 로그인 요청 시 발급받은 인가 코드
+     * @return accessToken
+     * @throws JsonProcessingException JSON 파싱 오류
+     * @author seochanhyeok
+     */
     private String getAccessToken(String code) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -71,8 +85,6 @@ public class KakaoUserService {
         body.add("client_secret", oauthProperties.getClientSecret());
         body.add("code", code);
 
-        System.out.println("body = " + body.toString());
-
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
         RestTemplate rt = new RestTemplate();
@@ -83,8 +95,6 @@ public class KakaoUserService {
                 String.class
         );
 
-        System.out.println("response = " + response.toString());
-
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -92,7 +102,13 @@ public class KakaoUserService {
         return jsonNode.get("access_token").asText();
     }
 
-    // 2. 토큰으로 카카오 API 호출
+    /**
+     * 카카오 API 호출 시 사용하는 액세스 토큰으로 카카오 사용자 정보 가져오기
+     * @param accessToken 카카오 API 호출 시 사용하는 액세스 토큰
+     * @return SocialUserInfoDto id, nickname, email(선택)
+     * @throws JsonProcessingException JSON 파싱 오류
+     * @author seochanhyeok
+     */
     private SocialUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -123,7 +139,15 @@ public class KakaoUserService {
     }
 
 
-    // 3. 카카오ID로 회원가입 처리
+    /**
+     * 카카오 ID로 회원가입 처리
+     * @param kakaoUserInfo 카카오 사용자 정보
+     * @return Member
+     * @apiNote
+     * 1. DB에 중복된 email이 있는지 확인하고 없으면 회원가입 처리
+     * 2. userId는 카카오 ID를 넣음
+     * @author seochanhyeok
+     */
     private Member registerKakaoUserIfNeed (SocialUserInfoDto kakaoUserInfo) {
         // DB 에 중복된 email이 있는지 확인
         String userId = kakaoUserInfo.getId().toString();
@@ -137,8 +161,6 @@ public class KakaoUserService {
             // password: random UUID
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
-
-            String profile = "https://ossack.s3.ap-northeast-2.amazonaws.com/basicprofile.png";
 
             kakaoUser = Member.builder()
                     .userId(userId)
@@ -155,7 +177,12 @@ public class KakaoUserService {
         return kakaoUser;
     }
 
-    // 4. 강제 로그인 처리
+    /**
+     * 강제 로그인 처리
+     * @param kakaoUser 카카오 사용자 정보
+     * @return Authentication
+     * @author seochanhyeok
+     */
     private Authentication forceLogin(Member kakaoUser) {
         UserDetails userDetails = new UserDetailsImpl(kakaoUser);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -163,7 +190,12 @@ public class KakaoUserService {
         return authentication;
     }
 
-    // 5. response 쿠키에 JWT 토큰 추가
+    /**
+     * response Header에 JWT 토큰 추가
+     * @param authentication 강제 로그인 처리된 Authentication
+     * @param response HttpServletResponse
+     * @author seochanhyeok
+     */
     private void kakaoUsersAuthorizationInput(Authentication authentication, HttpServletResponse response) {
         UserDetailsImpl userDetailsImpl = ((UserDetailsImpl) authentication.getPrincipal());
         response.addCookie(new Cookie("accessToken", jwtProvider.createAccessToken(userDetailsImpl)));

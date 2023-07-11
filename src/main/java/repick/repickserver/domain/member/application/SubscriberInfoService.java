@@ -29,6 +29,12 @@ public class SubscriberInfoService {
     private final JwtProvider jwtProvider;
 
 
+    /**
+     * 토큰으로 요청한 사용자가 현재 구독중인지 판별한다.
+     * @param token 토큰으로 사용자를 찾음
+     * @return 구독중이면 true, 아니면 false
+     * @author seochanhyeok
+     */
     public Boolean check(String token) throws Exception {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<SubscriberInfo> subscriberInfoRepositoryAll = subscriberInfoRepository.findAll();
@@ -47,6 +53,12 @@ public class SubscriberInfoService {
 
     }
 
+    /**
+     * 요청한 사용자의 구독 기록을 모두 반환한다.
+     * @param token 토큰으로 사용자를 찾음
+     * @return List<SubscriberInfoResponse> 구독 기록 리스트
+     * @author seochanhyeok
+     */
     public List<SubscriberInfoResponse> history(String token) throws Exception {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
@@ -69,7 +81,13 @@ public class SubscriberInfoService {
 
     }
 
-    public Boolean add(SubscriberInfoRequest request) throws Exception {
+    /**
+     * 관리자가 사용자의 구독을 승인한다: APPROVED 상태의 subscriberInfo 추가
+     * @param request request.email 사용, 사용자의 이메일로 사용자를 찾음
+     * @return true
+     * @author seochanhyeok
+     */
+    public Boolean add(SubscriberInfoRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(member)
@@ -84,6 +102,12 @@ public class SubscriberInfoService {
 
     }
 
+    /**
+     * 관리자가 사용자의 구독을 거절한다: DENIED 상태의 subscriberInfo 추가
+     * @param request request.email 사용, 사용자의 이메일로 사용자를 찾음
+     * @return 구독중이면 true, 아니면 false
+     * @author seochanhyeok
+     */
     public Boolean deny(SubscriberInfoRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
@@ -98,6 +122,12 @@ public class SubscriberInfoService {
 
     }
 
+    /**
+     * 사용자가 구독을 요청한다: REQUESTED 상태의 subscriberInfo 추가
+     * @param token 토큰으로 사용자를 찾음
+     * @return false(결제로직 미정으로 false 처리해두었음)
+     * @author seochanhyeok
+     */
     public Boolean subscribeRequest(String token) throws Exception {
         // TODO: 결제로직 미정!!! 수정 필요
         Member member = jwtProvider.getMemberByRawToken(token);

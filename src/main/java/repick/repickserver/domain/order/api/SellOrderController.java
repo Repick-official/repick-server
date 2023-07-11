@@ -1,15 +1,13 @@
-package repick.repickserver.domain.order.controller;
+package repick.repickserver.domain.order.api;
 
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.order.application.SellOrderService;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
-import repick.repickserver.global.jwt.JwtProvider;
 
 import java.util.List;
 
@@ -18,16 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SellOrderController {
 
-    private final SellOrderService orderService;
+    private final SellOrderService sellOrderService;
 
     @GetMapping(value = "/sell/{state}")
     public ResponseEntity<List<SellOrderResponse>> getSellOrders(@PathVariable("state") String state, @RequestHeader("Authorization") String token) throws Exception {
-        return new ResponseEntity<>(orderService.getSellOrders(state, token), HttpStatus.OK);
+        return new ResponseEntity<>(sellOrderService.getSellOrders(state, token), HttpStatus.OK);
     }
 
     @PostMapping(value = "/sell")
     public ResponseEntity<Boolean> postSellOrder(@RequestBody SellOrderRequest request, @RequestHeader("Authorization") String token) throws Exception {
-        return new ResponseEntity<>(orderService.postSellOrder(request, token), HttpStatus.OK);
+        return new ResponseEntity<>(sellOrderService.postSellOrder(request, token), HttpStatus.OK);
     }
 
 }

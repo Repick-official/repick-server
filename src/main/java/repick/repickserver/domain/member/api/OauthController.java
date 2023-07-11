@@ -1,4 +1,4 @@
-package repick.repickserver.domain.member.controller;
+package repick.repickserver.domain.member.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
