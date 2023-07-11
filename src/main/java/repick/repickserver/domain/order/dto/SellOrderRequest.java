@@ -9,18 +9,15 @@ import java.time.LocalDateTime;
 @Getter
 public class SellOrderRequest {
 
-    // info of order
     private String name;
+    private String phoneNumber;
+    private String bankName;
+    private String accountNumber;
+    private Integer bagQuantity;
+    private Integer productQuantity;
     @Embedded
     private Address address;
     private String requestDetail;
-    private String phoneNumber;
-
-    // info of sell order
-    private Integer bagQuantity;
-    private Integer productQuantity;
     private LocalDateTime returnDate;
-    private String bankName;
-    private String accountNumber;
 
 }

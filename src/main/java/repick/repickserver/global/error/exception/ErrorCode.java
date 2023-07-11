@@ -21,6 +21,7 @@ public enum ErrorCode {
 
     // Order
     ORDER_FAIL(400, "O001", "주문에 실패했습니다."),
+    PATH_NOT_RESOLVED(400, "O002", "경로를 찾을 수 없습니다."),
 
     // Product
     IMAGE_FILE_MISSING(400, "P001", "상품의 사진 파일을 입력해주세요."),
