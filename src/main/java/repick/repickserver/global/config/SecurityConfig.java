@@ -39,7 +39,8 @@ public class SecurityConfig {
                 // ID, Password 문자열을 Base64로 인코딩하여 전달하는 구조
                 .httpBasic().disable()
                 // 쿠키 기반이 아닌 JWT 기반이므로 사용하지 않음
-                .csrf().disable();
+                .csrf().disable()
+                .cors();
                 // Spring Security 세션 정책 : 세션을 생성 및 사용하지 않음
                 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 // 조건별로 요청 허용/제한 설정
