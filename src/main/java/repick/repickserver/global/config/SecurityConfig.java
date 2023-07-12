@@ -32,34 +32,18 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 // ID, Password 문자열을 Base64로 인코딩하여 전달하는 구조
                 .httpBasic().disable()
                 // 쿠키 기반이 아닌 JWT 기반이므로 사용하지 않음
-                .csrf().disable()
-                // CORS 설정
-                .cors(c -> {
-                            CorsConfigurationSource source = request -> {
-                                // Cors 허용 패턴
-                                CorsConfiguration config = new CorsConfiguration();
-                                config.setAllowedOrigins(
-                                        List.of("*")
-                                );
-                                config.setAllowedMethods(
-                                        List.of("*")
-                                );
-                                return config;
-                            };
-                            c.configurationSource(source);
-                        }
-                )
+                .csrf().disable();
                 // Spring Security 세션 정책 : 세션을 생성 및 사용하지 않음
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 // 조건별로 요청 허용/제한 설정
-                .authorizeRequests()
+                http.authorizeRequests()
                 // 회원가입과 로그인은 모두 승인
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/sign/register", "/sign/login").permitAll()
@@ -106,4 +90,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
 }
