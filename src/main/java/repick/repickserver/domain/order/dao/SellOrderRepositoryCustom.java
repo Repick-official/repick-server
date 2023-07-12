@@ -9,5 +9,5 @@ public interface SellOrderRepositoryCustom {
 
     List<SellOrder> getSellOrders(Long id, SellState state);
 
-    List<SellOrder> getRequestedSellOrders();
+    List<SellOrder> getSellOrdersAdmin(SellState state);
 }

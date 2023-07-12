@@ -24,15 +24,18 @@ public class SellOrderRepositoryImpl implements SellOrderRepositoryCustom {
         return jpaQueryFactory
             .selectFrom(sellOrder)
             .where(sellOrder.member.id.eq(id)
-            .and(sellOrder.sellState.eq(state)))
+            .and(sellOrder.sellState.eq(state))
+            .and(sellOrder.childSellOrders.isEmpty()))
             .fetch();
     }
 
     @Override
-    public List<SellOrder> getRequestedSellOrders() {
+    public List<SellOrder> getSellOrdersAdmin(SellState state) {
         return jpaQueryFactory
             .selectFrom(sellOrder)
-            .where(sellOrder.sellState.eq(SellState.REQUESTED))
+            // REQUESTED 상태인 판매 주문이고, childSellOrders가 비어있는 판매 주문만 조회
+            .where(sellOrder.sellState.eq(state)
+            .and(sellOrder.childSellOrders.isEmpty()))
             .fetch();
     }
 }

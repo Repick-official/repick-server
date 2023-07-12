@@ -1,5 +1,7 @@
 package repick.repickserver.domain.order.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import repick.repickserver.domain.model.BaseTimeEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -22,10 +25,19 @@ public class SellOrder extends BaseTimeEntity {
     private Long id;
 
     /*
-    * 주문 번호
-    * 업데이트 시 주문 번호 추적하기 위함
+    * 판매 주문의 부모 주문 : REQUESTED 상태의 주문을 가리킨다.
+    * 판매 주문의 부모 주문이 존재한다는 것은 판매 주문이 취소되었거나, 판매 진행중이라는 것을 의미한다.
      */
-    private Long orderId;
+    @ManyToOne @JoinColumn(name = "parent_sell_order_id")
+    @JsonManagedReference
+    private SellOrder parentSellOrder;
+
+    /*
+    * 판매 주문의 자식 주문 : CANCELED, DELIVERED, PUBLISHED 상태의 주문들을 가리킨다.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSellOrder", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<SellOrder> childSellOrders;
 
     @NotNull
     private String name;
