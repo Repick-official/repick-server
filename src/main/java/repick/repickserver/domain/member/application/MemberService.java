@@ -65,6 +65,7 @@ public class MemberService {
      * 회원가입
      * @param request (email, password, name, nickname, phoneNumber, address)
      * @return true
+     * @exception CustomException (MEMBER_REGISTER_FAIL)
      * @apiNote
      * 1. 멤버를 생성 후 저장한다.
      * 2. 저장에 실패하면 에러를 던진다.
@@ -97,6 +98,7 @@ public class MemberService {
      * 멤버 조회
      * @param email (email)
      * @return SignResponse (name, email, nickname, role, phoneNumber, address)
+     * @exception CustomException (MEMBER_NOT_FOUND)
      * @apiNote
      * 1. 이메일로 멤버를 찾는다.
      * 2. 멤버가 없으면 에러를 던진다.
@@ -120,7 +122,7 @@ public class MemberService {
      * 멤버 조회
      * @param token (accessToken)
      * @return SignResponse (name, email, nickname, role, phoneNumber, address)
-     * @throws Exception (토큰에 해당하는 멤버의 userId를 찾을 수 없을 때)
+     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @apiNote
      * 1. 토큰으로 멤버를 찾는다.
      * 2. 멤버가 없으면 에러를 던진다.
@@ -128,7 +130,7 @@ public class MemberService {
      * 4. 토큰이 만료되었으면 에러를 던진다.
      * @author seochanhyeok
      */
-    public SignResponse userInfo(String token) throws Exception {
+    public SignResponse userInfo(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
         return SignResponse.builder()
                 .name(member.getName())
@@ -145,7 +147,7 @@ public class MemberService {
      * @param request (email, password, name, nickname, phoneNumber, address)
      * @param token (accessToken)
      * @return true
-     * @throws Exception (토큰에 해당하는 멤버의 userId를 찾을 수 없을 때)
+     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @apiNote
      * 1. 토큰으로 멤버를 찾는다.
      * 2. 멤버가 없으면 에러를 던진다.
@@ -153,7 +155,7 @@ public class MemberService {
      * 4. 수정에 성공하면 true를 반환한다.
      * @author seochanhyeok
      */
-    public boolean update(SignRequest request, String token) throws Exception {
+    public boolean update(SignRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         member.update(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());

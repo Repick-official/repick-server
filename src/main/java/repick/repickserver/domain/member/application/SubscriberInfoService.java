@@ -10,6 +10,7 @@ import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
+import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 
 import javax.transaction.Transactional;
@@ -33,9 +34,10 @@ public class SubscriberInfoService {
      * 토큰으로 요청한 사용자가 현재 구독중인지 판별한다.
      * @param token 토큰으로 사용자를 찾음
      * @return 구독중이면 true, 아니면 false
+     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public Boolean check(String token) throws Exception {
+    public Boolean check(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<SubscriberInfo> subscriberInfoRepositoryAll = subscriberInfoRepository.findAll();
 
@@ -57,9 +59,10 @@ public class SubscriberInfoService {
      * 요청한 사용자의 구독 기록을 모두 반환한다.
      * @param token 토큰으로 사용자를 찾음
      * @return List<SubscriberInfoResponse> 구독 기록 리스트
+     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public List<SubscriberInfoResponse> history(String token) throws Exception {
+    public List<SubscriberInfoResponse> history(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
 
@@ -126,9 +129,10 @@ public class SubscriberInfoService {
      * 사용자가 구독을 요청한다: REQUESTED 상태의 subscriberInfo 추가
      * @param token 토큰으로 사용자를 찾음
      * @return false(결제로직 미정으로 false 처리해두었음)
+     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public Boolean subscribeRequest(String token) throws Exception {
+    public Boolean subscribeRequest(String token) {
         // TODO: 결제로직 미정!!! 수정 필요
         Member member = jwtProvider.getMemberByRawToken(token);
 

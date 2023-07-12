@@ -14,7 +14,6 @@ import repick.repickserver.global.jwt.JwtProvider;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -31,10 +30,10 @@ public class SellOrderService {
      * @param request (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate)
      * @param token (accessToken)
      * @return true
-     * @throws Exception (ORDER_FAIL)
+     * @exception CustomException (ORDER_FAIL) 주문 생성 실패
      * @author seochanhyeok
      */
-    public boolean postSellOrder(SellOrderRequest request, String token) throws Exception {
+    public boolean postSellOrder(SellOrderRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         try {
@@ -68,10 +67,10 @@ public class SellOrderService {
      * @param state (requested | canceled | delivered | published)
      * @param token (accessToken)
      * @return List<SellOrderResponse> (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @throws Exception (PATH_NOT_RESOLVED)
+     * @exception CustomException (PATH_NOT_RESOLVED) 주소값이 올바르지 않음
      * @author seochanhyeok
      */
-    public List<SellOrderResponse> getSellOrders(String state, String token) throws Exception {
+    public List<SellOrderResponse> getSellOrders(String state, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         SellState reqState;
