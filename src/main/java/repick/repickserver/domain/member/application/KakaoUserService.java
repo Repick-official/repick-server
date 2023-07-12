@@ -77,8 +77,6 @@ public class KakaoUserService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        System.out.println("oauthProperties = " + oauthProperties.getClientId());
-        System.out.println("oauthProperties = " + oauthProperties.getClientSecret());
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
@@ -86,10 +84,6 @@ public class KakaoUserService {
         body.add("redirect_uri", "http://localhost:3000/login/kakaoLogin");
         body.add("client_secret", oauthProperties.getClientSecret());
         body.add("code", code);
-
-
-        System.out.println("oauthProperties = " + oauthProperties.getClientId());
-        System.out.println("oauthProperties = " + oauthProperties.getClientSecret());
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
