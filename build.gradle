@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.13'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'repick'
@@ -11,11 +12,54 @@ java {
 	sourceCompatibility = '11'
 }
 
+// 기존 설정 주석처리
+//configurations {
+//	compileOnly {
+//		extendsFrom annotationProcessor
+//	}
+//}
+
+// Querydsl
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+
+	querydsl {
+		extendsFrom compileClasspath
+	}
 }
+
+def querydslSrcDir = 'src/querydsl/generated'
+
+querydsl {
+	library = "com.querydsl:querydsl-apt"
+	jpa = true
+	querydslSourcesDir = querydslSrcDir
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src/main/java', querydslSrcDir]
+		}
+	}
+}
+
+project.afterEvaluate {
+	project.tasks.compileQuerydsl.options.compilerArgs = [
+			"-proc:only",
+			"-processor", project.querydsl.processors() +
+					',lombok.launch.AnnotationProcessorHider$AnnotationProcessor'
+	]
+}
+
+// Querydsl 끝
+
 
 repositories {
 	mavenCentral()
@@ -46,6 +90,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	// Amazon S3 관련
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	// Querydsl
+	implementation("com.querydsl:querydsl-jpa")
+	implementation("com.querydsl:querydsl-apt")
+
 }
 
 tasks.named('test') {
