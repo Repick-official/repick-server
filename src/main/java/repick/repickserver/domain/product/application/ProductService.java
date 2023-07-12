@@ -85,4 +85,36 @@ public class ProductService {
                 .detailProductImages(savedDetailProductImages)
                 .build();
     }
+
+    public List<RegisterProductResponse> getMainDummyProducts() {
+        Product product1 = productRepository.findById(11L).orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
+        Product product2 = productRepository.findById(12L).orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
+        Product product3 = productRepository.findById(13L).orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
+        Product product4 = productRepository.findById(14L).orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
+
+        ProductImage main1 = productImageRepository.findById(23L).orElseThrow();
+        ProductImage main2 = productImageRepository.findById(27L).orElseThrow();
+        ProductImage main3 = productImageRepository.findById(30L).orElseThrow();
+        ProductImage main4 = productImageRepository.findById(34L).orElseThrow();
+
+
+        List<RegisterProductResponse> registerProductResponses = new ArrayList<>();
+        registerProductResponses.add(RegisterProductResponse.builder()
+                .product(product1)
+                .mainProductImage(main1)
+                .build());
+        registerProductResponses.add(RegisterProductResponse.builder()
+                .product(product2)
+                .mainProductImage(main2)
+                .build());
+        registerProductResponses.add(RegisterProductResponse.builder()
+                .product(product3)
+                .mainProductImage(main3)
+                .build());
+        registerProductResponses.add(RegisterProductResponse.builder()
+                .product(product4)
+                .mainProductImage(main4)
+                .build());
+        return registerProductResponses;
+    }
 }
