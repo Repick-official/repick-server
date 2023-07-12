@@ -13,16 +13,18 @@ public enum ErrorCode {
     ACCESS_DENIED(403, "C002", "권한이 없는 사용자입니다."),
     ENTITY_NOT_FOUND(400, "C003", "존재하지 않는 객체입니다."),
     INTERNAL_SERVER_ERROR(500, "C004", "서버 에러입니다."),
+    PATH_NOT_RESOLVED(400, "O002", "경로를 찾을 수 없습니다."),
 
     // Member
     TOKEN_MEMBER_NO_MATCH(400, "M001", "토큰과 일치하는 회원이 없습니다."),
     MEMBER_NOT_FOUND(400, "M001", "존재하지 않는 회원입니다."),
     MEMBER_REGISTER_FAIL(400, "M002", "회원 생성에 실패했습니다."),
+    SUBSCRIBER_INFO_NOT_FOUND(400, "M003", "존재하지 않는 구독 정보입니다."),
 
     // Order
     ORDER_FAIL(400, "O001", "주문에 실패했습니다."),
     ORDER_NOT_FOUND(400, "O001", "존재하지 않는 주문입니다."),
-    PATH_NOT_RESOLVED(400, "O002", "경로를 찾을 수 없습니다."),
+
 
     // Product
     IMAGE_FILE_MISSING(400, "P001", "상품의 사진 파일을 입력해주세요."),

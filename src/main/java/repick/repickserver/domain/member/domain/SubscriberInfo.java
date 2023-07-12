@@ -1,9 +1,12 @@
 package repick.repickserver.domain.member.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
@@ -21,6 +24,14 @@ public class SubscriberInfo extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "parent_subscriber_info_id")
+    @JsonManagedReference
+    private SubscriberInfo parentSubscriberInfo;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "parentSubscriberInfo", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private SubscriberInfo childSubscriberInfo;
+
     @OneToOne
     @JoinColumn(name = "member_id")
     private Member member;
@@ -31,7 +42,7 @@ public class SubscriberInfo extends BaseTimeEntity {
     * 승인 : APPROVE
     * 거절 : REJECT
      */
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private SubscribeState subscribeState;
 
     /*

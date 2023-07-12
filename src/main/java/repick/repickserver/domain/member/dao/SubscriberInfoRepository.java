@@ -6,5 +6,5 @@ import repick.repickserver.domain.member.domain.SubscriberInfo;
 import javax.transaction.Transactional;
 
 @Transactional
-public interface SubscriberInfoRepository extends JpaRepository<SubscriberInfo, Long> {
+public interface SubscriberInfoRepository extends JpaRepository<SubscriberInfo, Long>, SubscriberInfoRepositoryCustom {
 }

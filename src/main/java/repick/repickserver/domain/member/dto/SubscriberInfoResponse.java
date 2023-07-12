@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder @AllArgsConstructor @NoArgsConstructor
 public class SubscriberInfoResponse {
+    private Long id;
     private LocalDateTime expireDate;
     private LocalDateTime createdDate;
     private SubscribeState subscribeState;

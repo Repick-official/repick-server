@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class SubscriberInfoRequest {
 
-    private String email;
+    private Long id;
+    private String userId;
     private LocalDateTime expireDate;
 
 }

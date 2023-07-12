@@ -70,7 +70,7 @@ public class SecurityConfig {
                 // S3 파일 업로드 요청은 모두 승인
                 .antMatchers("/products/register").permitAll()
                 .antMatchers("/s3/**").permitAll()
-                .antMatchers("/subscribe/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/subscribe/admin/**").hasAuthority("USER")
                 .antMatchers("/subscribe/**").hasAuthority("USER")
                 .anyRequest().permitAll()
                 .and()

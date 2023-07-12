@@ -17,7 +17,10 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -39,20 +42,8 @@ public class SubscriberInfoService {
      */
     public Boolean check(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<SubscriberInfo> subscriberInfoRepositoryAll = subscriberInfoRepository.findAll();
-
-        return subscriberInfoRepositoryAll.stream()
-                .anyMatch(subscriberInfo ->
-                // member 가 일치
-                subscriberInfo.getMember().equals(member) &&
-                // 승인됨
-                subscriberInfo.getSubscribeState().equals(SubscribeState.APPROVED) &&
-                // expireDate 가 null 인 경우(deny 됨) 제외 (사실 필요없으나 assert 하는것임)
-                subscriberInfo.getExpireDate() != null &&
-                // 만료되지 않음
-                subscriberInfo.getExpireDate().isAfter(LocalDateTime.now())
-        );
-
+        List<SubscriberInfo> validSubscriberInfo = subscriberInfoRepository.findValidSubscriberInfo(member.getId());
+        return !validSubscriberInfo.isEmpty();
     }
 
     /**
@@ -62,26 +53,55 @@ public class SubscriberInfoService {
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public List<SubscriberInfoResponse> history(String token) {
+    public List<SubscriberInfoResponse> history(String state, String token) {
+        SubscribeState subscribeState;
+        boolean isExpired = false;
+        switch (state) {
+            case "requested":
+                subscribeState = SubscribeState.REQUESTED;
+                break;
+            case "approved":
+                subscribeState = SubscribeState.APPROVED;
+                break;
+            case "denied":
+                subscribeState = SubscribeState.DENIED;
+                break;
+            case "request-expired":
+                subscribeState = SubscribeState.REQUESTED;
+                isExpired = true;
+                break;
+            case "expired":
+                subscribeState = SubscribeState.APPROVED;
+                isExpired = true;
+                break;
+            default:
+                throw new CustomException("잘못된 주소 요청입니다.", PATH_NOT_RESOLVED);
+        }
+
         Member member = jwtProvider.getMemberByRawToken(token);
+
+        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfo(member.getId(), subscribeState, isExpired);
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
-
-        // 모든 subscriberInfo 중 멤버가 일치하는것만 필터링
-        Stream<SubscriberInfo> subscriberInfoStream = subscriberInfoRepository.findAll()
-                .stream().filter(subscriberInfo -> subscriberInfo.getMember().equals(member));
-
-
-        subscriberInfoStream.forEach(subscriberInfo -> {
-            // 각각을 반환 dto 에 담음
+        subscriberInfos.forEach(subscriberInfo -> {
             subscriberInfoResponses.add(SubscriberInfoResponse.builder()
                     .createdDate(subscriberInfo.getCreatedDate())
                     .expireDate(subscriberInfo.getExpireDate())
-                    .subscribeState(subscriberInfo.getSubscribeState())
                     .build());
         });
-
         return subscriberInfoResponses;
+    }
 
+    public List<SubscriberInfoResponse> getRequestedSubscriberInfos() {
+        List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
+        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findValidRequests();
+        subscriberInfos.forEach(subscriberInfo -> {
+            subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+                    .id(subscriberInfo.getId())
+                    .createdDate(subscriberInfo.getCreatedDate())
+                    .expireDate(subscriberInfo.getExpireDate())
+                    .build());
+        });
+        return subscriberInfoResponses;
     }
 
     /**
@@ -91,9 +111,14 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public Boolean add(SubscriberInfoRequest request) {
-        Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+//        Member member = memberRepository.findByUserId(request.getUserId())
+//                .orElseThrow(() -> new CustomException("존재하지 않는 사용자입니다.", MEMBER_NOT_FOUND));
+        SubscriberInfo parent = subscriberInfoRepository.findById(request.getId())
+                .orElseThrow(() -> new CustomException("존재하지 않는 구독 요청입니다.", SUBSCRIBER_INFO_NOT_FOUND));
+
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
-                .member(member)
+                .member(parent.getMember())
+                .parentSubscriberInfo(parent)
                 // 승인 시점으로부터 한 달 뒤 만료
                 .expireDate(LocalDateTime.now().plusMonths(1))
                 .subscribeState(SubscribeState.APPROVED)
@@ -112,9 +137,12 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public Boolean deny(SubscriberInfoRequest request) {
-        Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+        SubscriberInfo parent = subscriberInfoRepository.findById(request.getId())
+                .orElseThrow(() -> new CustomException("존재하지 않는 구독 요청입니다.", SUBSCRIBER_INFO_NOT_FOUND));
+
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
-                .member(member)
+                .member(parent.getMember())
+                .parentSubscriberInfo(parent)
                 // deny 된 경우 expireDate 는 null
                 .subscribeState(SubscribeState.DENIED)
                 .build();
@@ -146,6 +174,5 @@ public class SubscriberInfoService {
 
         return false;
     }
-
 
 }
