@@ -137,4 +137,20 @@ public class ProductService {
                 .build());
         return registerProductResponses;
     }
+
+    public RegisterProductResponse getOneDummyProduct() {
+
+        Product product4 = productRepository.findById(14L).orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
+        ProductImage main4 = productImageRepository.findById(34L).orElseThrow();
+        ProductImage detail4_1 = productImageRepository.findById(35L).orElseThrow();
+        ProductImage detail4_2 = productImageRepository.findById(36L).orElseThrow();
+        ProductImage detail4_3 = productImageRepository.findById(37L).orElseThrow();
+        ProductImage detail4_4 = productImageRepository.findById(38L).orElseThrow();
+
+        return RegisterProductResponse.builder()
+                .product(product4)
+                .mainProductImage(main4)
+                .detailProductImages(List.of(detail4_1, detail4_2, detail4_3, detail4_4))
+                .build();
+    }
 }
