@@ -65,7 +65,6 @@ public class OrderNumberService {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
         String formattedDate = currentDate.format(formatter);
-        String randomNumStr = "";
 
         /*
         * 5자리 정수 생성 후, 해당 주문번호가 이미 존재하는지 확인을 반복한다.
@@ -73,6 +72,7 @@ public class OrderNumberService {
         * 현재 추정되는 하루 주문건수가 매우 낮으므로 서버에 치명적 문제가 발생할 확률이 매우 매우 매우 낮다.
         * (하루에 2천만개 거래되면 난 이미 부자일 것이므로 서버고 뭐고 ...헉)
          */
+        String randomStr = "";
         Random random = new Random();
         do {
             // 숫자, 알파벳 대소문자로 이루어진 5자리 랜덤 문자열 생성
@@ -81,13 +81,13 @@ public class OrderNumberService {
                 int randomIndex = random.nextInt(CHARACTERS.length());
                 char randomChar = CHARACTERS.charAt(randomIndex);
                 sb.append(randomChar);
-                randomNumStr = sb.toString();
+                randomStr = sb.toString();
             }
 
-        } while (orderNumberReository.existsByOrderNumber(orderTypeCode + formattedDate + randomNumStr));
+        } while (orderNumberReository.existsByOrderNumber(orderTypeCode + formattedDate + randomStr));
 
         OrderNumber orderNumber = OrderNumber.builder()
-                .orderNumber(orderTypeCode + formattedDate + randomNumStr).build();
+                .orderNumber(orderTypeCode + formattedDate + randomStr).build();
 
         // 주문번호 저장
         orderNumberReository.save(orderNumber);
