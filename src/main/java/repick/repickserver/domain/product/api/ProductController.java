@@ -22,4 +22,18 @@ public class ProductController {
         return ResponseEntity.ok()
                 .body(productService.registerProduct(mainImageFile, detailImageFiles, request));
     }
+
+    // TODO: 메인페이지 추천상품 대용 임시 더미 데이터
+    @GetMapping("/main-page")
+    public ResponseEntity<List<RegisterProductResponse>> getMainPageProducts() {
+        return ResponseEntity.ok()
+                .body(productService.getMainDummyProducts());
+    }
+
+    // TODO: 상품 상세페이지 대용 임시 더미 데이터
+    @GetMapping("/get-one")
+    public ResponseEntity<RegisterProductResponse> getOneProduct() {
+        return ResponseEntity.ok()
+                .body(productService.getOneDummyProduct());
+    }
 }

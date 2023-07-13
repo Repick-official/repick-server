@@ -24,6 +24,8 @@ public class SubscriberInfo extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long id;
 
+    private String orderNumber;
+
     @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "parent_subscriber_info_id")
     @JsonManagedReference
     private SubscriberInfo parentSubscriberInfo;

@@ -3,13 +3,13 @@ package repick.repickserver.domain.member.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
+import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 
@@ -17,8 +17,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -29,8 +27,8 @@ import static repick.repickserver.global.error.exception.ErrorCode.*;
 public class SubscriberInfoService {
 
     private final SubscriberInfoRepository subscriberInfoRepository;
-    private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final OrderNumberService orderNumberService;
 
 
     /**
