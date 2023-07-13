@@ -4,6 +4,7 @@ import lombok.*;
 import repick.repickserver.domain.model.BaseTimeEntity;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import static repick.repickserver.domain.product.domain.ProductState.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,6 +27,9 @@ public class Product extends BaseTimeEntity {
 
     private Long discountRate;
 
+    @Enumerated(EnumType.STRING)
+    private ProductState productState;
+
     @Builder
     public Product(String name, String detail, Long price, String size, Long discountRate) {
         this.name = name;
@@ -33,6 +37,7 @@ public class Product extends BaseTimeEntity {
         this.price = price;
         this.size = size;
         this.discountRate = discountRate;
+        this.productState = SELLING;
     }
 
 }

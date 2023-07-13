@@ -30,4 +30,11 @@ public class ProductController {
         return ResponseEntity.ok()
                 .body(categoryService.getCategories());
     }
+
+    @GetMapping("/main-page/recommendations")
+    public ResponseEntity<List<GetMainPageResponse>> getMainPageProducts() {
+        return ResponseEntity.ok()
+                .body(productService.getMainPageProducts());
+    }
+
 }

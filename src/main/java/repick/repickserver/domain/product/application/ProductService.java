@@ -7,15 +7,15 @@ import org.springframework.web.multipart.MultipartFile;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.*;
+import repick.repickserver.domain.product.dto.GetMainPageResponse;
 import repick.repickserver.domain.product.dto.RegisterProductRequest;
 import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import static repick.repickserver.global.error.exception.ErrorCode.*;
+import static repick.repickserver.domain.product.domain.ProductState.*;
 
 @Service
 @Transactional
@@ -84,5 +84,21 @@ public class ProductService {
                 .mainProductImage(savedMainProductImage)
                 .detailProductImages(savedDetailProductImages)
                 .build();
+    }
+
+    public List<GetMainPageResponse> getMainPageProducts() {
+        // TODO: 일단은 상태가 '판매중'인 신상품 4개 추천
+        List<Product> products = productRepository.findTop4ByProductStateOrderByIdDesc(SELLING);
+        List<ProductImage> productImages = productImageRepository.findByProductInAndIsMainImage(products, true);
+
+        return products.stream()
+                .map(product -> GetMainPageResponse.builder()
+                        .product(product)
+                        .mainProductImage(productImages.stream()
+                                .filter(productImage -> productImage.getProduct().getId().equals(product.getId()))
+                                .findFirst()
+                                .orElseThrow(() -> new CustomException(PRODUCT_MAIN_IMAGE_NOT_FOUND)))
+                        .build())
+                .collect(Collectors.toList());
     }
 }

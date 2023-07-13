@@ -27,7 +27,8 @@ public enum ErrorCode {
     S3_UPLOAD_FAIL(500, "P002", "S3 업로드에 실패했습니다."),
     S3_FILE_CONVERT_FAIL(500, "P003", "S3 업로드를 위한 파일 변환에 실패했습니다."),
     EMPTY_PRODUCT_NAME(400, "P004", "상품의 이름을 입력해주세요."),
-    EMPTY_PRODUCT_PRICE(400, "P005", "상품의 가격을 입력해주세요.");
+    EMPTY_PRODUCT_PRICE(400, "P005", "상품의 가격을 입력해주세요."),
+    PRODUCT_MAIN_IMAGE_NOT_FOUND(500, "P006", "상품의 메인 이미지를 찾을 수 없습니다.");
 
 
     private final int status;
