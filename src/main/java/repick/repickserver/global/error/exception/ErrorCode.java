@@ -31,6 +31,8 @@ public enum ErrorCode {
     S3_FILE_CONVERT_FAIL(500, "P003", "S3 업로드를 위한 파일 변환에 실패했습니다."),
     EMPTY_PRODUCT_NAME(400, "P004", "상품의 이름을 입력해주세요."),
     EMPTY_PRODUCT_PRICE(400, "P005", "상품의 가격을 입력해주세요."),
+    PRODUCT_NOT_FOUND(400, "P006", "존재하지 않는 상품입니다."),
+    PRODUCT_IMAGE_NOT_FOUND(400, "P007", "존재하지 않는 상품 이미지입니다."),
 
     //OrderNumber
     INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다.");
