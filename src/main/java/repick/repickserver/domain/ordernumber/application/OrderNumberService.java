@@ -18,7 +18,18 @@ import static repick.repickserver.global.error.exception.ErrorCode.INVALID_ORDER
 public class OrderNumberService {
 
     private final OrderNumberReository orderNumberReository;
-    private static final String CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    /*
+     * 햇갈릴 수 있는 문자 제외 : 숫자 2, 5 영문자 E, I, L, O 제외 -> 총 30개
+     * 왜 제외했나요 :
+     *          2 : E와 발음이 동일
+     *          5 : O와 발음이 동일
+     *          E : 2와 발음이 동일
+     *          I : L과 모양이 비슷
+     *          L : I와 모양이 비슷
+     *          O : 5와 발음이 동일
+     */
+    private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";
     private static final int LENGTH = 5;
 
 
@@ -31,7 +42,7 @@ public class OrderNumberService {
         * YY : 년도
         * MM : 월
         * DD : 일
-        * XXXXX : 5자리 숫자
+        * XXXXX : 5자리 영문자 + 숫자
          */
 
         // 코드 타입 변환
@@ -54,14 +65,14 @@ public class OrderNumberService {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
         String formattedDate = currentDate.format(formatter);
-        String randomNumStr = "";
 
         /*
         * 5자리 정수 생성 후, 해당 주문번호가 이미 존재하는지 확인을 반복한다.
-        * 매일, 타입마다 62^5 개의 주문번호를 생성할 수 있다. (62^5 - 62^4 약 9억개)
+        * 매일, 타입마다 약 30^5 개의 주문번호를 생성할 수 있다. ( 정확히는 30^5 - 30^4 = 23,490,000개 )
         * 현재 추정되는 하루 주문건수가 매우 낮으므로 서버에 치명적 문제가 발생할 확률이 매우 매우 매우 낮다.
-        * (하루에 9억개 거래되면 난 이미 부자일 것이므로 서버고 뭐고 ...헉)
+        * (하루에 2천만개 거래되면 난 이미 부자일 것이므로 서버고 뭐고 ...헉)
          */
+        String randomStr = "";
         Random random = new Random();
         do {
             // 숫자, 알파벳 대소문자로 이루어진 5자리 랜덤 문자열 생성
@@ -70,13 +81,13 @@ public class OrderNumberService {
                 int randomIndex = random.nextInt(CHARACTERS.length());
                 char randomChar = CHARACTERS.charAt(randomIndex);
                 sb.append(randomChar);
-                randomNumStr = sb.toString();
+                randomStr = sb.toString();
             }
 
-        } while (orderNumberReository.existsByOrderNumber(orderTypeCode + formattedDate + randomNumStr));
+        } while (orderNumberReository.existsByOrderNumber(orderTypeCode + formattedDate + randomStr));
 
         OrderNumber orderNumber = OrderNumber.builder()
-                .orderNumber(orderTypeCode + formattedDate + randomNumStr).build();
+                .orderNumber(orderTypeCode + formattedDate + randomStr).build();
 
         // 주문번호 저장
         orderNumberReository.save(orderNumber);
