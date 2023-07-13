@@ -86,6 +86,31 @@ public class ProductService {
                 .build();
     }
 
+    /**
+     * <h1>상품 상세 조회</h1>
+     * @param productId 상품 아이디
+     * @return RegisterProductResponse 상품 상세 정보
+     * @author seochanhyeok
+     */
+    public RegisterProductResponse getProductDetail(Long productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+
+        List<ProductImage> productImages = productImageRepository.findAllByProductId(productId);
+
+        return RegisterProductResponse.builder()
+                .product(product)
+                .mainProductImage(productImages.stream()
+                        .filter(ProductImage::getIsMainImage)
+                        .findFirst()
+                        .orElseThrow(() -> new CustomException(PRODUCT_IMAGE_NOT_FOUND)))
+                .detailProductImages(productImages.stream()
+                        .filter(productImage -> !productImage.getIsMainImage())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
     // TODO : 삭제..
     public List<RegisterProductResponse> getMainDummyProducts() {
         // ㅋㅋ..뭐요!!!
@@ -136,21 +161,5 @@ public class ProductService {
                 .detailProductImages(List.of(detail4_1, detail4_2, detail4_3, detail4_4))
                 .build());
         return registerProductResponses;
-    }
-
-    public RegisterProductResponse getOneDummyProduct() {
-
-        Product product4 = productRepository.findById(14L).orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
-        ProductImage main4 = productImageRepository.findById(34L).orElseThrow();
-        ProductImage detail4_1 = productImageRepository.findById(35L).orElseThrow();
-        ProductImage detail4_2 = productImageRepository.findById(36L).orElseThrow();
-        ProductImage detail4_3 = productImageRepository.findById(37L).orElseThrow();
-        ProductImage detail4_4 = productImageRepository.findById(38L).orElseThrow();
-
-        return RegisterProductResponse.builder()
-                .product(product4)
-                .mainProductImage(main4)
-                .detailProductImages(List.of(detail4_1, detail4_2, detail4_3, detail4_4))
-                .build();
     }
 }
