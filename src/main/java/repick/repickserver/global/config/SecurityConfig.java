@@ -3,27 +3,15 @@ package repick.repickserver.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import repick.repickserver.global.jwt.JwtAuthenticationFilter;
 import repick.repickserver.global.jwt.JwtProvider;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -55,7 +43,7 @@ public class SecurityConfig {
                 // S3 파일 업로드 요청은 모두 승인
                 .antMatchers("/products/register").permitAll()
                 .antMatchers("/s3/**").permitAll()
-                .antMatchers("/subscribe/admin/**").hasAuthority("USER")
+                .antMatchers("/subscribe/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
                 .antMatchers("/subscribe/**").hasAuthority("USER")
                 .anyRequest().permitAll()
                 .and()
@@ -63,25 +51,19 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 // 에러 핸들링
                 .exceptionHandling()
-                .accessDeniedHandler(new AccessDeniedHandler() {
-                    @Override
-                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                        // 권한 문제가 발생했을 때 이 부분을 호출한다.
-                        response.setStatus(403);
-                        response.setCharacterEncoding("utf-8");
-                        response.setContentType("text/html; charset=UTF-8");
-                        response.getWriter().write("권한이 없는 사용자입니다.");
-                    }
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    // 권한 문제가 발생했을 때 이 부분을 호출한다.
+                    response.setStatus(403);
+                    response.setCharacterEncoding("utf-8");
+                    response.setContentType("text/html; charset=UTF-8");
+                    response.getWriter().write("권한이 없는 사용자입니다.");
                 })
-                .authenticationEntryPoint(new AuthenticationEntryPoint() {
-                    @Override
-                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-                        // 인증문제가 발생했을 때 이 부분을 호출한다.
-                        response.setStatus(401);
-                        response.setCharacterEncoding("utf-8");
-                        response.setContentType("text/html; charset=UTF-8");
-                        response.getWriter().write("인증되지 않은 사용자입니다.");
-                    }
+                .authenticationEntryPoint((request, response, authException) -> {
+                    // 인증문제가 발생했을 때 이 부분을 호출한다.
+                    response.setStatus(401);
+                    response.setCharacterEncoding("utf-8");
+                    response.setContentType("text/html; charset=UTF-8");
+                    response.getWriter().write("인증되지 않은 사용자입니다.");
                 });
 
         return http.build();

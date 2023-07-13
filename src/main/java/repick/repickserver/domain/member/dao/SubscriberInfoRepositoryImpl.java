@@ -1,6 +1,5 @@
 package repick.repickserver.domain.member.dao;
 
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -38,7 +37,7 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
                 // 승인 대기중인 것들로 필터
                 .where(subscriberInfo.subscribeState.eq(SubscribeState.REQUESTED)
                 // 처리되지 않은 것들로 필터
-                .and(subscriberInfo.childSubscriberInfo.isNull())
+                .and(subscriberInfo.childSubscriberInfos.isEmpty())
                 // 구독 만료일이 현재 날짜보다 미래인 경우
                 .and(subscriberInfo.expireDate.after(LocalDateTime.now())))
                 .fetch();
@@ -52,7 +51,7 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
                 // 상태로 필터
                 .and(subscriberInfo.subscribeState.eq(subscribeState))
                 // 처리되지 않은, 즉 childSubscriberInfo가 null인 것들로 필터
-                .and(subscriberInfo.childSubscriberInfo.isNull())
+                .and(subscriberInfo.childSubscriberInfos.isEmpty())
                 // 만료여부 필터
                 .and(isExpired ? subscriberInfo.expireDate.before(LocalDateTime.now())
                         : subscriberInfo.expireDate.after(LocalDateTime.now())))

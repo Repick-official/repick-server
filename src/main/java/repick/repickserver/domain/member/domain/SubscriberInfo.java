@@ -6,18 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter @Builder @AllArgsConstructor @NoArgsConstructor
 public class SubscriberInfo extends BaseTimeEntity {
 
@@ -26,16 +23,15 @@ public class SubscriberInfo extends BaseTimeEntity {
 
     private String orderNumber;
 
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "parent_subscriber_info_id")
+    @ManyToOne @JoinColumn(name = "parent_subscriber_info_id")
     @JsonManagedReference
     private SubscriberInfo parentSubscriberInfo;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "parentSubscriberInfo", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSubscriberInfo", cascade = CascadeType.ALL)
     @JsonBackReference
-    private SubscriberInfo childSubscriberInfo;
+    private List<SubscriberInfo> childSubscriberInfos;
 
-    @OneToOne
-    @JoinColumn(name = "member_id")
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "member_id")
     private Member member;
 
     /*

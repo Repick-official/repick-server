@@ -10,6 +10,7 @@ import repick.repickserver.domain.member.domain.SubscriberInfo;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
+import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 
@@ -47,6 +48,7 @@ public class SubscriberInfoService {
     /**
      * 요청한 사용자의 구독 기록을 모두 반환한다.
      * @param token 토큰으로 사용자를 찾음
+     * @param state 요청, 승인, 거절 상태를 구분
      * @return List<SubscriberInfoResponse> 구독 기록 리스트
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
@@ -63,6 +65,7 @@ public class SubscriberInfoService {
                 break;
             case "denied":
                 subscribeState = SubscribeState.DENIED;
+                isExpired = true;
                 break;
             case "request-expired":
                 subscribeState = SubscribeState.REQUESTED;
@@ -80,25 +83,31 @@ public class SubscriberInfoService {
 
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfo(member.getId(), subscribeState, isExpired);
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
-        subscriberInfos.forEach(subscriberInfo -> {
-            subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                    .createdDate(subscriberInfo.getCreatedDate())
-                    .expireDate(subscriberInfo.getExpireDate())
-                    .build());
-        });
+        subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+                .id(subscriberInfo.getId())
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .build()));
         return subscriberInfoResponses;
     }
 
+    /**
+     * 모든 사용자의 처리되지 않은, 만료되지 않은 구독 요청들을 반환한다.
+     * @return List<SubscriberInfoResponse> 구독 요청 리스트
+     * @author seochanhyeok
+     */
     public List<SubscriberInfoResponse> getRequestedSubscriberInfos() {
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findValidRequests();
-        subscriberInfos.forEach(subscriberInfo -> {
-            subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                    .id(subscriberInfo.getId())
-                    .createdDate(subscriberInfo.getCreatedDate())
-                    .expireDate(subscriberInfo.getExpireDate())
-                    .build());
-        });
+        subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+                .id(subscriberInfo.getId())
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .build()));
         return subscriberInfoResponses;
     }
 
@@ -109,8 +118,6 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public Boolean add(SubscriberInfoRequest request) {
-//        Member member = memberRepository.findByUserId(request.getUserId())
-//                .orElseThrow(() -> new CustomException("존재하지 않는 사용자입니다.", MEMBER_NOT_FOUND));
         SubscriberInfo parent = subscriberInfoRepository.findById(request.getId())
                 .orElseThrow(() -> new CustomException("존재하지 않는 구독 요청입니다.", SUBSCRIBER_INFO_NOT_FOUND));
 
@@ -141,7 +148,7 @@ public class SubscriberInfoService {
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(parent.getMember())
                 .parentSubscriberInfo(parent)
-                // deny 된 경우 expireDate 는 null
+                .expireDate(LocalDateTime.now()) // 만료시점을 현재로 설정하여 만료시킴
                 .subscribeState(SubscribeState.DENIED)
                 .build();
 
@@ -159,18 +166,18 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public Boolean subscribeRequest(String token) {
-        // TODO: 결제로직 미정!!! 수정 필요
         Member member = jwtProvider.getMemberByRawToken(token);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
-                .member(member)
+                .member(member) // 요청회원정보
+                .orderNumber(orderNumberService.generateOrderNumber(OrderType.SUBSCRIBE)) // 주문번호 생성
                 .expireDate(LocalDateTime.now().plusDays(7)) // 무통장입금의 경우 입금대기기간 1주일로 임의로 잡았음
-                .subscribeState(SubscribeState.REQUESTED)
+                .subscribeState(SubscribeState.REQUESTED) // 상태는 요청
                 .build();
 
         subscriberInfoRepository.save(subscriberInfo);
 
-        return false;
+        return true;
     }
 
 }
