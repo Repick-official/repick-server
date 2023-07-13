@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Builder @AllArgsConstructor @NoArgsConstructor
 public class SubscriberInfoResponse {
+    private Long id;
+    private String orderNumber;
     private LocalDateTime expireDate;
     private LocalDateTime createdDate;
     private SubscribeState subscribeState;

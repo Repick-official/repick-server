@@ -18,6 +18,7 @@ public enum ErrorCode {
     TOKEN_MEMBER_NO_MATCH(400, "M001", "토큰과 일치하는 회원이 없습니다."),
     MEMBER_NOT_FOUND(400, "M001", "존재하지 않는 회원입니다."),
     MEMBER_REGISTER_FAIL(400, "M002", "회원 생성에 실패했습니다."),
+    SUBSCRIBER_INFO_NOT_FOUND(400, "M003", "존재하지 않는 구독 정보입니다."),
 
     // Order
     ORDER_FAIL(400, "O001", "주문에 실패했습니다."),
