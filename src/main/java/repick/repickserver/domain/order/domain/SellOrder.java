@@ -5,28 +5,28 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
-import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Getter
 @Entity
-@Builder @AllArgsConstructor @NoArgsConstructor
+@Getter @Builder @AllArgsConstructor @NoArgsConstructor
 public class SellOrder extends BaseTimeEntity {
 
     @Id @GeneratedValue
     private Long id;
 
-    /*
-    * 주문 번호
-    * 업데이트 시 주문 번호 추적하기 위함
-     */
-    private Long orderId;
+    @OneToMany(mappedBy = "sellOrder", cascade = CascadeType.ALL)
+    private List<SellOrderState> sellOrderStates;
+
+    @NotNull
+    private String orderNumber;
 
     @NotNull
     private String name;
@@ -35,8 +35,7 @@ public class SellOrder extends BaseTimeEntity {
     private String phoneNumber;
 
     // 계좌 은행, 번호
-    @NotNull
-    @Embedded
+    @NotNull @Embedded
     private Bank bank;
 
     // 리픽백 수량
@@ -47,8 +46,7 @@ public class SellOrder extends BaseTimeEntity {
     @NotNull
     private Integer productQuantity;
 
-    @NotNull
-    @Embedded
+    @NotNull @Embedded
     private Address address;
 
     // 수거 시 기타 요청 사항
@@ -61,9 +59,6 @@ public class SellOrder extends BaseTimeEntity {
      */
     @Nullable
     private LocalDateTime returnDate;
-
-    @Enumerated(EnumType.STRING)
-    private SellState sellState;
 
     @ManyToOne
     private Member member;

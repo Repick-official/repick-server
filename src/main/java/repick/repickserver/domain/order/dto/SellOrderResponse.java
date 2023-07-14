@@ -16,6 +16,8 @@ public class SellOrderResponse {
 
     @Schema(description = "DB 식별용 아이디", example = "1")
     private Long id;
+    @Schema(description = "주문번호", example = "R2302188GHE1")
+    private String orderNumber;
     @Schema(description = "주문자 성함", example = "이리픽")
     private String name;
     @Schema(description = "주문자 전화번호", example = "01012345678")

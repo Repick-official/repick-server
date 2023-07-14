@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import repick.repickserver.domain.order.domain.SellOrder;
 
 public interface SellOrderRepository extends JpaRepository<SellOrder, Long>, SellOrderRepositoryCustom {
+    SellOrder findByOrderNumber(String orderNumber);
 }
