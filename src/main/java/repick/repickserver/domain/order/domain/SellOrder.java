@@ -40,6 +40,9 @@ public class SellOrder extends BaseTimeEntity {
     private List<SellOrder> childSellOrders;
 
     @NotNull
+    private String orderNumber;
+
+    @NotNull
     private String name;
 
     @NotNull
