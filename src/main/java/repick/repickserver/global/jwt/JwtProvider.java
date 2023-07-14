@@ -81,7 +81,7 @@ public class JwtProvider {
         호출: RequestHeader("Authorization")의 String token을 그대로(Bearer 안떼고) 넣는다
         반환: 해당 Member 객체를 반환한다.
      */
-    public Member getMemberByRawToken(String token) throws Exception {
+    public Member getMemberByRawToken(String token) {
         // 토큰으로부터 이메일을 얻음
         token = token.split(" ")[1].trim();
         String userId = getUserId(token);

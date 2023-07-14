@@ -1,28 +1,37 @@
 package repick.repickserver.domain.member.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter @Builder @AllArgsConstructor @NoArgsConstructor
 public class SubscriberInfo extends BaseTimeEntity {
 
     @Id @GeneratedValue
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id")
+    private String orderNumber;
+
+    @ManyToOne @JoinColumn(name = "parent_subscriber_info_id")
+    @JsonManagedReference
+    private SubscriberInfo parentSubscriberInfo;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSubscriberInfo", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<SubscriberInfo> childSubscriberInfos;
+
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "member_id")
     private Member member;
 
     /*
@@ -31,7 +40,7 @@ public class SubscriberInfo extends BaseTimeEntity {
     * 승인 : APPROVE
     * 거절 : REJECT
      */
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private SubscribeState subscribeState;
 
     /*

@@ -1,5 +1,6 @@
 package repick.repickserver.domain.product.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,4 +38,10 @@ public class ProductController {
                 .body(productService.getMainPageProducts());
     }
 
+    @Operation(summary = "상품 디테일 조회", description = "상품 디테일 product_id로 조회합니다.")
+    @GetMapping("detail/{productId}")
+    public ResponseEntity<RegisterProductResponse> getProductDetail(@PathVariable Long productId) {
+        return ResponseEntity.ok()
+                .body(productService.getProductDetail(productId));
+    }
 }

@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
     List<ProductImage> findByProductInAndIsMainImage(List<Product> products, Boolean isMainImage);
+    List<ProductImage> findAllByProductId(Long productId);
 }

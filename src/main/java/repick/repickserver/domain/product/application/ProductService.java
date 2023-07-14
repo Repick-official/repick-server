@@ -101,5 +101,28 @@ public class ProductService {
                                 .orElseThrow(() -> new CustomException(PRODUCT_MAIN_IMAGE_NOT_FOUND)))
                         .build())
                 .collect(Collectors.toList());
+      
+    /**
+     * <h1>상품 상세 조회</h1>
+     * @param productId 상품 아이디
+     * @return RegisterProductResponse 상품 상세 정보
+     * @author seochanhyeok
+     */
+    public RegisterProductResponse getProductDetail(Long productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+
+        List<ProductImage> productImages = productImageRepository.findAllByProductId(productId);
+
+        return RegisterProductResponse.builder()
+                .product(product)
+                .mainProductImage(productImages.stream()
+                        .filter(ProductImage::getIsMainImage)
+                        .findFirst()
+                        .orElseThrow(() -> new CustomException(PRODUCT_IMAGE_NOT_FOUND)))
+                .detailProductImages(productImages.stream()
+                        .filter(productImage -> !productImage.getIsMainImage())
+                        .collect(Collectors.toList()))
+                .build();
     }
 }
