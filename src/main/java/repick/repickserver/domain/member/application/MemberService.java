@@ -83,6 +83,7 @@ public class MemberService {
                     .nickname(request.getNickname())
                     .phoneNumber(request.getPhoneNumber())
                     .address(request.getAddress())
+                    .bank(request.getBank())
                     .role(Role.USER)
                     .build();
 
@@ -97,7 +98,7 @@ public class MemberService {
     /**
      * 멤버 조회
      * @param email (email)
-     * @return SignResponse (name, email, nickname, role, phoneNumber, address)
+     * @return SignResponse (name, email, nickname, role, phoneNumber, address, bank)
      * @exception CustomException (MEMBER_NOT_FOUND)
      * @apiNote
      * 1. 이메일로 멤버를 찾는다.
@@ -115,13 +116,14 @@ public class MemberService {
                 .role(member.getRole())
                 .phoneNumber(member.getPhoneNumber())
                 .address(member.getAddress())
+                .bank(member.getBank())
                 .build();
     }
 
     /**
      * 멤버 조회
      * @param token (accessToken)
-     * @return SignResponse (name, email, nickname, role, phoneNumber, address)
+     * @return SignResponse (name, email, nickname, role, phoneNumber, address, bank)
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @apiNote
      * 1. 토큰으로 멤버를 찾는다.
@@ -139,12 +141,13 @@ public class MemberService {
                 .role(member.getRole())
                 .phoneNumber(member.getPhoneNumber())
                 .address(member.getAddress())
+                .bank(member.getBank())
                 .build();
     }
 
     /**
      * 멤버 수정
-     * @param request (email, password, name, nickname, phoneNumber, address)
+     * @param request (email, password, name, nickname, phoneNumber, address, bank)
      * @param token (accessToken)
      * @return true
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
@@ -158,7 +161,36 @@ public class MemberService {
     public boolean update(SignRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        member.update(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress(), request.getBankName(), request.getAccountNumber());
+        // null인 항목들은 기존 정보로 가져옴
+        if (request.getEmail() == null) {
+            request.setEmail(member.getEmail());
+        }
+        if (request.getPassword() == null) {
+            request.setPassword(member.getPassword());
+        }
+        if (request.getName() == null) {
+            request.setName(member.getName());
+        }
+        if (request.getNickname() == null) {
+            request.setNickname(member.getNickname());
+        }
+        if (request.getPhoneNumber() == null) {
+            request.setPhoneNumber(member.getPhoneNumber());
+        }
+        if (request.getAddress() == null) {
+            request.setAddress(member.getAddress());
+        }
+        if (request.getBank() == null) {
+            request.setBank(member.getBank());
+        }
+
+        member.update(request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getNickname(),
+                request.getName(),
+                request.getPhoneNumber(),
+                request.getAddress(),
+                request.getBank());
 
         memberRepository.save(member);
 

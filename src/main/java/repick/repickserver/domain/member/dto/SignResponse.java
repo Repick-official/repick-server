@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.member.domain.Role;
+import repick.repickserver.domain.model.Bank;
 
 
 @Getter
@@ -20,5 +21,6 @@ public class SignResponse {
     @Schema(description = "전화번호", example = "01012345678")
     private String phoneNumber;
     private Address address;
+    private Bank bank;
 
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
@@ -35,10 +36,8 @@ public class SellOrder extends BaseTimeEntity {
 
     // 계좌 은행, 번호
     @NotNull
-    private String bankName;
-
-    @NotNull
-    private String accountNumber;
+    @Embedded
+    private Bank bank;
 
     // 리픽백 수량
     @NotNull
