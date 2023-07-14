@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
@@ -39,20 +40,19 @@ public class Member extends BaseTimeEntity {
 
     private String phoneNumber;
 
-    // BaseTimeEntity 사용
-    //    @CreatedDate
-    //    private LocalDateTime createdAt;
-    //
-    //    @LastModifiedDate
-    //    private LocalDateTime updatedAt;
+    private String bankName;
 
-    public void update(String email, String password, String nickname, String name, String phoneNumber, Address address) {
+    private String accountNumber;
+
+    public void update(String email, String password, String nickname, String name, String phoneNumber, Address address, String bankName, String accountNumber) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
     }
 
 

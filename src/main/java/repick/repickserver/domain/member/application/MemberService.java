@@ -158,7 +158,7 @@ public class MemberService {
     public boolean update(SignRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        member.update(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress());
+        member.update(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getNickname(), request.getName(), request.getPhoneNumber(), request.getAddress(), request.getBankName(), request.getAccountNumber());
 
         memberRepository.save(member);
 

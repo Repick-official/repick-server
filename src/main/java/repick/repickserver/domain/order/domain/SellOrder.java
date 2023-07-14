@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
-import repick.repickserver.domain.member.domain.Address;
+import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
