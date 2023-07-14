@@ -7,6 +7,7 @@ build/
 #application.properties
 application-database.yaml
 application-aws.yaml
+application-security.yaml
 
 ### STS ###
 .apt_generated

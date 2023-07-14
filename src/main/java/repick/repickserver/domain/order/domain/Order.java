@@ -1,17 +1,14 @@
 package repick.repickserver.domain.order.domain;
 
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
-import repick.repickserver.domain.member.domain.Address;
+import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder

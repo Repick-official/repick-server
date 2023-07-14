@@ -3,8 +3,6 @@ package repick.repickserver.domain.member.application;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -61,7 +59,7 @@ public class KakaoUserService {
         Authentication authentication = forceLogin(kakaoUser);
 
         // 5. response Header에 JWT 토큰 추가
-        kakaoUsersAuthorizationInput(authentication, response);
+        kakaoUserInfo.setAccessToken(kakaoUsersAuthorizationInput(authentication, response));
         return kakaoUserInfo;
     }
 
@@ -135,7 +133,7 @@ public class KakaoUserService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
-        return new SocialUserInfoDto(id, nickname, email);
+        return new SocialUserInfoDto(id, nickname, email, ""); // TODO : HTTPS 구현 후 삭제
     }
 
 
@@ -196,9 +194,12 @@ public class KakaoUserService {
      * @param response HttpServletResponse
      * @author seochanhyeok
      */
-    private void kakaoUsersAuthorizationInput(Authentication authentication, HttpServletResponse response) {
+    private String kakaoUsersAuthorizationInput(Authentication authentication, HttpServletResponse response) {
         UserDetailsImpl userDetailsImpl = ((UserDetailsImpl) authentication.getPrincipal());
-        response.addCookie(new Cookie("accessToken", jwtProvider.createAccessToken(userDetailsImpl)));
+        String accessToken = jwtProvider.createAccessToken(userDetailsImpl);
+        response.addCookie(new Cookie("accessToken", accessToken));
         response.addCookie(new Cookie("refreshToken", jwtProvider.createRefreshToken(userDetailsImpl)));
+
+        return accessToken; // TODO : HTTPS 구현 후 삭제
     }
 }

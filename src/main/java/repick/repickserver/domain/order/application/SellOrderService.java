@@ -39,18 +39,17 @@ public class SellOrderService {
         try {
 
             SellOrder sellOrder = SellOrder.builder()
-                .name(request.getName())
-                .phoneNumber(request.getPhoneNumber())
-                .bankName(request.getBankName())
-                .accountNumber(request.getAccountNumber())
-                .bagQuantity(request.getBagQuantity())
-                .productQuantity(request.getProductQuantity())
-                .address(request.getAddress())
-                .requestDetail(request.getRequestDetail())
-                .returnDate(request.getReturnDate())
-                .sellState(SellState.REQUESTED)
-                .member(member)
-                .build();
+                    .name(request.getName())
+                    .phoneNumber(request.getPhoneNumber())
+                    .bank(request.getBank())
+                    .bagQuantity(request.getBagQuantity())
+                    .productQuantity(request.getProductQuantity())
+                    .address(request.getAddress())
+                    .requestDetail(request.getRequestDetail())
+                    .returnDate(request.getReturnDate())
+                    .sellState(SellState.REQUESTED)
+                    .member(member)
+                    .build();
 
             sellOrderRepository.save(sellOrder);
             return true;
@@ -95,20 +94,19 @@ public class SellOrderService {
         List<SellOrder> sellOrders = sellOrderRepository.getSellOrders(member.getId(), reqState);
         sellOrders.forEach(sellOrder ->
                 sellOrderResponses.add(
-                    SellOrderResponse.builder()
-                        .id(sellOrder.getId())
-                        .name(sellOrder.getName())
-                        .phoneNumber(sellOrder.getPhoneNumber())
-                        .bankName(sellOrder.getBankName())
-                        .accountNumber(sellOrder.getAccountNumber())
-                        .bagQuantity(sellOrder.getBagQuantity())
-                        .productQuantity(sellOrder.getProductQuantity())
-                        .address(sellOrder.getAddress())
-                        .requestDetail(sellOrder.getRequestDetail())
-                        .returnDate(sellOrder.getReturnDate())
-                        .sellState(sellOrder.getSellState())
-                        .build())
-                );
+                        SellOrderResponse.builder()
+                                .id(sellOrder.getId())
+                                .name(sellOrder.getName())
+                                .phoneNumber(sellOrder.getPhoneNumber())
+                                .bank(sellOrder.getBank())
+                                .bagQuantity(sellOrder.getBagQuantity())
+                                .productQuantity(sellOrder.getProductQuantity())
+                                .address(sellOrder.getAddress())
+                                .requestDetail(sellOrder.getRequestDetail())
+                                .returnDate(sellOrder.getReturnDate())
+                                .sellState(sellOrder.getSellState())
+                                .build())
+        );
 
         return sellOrderResponses;
 
@@ -125,7 +123,7 @@ public class SellOrderService {
      * 3. 모든 상품화 완료된 주문을 뜻한다.
      * @author seochanhyeok
      */
-    public List<SellOrderResponse> getRequestedSellOrders(String state) {
+    public List<SellOrderResponse> getAllSellOrders(String state) {
 
         SellState reqState;
         switch (state) {
@@ -153,15 +151,12 @@ public class SellOrderService {
                                 .id(sellOrder.getId())
                                 .name(sellOrder.getName())
                                 .phoneNumber(sellOrder.getPhoneNumber())
-                                .bankName(sellOrder.getBankName())
-                                .accountNumber(sellOrder.getAccountNumber())
+                                .bank(sellOrder.getBank())
                                 .bagQuantity(sellOrder.getBagQuantity())
                                 .productQuantity(sellOrder.getProductQuantity())
                                 .address(sellOrder.getAddress())
                                 .requestDetail(sellOrder.getRequestDetail())
                                 .returnDate(sellOrder.getReturnDate())
-                                .parentSellOrder(sellOrder.getParentSellOrder())
-                                .childSellOrders(sellOrder.getChildSellOrders())
                                 .build())
         );
 
@@ -187,8 +182,7 @@ public class SellOrderService {
                 .parentSellOrder(foundOrder)
                 .name(foundOrder.getName())
                 .phoneNumber(foundOrder.getPhoneNumber())
-                .bankName(foundOrder.getBankName())
-                .accountNumber(foundOrder.getAccountNumber())
+                .bank(foundOrder.getBank())
                 .bagQuantity(foundOrder.getBagQuantity())
                 .productQuantity(foundOrder.getProductQuantity())
                 .address(foundOrder.getAddress())
