@@ -20,6 +20,8 @@ public class Product extends BaseTimeEntity {
 
     private String detail;
 
+    private String brand;
+
     @NotNull
     private Long price;
 
@@ -31,9 +33,10 @@ public class Product extends BaseTimeEntity {
     private ProductState productState;
 
     @Builder
-    public Product(String name, String detail, Long price, String size, Long discountRate) {
+    public Product(String name, String detail, String brand, Long price, String size, Long discountRate) {
         this.name = name;
         this.detail = detail;
+        this.brand = brand;
         this.price = price;
         this.size = size;
         this.discountRate = discountRate;

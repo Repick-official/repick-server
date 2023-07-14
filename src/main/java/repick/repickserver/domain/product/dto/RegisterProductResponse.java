@@ -3,6 +3,7 @@ package repick.repickserver.domain.product.dto;
 import lombok.*;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductImage;
+import repick.repickserver.domain.product.domain.ProductState;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,9 +15,11 @@ public class RegisterProductResponse {
     private Long productId; // Product 의 PK
     private String name;
     private String detail;
+    private String brand;
     private Long price;
     private String size;
     private Long discountRate;
+    private ProductState productState;
     // 이미지 정보
     private ImageFileInfo mainImageFile;
     private List<ImageFileInfo> detailImageFiles;
@@ -26,9 +29,11 @@ public class RegisterProductResponse {
         this.productId = product.getId();
         this.name = product.getName();
         this.detail = product.getDetail();
+        this.brand = product.getBrand();
         this.price = product.getPrice();
         this.size = product.getSize();
         this.discountRate = product.getDiscountRate();
+        this.productState = product.getProductState();
         this.mainImageFile = ImageFileInfo.builder()
                 .imagePath(mainProductImage.getImagePath())
                 .imageKey(mainProductImage.getImageKey())

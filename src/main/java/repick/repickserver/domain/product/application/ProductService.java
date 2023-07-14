@@ -51,6 +51,7 @@ public class ProductService {
         Product product = Product.builder()
                 .name(request.getName())
                 .detail(request.getDetail())
+                .brand(request.getBrand())
                 .price(request.getPrice())
                 .size(request.getSize())
                 .discountRate(request.getDiscountRate())
