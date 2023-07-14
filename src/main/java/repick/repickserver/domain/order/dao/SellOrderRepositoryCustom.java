@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface SellOrderRepositoryCustom {
 
-    List<SellOrder> getSellOrders(Long id, SellState state);
+    List<SellOrder> getSellOrdersById(Long id);
 
-    List<SellOrder> getSellOrdersAdmin(SellState state);
+    List<SellOrder> getSellOrdersByIdAndState(Long id, SellState state);
+
+    List<SellOrder> getSellOrdersByState(SellState state);
 }

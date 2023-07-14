@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.order.dao.SellOrderRepository;
+import repick.repickserver.domain.order.dao.SellOrderStateRepository;
 import repick.repickserver.domain.order.domain.SellOrder;
+import repick.repickserver.domain.order.domain.SellOrderState;
 import repick.repickserver.domain.order.domain.SellState;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
@@ -26,6 +28,7 @@ import static repick.repickserver.global.error.exception.ErrorCode.*;
 public class SellOrderService {
 
     private final SellOrderRepository sellOrderRepository;
+    private final SellOrderStateRepository sellOrderStateRepository;
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
 
@@ -55,11 +58,17 @@ public class SellOrderService {
                     .address(request.getAddress())
                     .requestDetail(request.getRequestDetail())
                     .returnDate(request.getReturnDate())
-                    .sellState(SellState.REQUESTED)
                     .member(member)
                     .build();
 
             sellOrderRepository.save(sellOrder);
+
+            // sellOrderState 생성
+            sellOrderStateRepository.save(SellOrderState.builder()
+                    .sellOrder(sellOrder)
+                    .sellState(SellState.REQUESTED)
+                    .build());
+
             return true;
 
         } catch (Exception e) {
@@ -70,7 +79,41 @@ public class SellOrderService {
     }
 
     /**
-     * 판매 조회
+     * <h1>모든 판매 조회</h1>
+     * @param token (accessToken)
+     * @return List<SellOrderResponse> (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
+     * @exception CustomException (PATH_NOT_RESOLVED)
+     * @apiNote 사용자의 판매 주문들을 sellState 와 관계 없이 가져옵니다.
+     * @author seochanhyeok
+     */
+    public List<SellOrderResponse> getAllSellOrders(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+
+        List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
+
+        sellOrderRepository.getSellOrdersById(member.getId()).forEach(sellOrder -> sellOrderResponses.add(
+                SellOrderResponse.builder()
+                        .id(sellOrder.getId())
+                        .orderNumber(sellOrder.getOrderNumber())
+                        .name(sellOrder.getName())
+                        .phoneNumber(sellOrder.getPhoneNumber())
+                        .bank(sellOrder.getBank())
+                        .bagQuantity(sellOrder.getBagQuantity())
+                        .productQuantity(sellOrder.getProductQuantity())
+                        .address(sellOrder.getAddress())
+                        .requestDetail(sellOrder.getRequestDetail())
+                        .returnDate(sellOrder.getReturnDate())
+                        // 가장 최근에 업데이트된 state 가져옴
+                        .sellState(sellOrderStateRepository.findLastStateBySellOrderId(sellOrder.getId()).getSellState())
+                        .build()
+        ));
+
+        return sellOrderResponses;
+
+    }
+
+    /**
+     * <h1>판매 조회</h1>
      * @param state (requested | canceled | delivered | published)
      * @param token (accessToken)
      * @return List<SellOrderResponse> (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
@@ -99,8 +142,9 @@ public class SellOrderService {
         }
 
         List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
-        List<SellOrder> sellOrders = sellOrderRepository.getSellOrders(member.getId(), reqState);
-        sellOrders.forEach(sellOrder ->
+        sellOrderRepository.getSellOrdersByIdAndState(member.getId(), reqState).forEach(sellOrder -> {
+
+            if (sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState)) {
                 sellOrderResponses.add(
                         SellOrderResponse.builder()
                                 .id(sellOrder.getId())
@@ -113,26 +157,23 @@ public class SellOrderService {
                                 .address(sellOrder.getAddress())
                                 .requestDetail(sellOrder.getRequestDetail())
                                 .returnDate(sellOrder.getReturnDate())
-                                .sellState(sellOrder.getSellState())
-                                .build())
-        );
+                                // 가장 최근에 업데이트된 state 가져옴
+                                .sellState(reqState)
+                                .build()
+                );
+            }
+        });
 
         return sellOrderResponses;
-
 
     }
 
     /**
-     * 관리자가 모든 유저들의, 상태에 해당하는 '처리되지 않은' 판매 주문을 조회한다.
+     * 관리자가 모든 유저들의, 마지막 상태에 해당하는 판매 주문을 조회한다.
      * @return List<SellOrderResponse> (id, name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @apiNote
-     * '처리되지 않은' 판매 주문이란,
-     * 1. 판매 주문이 요청되었지만, 아직 처리되지 않은 주문
-     * 2. 판매 주문이 배송되었지만, 아직 상품화를 거치지 않은 주문
-     * 3. 모든 상품화 완료된 주문을 뜻한다.
      * @author seochanhyeok
      */
-    public List<SellOrderResponse> getAllSellOrders(String state) {
+    public List<SellOrderResponse> getAllSellOrdersAdmin(String state) {
 
         SellState reqState;
         switch (state) {
@@ -153,22 +194,25 @@ public class SellOrderService {
         }
 
         List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
-        List<SellOrder> sellOrders = sellOrderRepository.getSellOrdersAdmin(reqState);
-        sellOrders.forEach(sellOrder ->
-                sellOrderResponses.add(
-                        SellOrderResponse.builder()
-                                .id(sellOrder.getId())
-                                .name(sellOrder.getName())
-                                .orderNumber(sellOrder.getOrderNumber())
-                                .phoneNumber(sellOrder.getPhoneNumber())
-                                .bank(sellOrder.getBank())
-                                .bagQuantity(sellOrder.getBagQuantity())
-                                .productQuantity(sellOrder.getProductQuantity())
-                                .address(sellOrder.getAddress())
-                                .requestDetail(sellOrder.getRequestDetail())
-                                .returnDate(sellOrder.getReturnDate())
-                                .build())
-        );
+        List<SellOrder> sellOrders = sellOrderRepository.getSellOrdersByState(reqState);
+        sellOrders.forEach(sellOrder -> {
+                if (sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState)) {
+                    sellOrderResponses.add(
+                            SellOrderResponse.builder()
+                                    .id(sellOrder.getId())
+                                    .name(sellOrder.getName())
+                                    .orderNumber(sellOrder.getOrderNumber())
+                                    .phoneNumber(sellOrder.getPhoneNumber())
+                                    .bank(sellOrder.getBank())
+                                    .bagQuantity(sellOrder.getBagQuantity())
+                                    .productQuantity(sellOrder.getProductQuantity())
+                                    .address(sellOrder.getAddress())
+                                    .requestDetail(sellOrder.getRequestDetail())
+                                    .returnDate(sellOrder.getReturnDate())
+                                    .sellState(reqState)
+                                    .build());
+                }
+        });
 
         return sellOrderResponses;
     }
@@ -177,60 +221,25 @@ public class SellOrderService {
      * 관리자가 판매 요청을 업데이트함
      * @param request (orderNumber, sellState)
      * @return true
-     * @exception CustomException id에 해당하는 order를 조회하지 못할 경우 ORDER_NOT_FOUND "판매 요청을 찾을 수 없음" 에러 발생
+     * @exception CustomException orderNumber에 해당하는 order를 조회하지 못할 경우 ORDER_NOT_FOUND "판매 요청을 찾을 수 없음" 에러 발생
      * @author seochanhyeok
      */
-    public Boolean updateSellOrder(SellOrderUpdateRequest request) {
-        // id를 받아서 해당 id의 sellOrder를 찾음
-        List<SellOrder> sellOrderList = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
+    public Boolean updateSellOrderAdmin(SellOrderUpdateRequest request) {
+        // 주문번호로 판매 주문을 가져온다.
+        SellOrder sellOrderList = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
 
-        if (sellOrderList.isEmpty()) {
+        // 해당 판매 주문이 없으면 에러를 던진다.
+        if (sellOrderList == null) {
             throw new CustomException(ORDER_NOT_FOUND);
         }
 
-        /*
-         * foundOrder를 우선순위에 따라 찾는다.
-         * 1. PUBLISHED
-         * 2. CANCELED
-         * 3. DELIVERED
-         * 4. REQUESTED
-         */
-        SellOrder foundOrder = sellOrderList.stream()
-                .filter(sellOrder -> sellOrder.getSellState().equals(SellState.PUBLISHED))
-                .findFirst()
-                // PUBLISHED가 없으면 CANCELED를 찾는다.
-                .orElseGet(() -> sellOrderList.stream()
-                .filter(sellOrder -> sellOrder.getSellState().equals(SellState.CANCELLED))
-                .findFirst()
-                // CANCELED가 없으면 DELIVERED를 찾는다.
-                .orElseGet(() -> sellOrderList.stream()
-                .filter(sellOrder -> sellOrder.getSellState().equals(SellState.DELIVERED))
-                .findFirst()
-                // DELIVERED도 없으면 REQUESTED를 찾는다.
-                .orElseGet(() -> sellOrderList.stream()
-                .filter(sellOrder -> sellOrder.getSellState().equals(SellState.REQUESTED))
-                .findFirst()
-                // REQUESTED도 없으면 ORDER_NOT_FOUND를 발생시킨다.
-                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND)))));
-
-        // request에서 받은 state로 sellOrder를 업데이트
-        SellOrder sellOrder = SellOrder.builder()
-                .parentSellOrder(foundOrder)
-                .orderNumber(foundOrder.getOrderNumber())
-                .name(foundOrder.getName())
-                .phoneNumber(foundOrder.getPhoneNumber())
-                .bank(foundOrder.getBank())
-                .bagQuantity(foundOrder.getBagQuantity())
-                .productQuantity(foundOrder.getProductQuantity())
-                .address(foundOrder.getAddress())
-                .requestDetail(foundOrder.getRequestDetail())
-                .returnDate(foundOrder.getReturnDate())
+        // 판매 주문의 상태를 업데이트한다.
+        sellOrderStateRepository.save(SellOrderState.builder()
+                .sellOrder(sellOrderList)
                 .sellState(request.getSellState())
-                .member(foundOrder.getMember())
-                .build();
-
-        sellOrderRepository.save(sellOrder);
+                .build());
 
         return true;
+
     }
 }

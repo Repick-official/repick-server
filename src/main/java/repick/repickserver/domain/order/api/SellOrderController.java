@@ -21,7 +21,7 @@ public class SellOrderController {
 
     private final SellOrderService sellOrderService;
 
-    @Operation(summary = "옷장 수거 내역", description = "주문의 id로 판매 주문을 조회합니다.")
+    @Operation(summary = "옷장 수거 내역", description = "주문 상태로 판매 주문을 조회합니다.")
     @GetMapping(value = "/{state}")
     @ApiImplicitParam(
             name = "state",
@@ -57,14 +57,14 @@ public class SellOrderController {
     @GetMapping(value = "/admin/{state}")
     public ResponseEntity<List<SellOrderResponse>> getAllSellOrders(@PathVariable("state") String state) {
         return ResponseEntity.ok()
-                .body(sellOrderService.getAllSellOrders(state));
+                .body(sellOrderService.getAllSellOrdersAdmin(state));
     }
 
     @Operation(summary = "옷장 수거 현황 변경", description = "판매 주문의 상태를 변경합니다.")
     @PostMapping(value = "/admin/update")
     public ResponseEntity<Boolean> updateSellOrder(@RequestBody SellOrderUpdateRequest request) {
         return ResponseEntity.ok()
-                .body(sellOrderService.updateSellOrder(request));
+                .body(sellOrderService.updateSellOrderAdmin(request));
     }
 
 }
