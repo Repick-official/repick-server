@@ -12,6 +12,8 @@ public class RegisterProductRequest {
 
     private String detail;
 
+    private String brand;
+
     @NotNull(message = "상품 가격을 입력해주세요.")
     private Long price;
 

@@ -1,16 +1,16 @@
 package repick.repickserver.domain.product.dto;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductImage;
 import repick.repickserver.domain.product.domain.ProductState;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RegisterProductResponse {
+public class GetMainPageResponse {
 
     private Long productId; // Product 의 PK
     private String name;
@@ -21,11 +21,11 @@ public class RegisterProductResponse {
     private Long discountRate;
     private ProductState productState;
     // 이미지 정보
-    private ImageFileInfo mainImageFile;
-    private List<ImageFileInfo> detailImageFiles;
+    private RegisterProductResponse.ImageFileInfo mainImageFile;
+    // TODO: View(조회수), Likes(좋아요수) 도 MVP 에서 구현하기로 결정되면 추가하기
 
     @Builder
-    public RegisterProductResponse(Product product, ProductImage mainProductImage, List<ProductImage> detailProductImages) {
+    public GetMainPageResponse(Product product, ProductImage mainProductImage) {
         this.productId = product.getId();
         this.name = product.getName();
         this.detail = product.getDetail();
@@ -34,25 +34,10 @@ public class RegisterProductResponse {
         this.size = product.getSize();
         this.discountRate = product.getDiscountRate();
         this.productState = product.getProductState();
-        this.mainImageFile = ImageFileInfo.builder()
+        this.mainImageFile = RegisterProductResponse.ImageFileInfo.builder()
                 .imagePath(mainProductImage.getImagePath())
                 .imageKey(mainProductImage.getImageKey())
                 .isMainImage(true)
                 .build();
-        this.detailImageFiles = detailProductImages.stream()
-                .map(detailProductImage -> ImageFileInfo.builder()
-                        .imagePath(detailProductImage.getImagePath())
-                        .imageKey(detailProductImage.getImageKey())
-                        .isMainImage(false)
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    @Data
-    @Builder
-    public static class ImageFileInfo {
-        private String imagePath;
-        private String imageKey;
-        private Boolean isMainImage;
     }
 }
