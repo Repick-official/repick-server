@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
+import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 import springfox.documentation.annotations.ApiIgnore;
@@ -21,7 +22,7 @@ public class SubscribeController {
 
     @Operation(summary = "구독 여부 조회", description = "요청한 유저 본인의 현재 구독 여부를 조회합니다.")
     @GetMapping("/check")
-    public ResponseEntity<Boolean> check(@ApiIgnore @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> check(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.check(token));
     }
@@ -44,11 +45,13 @@ public class SubscribeController {
                 .body(subscriberInfoService.history(state, token));
     }
 
-    @Operation(summary = "구독 요청", description = "유저가 구독을 요청합니다. expireDate는 7일입니다.")
+    @Operation(summary = "구독 요청", description = "유저가 구독을 요청합니다. expireDate는 7일입니다." +
+            "\n\n 구독 종류는 다음과 같습니다 : BASIC, PRO, PREMIUM")
     @PostMapping("/request")
-    public ResponseEntity<Boolean> subscribeRequest(@ApiIgnore @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Boolean> subscribeRequest(@ApiIgnore @RequestHeader("Authorization") String token,
+                                                    @RequestBody SubscriberInfoRegisterRequest request) {
         return ResponseEntity.ok()
-                .body(subscriberInfoService.subscribeRequest(token));
+                .body(subscriberInfoService.subscribeRequest(token, request));
     }
 
     @Operation(summary = "요청된 구독 조회", description = "관리자가 모든 유저의 처리되지 않은 구독 요청을 조회합니다. 만료된 요청은 보이지 않습니다.")

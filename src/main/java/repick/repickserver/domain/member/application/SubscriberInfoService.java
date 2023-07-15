@@ -1,5 +1,6 @@
 package repick.repickserver.domain.member.application;
 
+import com.mysema.commons.lang.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -7,10 +8,12 @@ import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
+import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 
@@ -18,8 +21,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -39,10 +40,16 @@ public class SubscriberInfoService {
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public Boolean check(String token) {
+    public String check(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<SubscriberInfo> validSubscriberInfo = subscriberInfoRepository.findValidSubscriberInfo(member.getId());
-        return !validSubscriberInfo.isEmpty();
+        SubscriberInfo validSubscriberInfo = subscriberInfoRepository.findValidSubscriberInfo(member.getId());
+
+        if (validSubscriberInfo == null) {
+            return "NONE";
+        }
+        System.out.println("validSubscriberInfo = " + validSubscriberInfo);
+        return validSubscriberInfo.getSubscribeType().toString();
+
     }
 
     /**
@@ -54,34 +61,16 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public List<SubscriberInfoResponse> history(String state, String token) {
-        SubscribeState subscribeState;
-        boolean isExpired = false;
-        switch (state) {
-            case "requested":
-                subscribeState = SubscribeState.REQUESTED;
-                break;
-            case "approved":
-                subscribeState = SubscribeState.APPROVED;
-                break;
-            case "denied":
-                subscribeState = SubscribeState.DENIED;
-                isExpired = true;
-                break;
-            case "request-expired":
-                subscribeState = SubscribeState.REQUESTED;
-                isExpired = true;
-                break;
-            case "expired":
-                subscribeState = SubscribeState.APPROVED;
-                isExpired = true;
-                break;
-            default:
-                throw new CustomException("잘못된 주소 요청입니다.", PATH_NOT_RESOLVED);
-        }
+
+        Pair<SubscribeState, Boolean> subscribeState = Parser.parseSubscribeState(state);
 
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfo(member.getId(), subscribeState, isExpired);
+        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfo(
+                                                                        member.getId(),
+                                                                        subscribeState.getFirst(),
+                                                                        subscribeState.getSecond());
+
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
         subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
                 .id(subscriberInfo.getId())
@@ -89,6 +78,7 @@ public class SubscriberInfoService {
                 .createdDate(subscriberInfo.getCreatedDate())
                 .expireDate(subscriberInfo.getExpireDate())
                 .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
                 .build()));
         return subscriberInfoResponses;
     }
@@ -103,10 +93,13 @@ public class SubscriberInfoService {
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findValidRequests();
         subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
                 .id(subscriberInfo.getId())
+                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
+                .nickname(subscriberInfo.getMember().getNickname())
                 .orderNumber(subscriberInfo.getOrderNumber())
                 .createdDate(subscriberInfo.getCreatedDate())
                 .expireDate(subscriberInfo.getExpireDate())
                 .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
                 .build()));
         return subscriberInfoResponses;
     }
@@ -118,15 +111,16 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public Boolean add(SubscriberInfoRequest request) {
-        SubscriberInfo parent = subscriberInfoRepository.findById(request.getId())
-                .orElseThrow(() -> new CustomException("존재하지 않는 구독 요청입니다.", SUBSCRIBER_INFO_NOT_FOUND));
+        SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(parent.getMember())
+                .orderNumber(parent.getOrderNumber())
                 .parentSubscriberInfo(parent)
                 // 승인 시점으로부터 한 달 뒤 만료
                 .expireDate(LocalDateTime.now().plusMonths(1))
                 .subscribeState(SubscribeState.APPROVED)
+                .subscribeType(parent.getSubscribeType())
                 .build();
 
         subscriberInfoRepository.save(subscriberInfo);
@@ -142,14 +136,15 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public Boolean deny(SubscriberInfoRequest request) {
-        SubscriberInfo parent = subscriberInfoRepository.findById(request.getId())
-                .orElseThrow(() -> new CustomException("존재하지 않는 구독 요청입니다.", SUBSCRIBER_INFO_NOT_FOUND));
+        SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(parent.getMember())
+                .orderNumber(parent.getOrderNumber())
                 .parentSubscriberInfo(parent)
                 .expireDate(LocalDateTime.now()) // 만료시점을 현재로 설정하여 만료시킴
                 .subscribeState(SubscribeState.DENIED)
+                .subscribeType(parent.getSubscribeType())
                 .build();
 
         subscriberInfoRepository.save(subscriberInfo);
@@ -165,7 +160,7 @@ public class SubscriberInfoService {
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public Boolean subscribeRequest(String token) {
+    public Boolean subscribeRequest(String token, SubscriberInfoRegisterRequest request) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
@@ -173,6 +168,7 @@ public class SubscriberInfoService {
                 .orderNumber(orderNumberService.generateOrderNumber(OrderType.SUBSCRIBE)) // 주문번호 생성
                 .expireDate(LocalDateTime.now().plusDays(7)) // 무통장입금의 경우 입금대기기간 1주일로 임의로 잡았음
                 .subscribeState(SubscribeState.REQUESTED) // 상태는 요청
+                .subscribeType(request.getSubscribeType()) // 구독타입
                 .build();
 
         subscriberInfoRepository.save(subscriberInfo);

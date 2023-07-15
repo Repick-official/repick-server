@@ -18,7 +18,7 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<SubscriberInfo> findValidSubscriberInfo(Long id) {
+    public SubscriberInfo findValidSubscriberInfo(Long id) {
 
         return jpaQueryFactory.selectFrom(subscriberInfo)
                 // 멤버 id 일치하는 것들로 필터
@@ -27,7 +27,10 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
                 .and(subscriberInfo.subscribeState.eq(SubscribeState.APPROVED))
                 // 구독 만료일이 현재 날짜보다 미래인 경우
                 .and(subscriberInfo.expireDate.after(LocalDateTime.now())))
-                .fetch();
+                // SubscribeType을 PREMIUM -> PRO -> BASIC 순으로 정렬
+                .orderBy(subscriberInfo.subscribeType.desc())
+                // 가장 먼저 나오는 것을 fetch
+                .fetchFirst();
     }
 
     @Override

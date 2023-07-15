@@ -35,6 +35,12 @@ public class SubscriberInfo extends BaseTimeEntity {
     private Member member;
 
     /*
+    * 구독 종류 : BASIC, PRO, PREMIUM
+     */
+    @Enumerated(EnumType.STRING)
+    private SubscribeType subscribeType;
+
+    /*
     * 구독 상태
     * 요청 : REQUEST
     * 승인 : APPROVE
@@ -51,10 +57,6 @@ public class SubscriberInfo extends BaseTimeEntity {
      */
     @Nullable
     private LocalDateTime expireDate;
-
-    // BaseTimeEntity 사용
-    //    @CreatedDate
-    //    private LocalDateTime createdAt;
 
 
 }

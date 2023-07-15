@@ -8,7 +8,7 @@ import java.util.List;
 public interface SubscriberInfoRepositoryCustom {
 
 
-    List<SubscriberInfo> findValidSubscriberInfo(Long id);
+    SubscriberInfo findValidSubscriberInfo(Long id);
 
     List<SubscriberInfo> findValidRequests();
 

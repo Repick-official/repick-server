@@ -13,6 +13,7 @@ import repick.repickserver.domain.order.dto.SellOrderResponse;
 import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
+import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 
@@ -123,23 +124,7 @@ public class SellOrderService {
     public List<SellOrderResponse> getSellOrders(String state, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        SellState reqState;
-        switch (state) {
-            case "requested":
-                reqState = SellState.REQUESTED;
-                break;
-            case "canceled":
-                reqState = SellState.CANCELLED;
-                break;
-            case "delivered":
-                reqState = SellState.DELIVERED;
-                break;
-            case "published":
-                reqState = SellState.PUBLISHED;
-                break;
-            default:
-                throw new CustomException(PATH_NOT_RESOLVED);
-        }
+        SellState reqState = Parser.parseSellState(state);
 
         List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
         sellOrderRepository.getSellOrdersByIdAndState(member.getId(), reqState).forEach(sellOrder -> {
@@ -157,7 +142,6 @@ public class SellOrderService {
                                 .address(sellOrder.getAddress())
                                 .requestDetail(sellOrder.getRequestDetail())
                                 .returnDate(sellOrder.getReturnDate())
-                                // 가장 최근에 업데이트된 state 가져옴
                                 .sellState(reqState)
                                 .build()
                 );
@@ -175,23 +159,7 @@ public class SellOrderService {
      */
     public List<SellOrderResponse> getAllSellOrdersAdmin(String state) {
 
-        SellState reqState;
-        switch (state) {
-            case "requested":
-                reqState = SellState.REQUESTED;
-                break;
-            case "canceled":
-                reqState = SellState.CANCELLED;
-                break;
-            case "delivered":
-                reqState = SellState.DELIVERED;
-                break;
-            case "published":
-                reqState = SellState.PUBLISHED;
-                break;
-            default:
-                throw new CustomException(PATH_NOT_RESOLVED);
-        }
+        SellState reqState = Parser.parseSellState(state);
 
         List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
         List<SellOrder> sellOrders = sellOrderRepository.getSellOrdersByState(reqState);

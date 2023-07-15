@@ -5,10 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import repick.repickserver.domain.member.domain.SubscribeType;
 
 @Getter @Builder @AllArgsConstructor @NoArgsConstructor
-public class SubscriberInfoRequest {
-    @Schema(description = "주문번호", example = "S230715F8W4M")
-    private String orderNumber;
+public class SubscriberInfoRegisterRequest {
 
+    @Schema(description = "플랜 이름", example = "BASIC")
+    private SubscribeType subscribeType;
 }
