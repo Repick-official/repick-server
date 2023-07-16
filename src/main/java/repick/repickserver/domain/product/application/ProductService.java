@@ -142,4 +142,12 @@ public class ProductService {
     public List<GetProductResponse> getPageByProductPriceDesc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
         return productRepository.findPageByProductPriceDesc(cursorId, cursorPrice, categoryId, pageSize);
     }
+
+    /**
+     * 가격낮은순으로 전체 또는 특정 카테고리의 상품 조회
+     * No Offset Pagination (페이징 성능 향상)
+     */
+    public List<GetProductResponse> getPageByProductPriceAsc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
+        return productRepository.findPageByProductPriceAsc(cursorId, cursorPrice, categoryId, pageSize);
+    }
 }

@@ -22,9 +22,13 @@ public class Category extends BaseTimeEntity {
     @Column(unique = true)
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category parentCategory;
+
     @Builder
     public Category(Long id, String name) {
         this.id = id;
         this.name = name;
+        this.parentCategory = null;
     }
 }

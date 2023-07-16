@@ -20,6 +20,7 @@ public class CategoryService {
                 .map(category -> GetCategoryResponse.builder()
                         .id(category.getId())
                         .name(category.getName())
+                        .parentCategory(category.getParentCategory())
                         .build())
                 .collect(Collectors.toList());
     }
