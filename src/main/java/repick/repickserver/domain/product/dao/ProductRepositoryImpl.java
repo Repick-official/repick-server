@@ -115,7 +115,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             return null;
         }
 
-        return product.id.lt(cursorId).and(product.price.loe(cursorPrice));
+        // return product.id.lt(cursorId).and(product.price.loe(cursorPrice));
+        return product.price.eq(cursorPrice)
+                .and(product.id.lt(cursorId))
+                .or(product.price.lt(cursorPrice));
     }
 
     private BooleanExpression cursorIdAndCursorPriceAsc(Long cursorId, Long cursorPrice) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
@@ -123,7 +126,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             return null;
         }
 
-        return product.id.lt(cursorId).and(product.price.goe(cursorPrice));
+        // return product.id.lt(cursorId).and(product.price.goe(cursorPrice));
+        return product.price.eq(cursorPrice)
+                .and(product.id.lt(cursorId))
+                .or(product.price.gt(cursorPrice));
     }
 
 }
