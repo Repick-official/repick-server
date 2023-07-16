@@ -1,5 +1,6 @@
 package repick.repickserver.domain.product.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import repick.repickserver.domain.product.domain.ProductState;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GetMainPageResponse {
+public class GetProductResponse {
 
     private Long productId; // Product 의 PK
     private String name;
@@ -25,7 +26,8 @@ public class GetMainPageResponse {
     // TODO: View(조회수), Likes(좋아요수) 도 MVP 에서 구현하기로 결정되면 추가하기
 
     @Builder
-    public GetMainPageResponse(Product product, ProductImage mainProductImage) {
+    @QueryProjection
+    public GetProductResponse(Product product, ProductImage mainProductImage) {
         this.productId = product.getId();
         this.name = product.getName();
         this.detail = product.getDetail();
