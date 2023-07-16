@@ -17,7 +17,7 @@ public class WaybillNumberController {
     private final WaybillNumberService waybillNumberService;
 
     @Operation(summary = "운송장 번호 등록", description = "운송장 번호를 등록합니다.")
-    @PostMapping("/register")
+    @PostMapping("/admin/register")
     public ResponseEntity<Boolean> postWaybillNumber(@RequestBody WaybillNumberRequest request) {
         return ResponseEntity.ok()
                 .body(waybillNumberService.postWaybillNumber(request));
