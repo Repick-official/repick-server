@@ -6,6 +6,6 @@ import repick.repickserver.domain.product.domain.ProductState;
 
 import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
     List<Product> findTop4ByProductStateOrderByIdDesc(ProductState productState);
 }

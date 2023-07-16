@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.*;
-import repick.repickserver.domain.product.dto.GetMainPageResponse;
+import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.RegisterProductRequest;
 import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
@@ -87,13 +87,13 @@ public class ProductService {
                 .build();
     }
 
-    public List<GetMainPageResponse> getMainPageProducts() {
+    public List<GetProductResponse> getMainPageProducts() {
         // TODO: 일단은 상태가 '판매중'인 신상품 4개 추천
         List<Product> products = productRepository.findTop4ByProductStateOrderByIdDesc(SELLING);
         List<ProductImage> productImages = productImageRepository.findByProductInAndIsMainImage(products, true);
 
         return products.stream()
-                .map(product -> GetMainPageResponse.builder()
+                .map(product -> GetProductResponse.builder()
                         .product(product)
                         .mainProductImage(productImages.stream()
                                 .filter(productImage -> productImage.getProduct().getId().equals(product.getId()))
@@ -125,5 +125,29 @@ public class ProductService {
                         .filter(productImage -> !productImage.getIsMainImage())
                         .collect(Collectors.toList()))
                         .build();
+    }
+
+    /**
+     * 최신순으로 전체 또는 특정 카테고리의 상품 조회
+     * No Offset Pagination (페이징 성능 향상)
+     */
+    public List<GetProductResponse> getPageByProductRegistrationDate(Long cursorId, Long categoryId, int pageSize) {
+        return productRepository.findPageByProductRegistrationDate(cursorId, categoryId, pageSize);
+    }
+
+    /**
+     * 가격높은순으로 전체 또는 특정 카테고리의 상품 조회
+     * No Offset Pagination (페이징 성능 향상)
+     */
+    public List<GetProductResponse> getPageByProductPriceDesc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
+        return productRepository.findPageByProductPriceDesc(cursorId, cursorPrice, categoryId, pageSize);
+    }
+
+    /**
+     * 가격낮은순으로 전체 또는 특정 카테고리의 상품 조회
+     * No Offset Pagination (페이징 성능 향상)
+     */
+    public List<GetProductResponse> getPageByProductPriceAsc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
+        return productRepository.findPageByProductPriceAsc(cursorId, cursorPrice, categoryId, pageSize);
     }
 }
