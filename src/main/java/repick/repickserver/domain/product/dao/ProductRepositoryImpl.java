@@ -115,7 +115,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             return null;
         }
 
-        // return product.id.lt(cursorId).and(product.price.loe(cursorPrice));
         return product.price.eq(cursorPrice)
                 .and(product.id.lt(cursorId))
                 .or(product.price.lt(cursorPrice));
@@ -126,7 +125,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             return null;
         }
 
-        // return product.id.lt(cursorId).and(product.price.goe(cursorPrice));
         return product.price.eq(cursorPrice)
                 .and(product.id.lt(cursorId))
                 .or(product.price.gt(cursorPrice));
