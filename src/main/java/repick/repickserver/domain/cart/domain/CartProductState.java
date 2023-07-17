@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum CartProductState {
-    IN_CART, HOME_FITTING_REQUESTED, ORDERED
+    IN_CART, HOME_FITTING_REQUESTED, ORDERED, DELETED
 }

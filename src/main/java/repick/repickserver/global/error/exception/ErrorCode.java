@@ -35,6 +35,7 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(400, "P006", "존재하지 않는 상품입니다."),
     PRODUCT_IMAGE_NOT_FOUND(400, "P007", "존재하지 않는 상품 이미지입니다."),
     INVALID_CATEGORY_ID(400, "P008", "존재하지 않는 카테고리입니다."),
+    PRODUCT_SOLD_OUT(400, "P009", "품절된 상품입니다."),
 
     //OrderNumber
     INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다.");
