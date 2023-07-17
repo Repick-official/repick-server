@@ -146,16 +146,29 @@ public class ProductService {
 
         List<ProductImage> productImages = productImageRepository.findAllByProductId(productId);
 
+        // 카테고리 리스트 조회
+        List<Long> categoryIds = productCategoryRepository.findAllByProductId(productId)
+                .stream()
+                .map(ProductCategory::getCategory)
+                .map(Category::getId)
+                .collect(Collectors.toList());
+
+        List<RegisterProductResponse.CategoryInfo> categoryInfoList = categoryRepository.findAllById(categoryIds)
+                .stream()
+                .map(this::mapCategoryToCategoryInfo)
+                .collect(Collectors.toList());
+
         return RegisterProductResponse.builder()
                 .product(product)
                 .mainProductImage(productImages.stream()
                         .filter(ProductImage::getIsMainImage)
                         .findFirst()
                         .orElseThrow(() -> new CustomException(PRODUCT_IMAGE_NOT_FOUND)))
-                        .detailProductImages(productImages.stream()
+                .detailProductImages(productImages.stream()
                         .filter(productImage -> !productImage.getIsMainImage())
                         .collect(Collectors.toList()))
-                        .build();
+                .categoryInfoList(categoryInfoList)
+                .build();
     }
 
     /**
