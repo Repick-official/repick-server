@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import repick.repickserver.domain.product.dao.CategoryRepository;
+import repick.repickserver.domain.product.dao.ProductCategoryRepository;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.*;
@@ -25,9 +27,11 @@ public class ProductService {
     private final AwsS3Service awsS3Service;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
-                                                   RegisterProductRequest request) {
+                                                   RegisterProductRequest request, List<Long> categoryIds) {
         // S3 에 메인 이미지 업로드
         AwsS3 awsS3Main;
         try {
@@ -80,10 +84,37 @@ public class ProductService {
                 .map(productImageRepository::save)
                 .collect(Collectors.toList());
 
+        // 상품 카테고리 저장
+        List<ProductCategory> productCategories = categoryIds.stream()
+                .map(categoryId -> categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new CustomException(INVALID_CATEGORY_ID)))
+                .map(category -> new ProductCategory(savedProduct, category))
+                .collect(Collectors.toList());
+
+        productCategoryRepository.saveAll(productCategories);
+
+        List<RegisterProductResponse.CategoryInfo> categoryInfoList = productCategories.stream()
+                .map(ProductCategory::getCategory)
+                .map(this::mapCategoryToCategoryInfo)
+                .collect(Collectors.toList());
+
+
         return RegisterProductResponse.builder()
                 .product(savedProduct)
                 .mainProductImage(savedMainProductImage)
                 .detailProductImages(savedDetailProductImages)
+                .categoryInfoList(categoryInfoList)
+                .build();
+    }
+
+    private RegisterProductResponse.CategoryInfo mapCategoryToCategoryInfo(Category category) {
+        Long parentId = category.getParentCategory() != null ? category.getParentCategory().getId() : null;
+        String parentName = category.getParentCategory() != null ? category.getParentCategory().getName() : null;
+        return RegisterProductResponse.CategoryInfo.builder()
+                .categoryId(category.getId())
+                .categoryName(category.getName())
+                .parentCategoryId(parentId)
+                .parentCategoryName(parentName)
                 .build();
     }
 

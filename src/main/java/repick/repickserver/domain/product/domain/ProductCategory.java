@@ -1,6 +1,7 @@
 package repick.repickserver.domain.product.domain;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import repick.repickserver.domain.model.BaseTimeEntity;
@@ -23,5 +24,11 @@ public class ProductCategory extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @Builder
+    public ProductCategory(Product product, Category category) {
+        this.product = product;
+        this.category = category;
+    }
 
 }

@@ -23,9 +23,11 @@ public class RegisterProductResponse {
     // 이미지 정보
     private ImageFileInfo mainImageFile;
     private List<ImageFileInfo> detailImageFiles;
+    // 카테고리 정보
+    private List<CategoryInfo> categoryInfoList;
 
     @Builder
-    public RegisterProductResponse(Product product, ProductImage mainProductImage, List<ProductImage> detailProductImages) {
+    public RegisterProductResponse(Product product, ProductImage mainProductImage, List<ProductImage> detailProductImages, List<CategoryInfo> categoryInfoList) {
         this.productId = product.getId();
         this.name = product.getName();
         this.detail = product.getDetail();
@@ -46,6 +48,7 @@ public class RegisterProductResponse {
                         .isMainImage(false)
                         .build())
                 .collect(Collectors.toList());
+        this.categoryInfoList = categoryInfoList;
     }
 
     @Data
@@ -54,5 +57,14 @@ public class RegisterProductResponse {
         private String imagePath;
         private String imageKey;
         private Boolean isMainImage;
+    }
+
+    @Data
+    @Builder
+    public static class CategoryInfo {
+        private Long categoryId;
+        private String categoryName;
+        private Long parentCategoryId;
+        private String parentCategoryName;
     }
 }

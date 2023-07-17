@@ -12,12 +12,14 @@ public class GetCategoryResponse {
 
     private Long id;
     private String name;
-    private Category parentCategory;
+    private Long parentId;
+    private String parentName;
 
     @Builder
-    public GetCategoryResponse(Long id, String name, Category parentCategory) {
+    public GetCategoryResponse(Long id, String name, Long parentId, String parentName) {
         this.id = id;
         this.name = name;
-        this.parentCategory = parentCategory;
+        this.parentId = parentId;
+        this.parentName = parentName;
     }
 }

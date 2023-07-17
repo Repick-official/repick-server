@@ -22,9 +22,10 @@ public class ProductController {
     @PostMapping("/register")
     public ResponseEntity<RegisterProductResponse> registerProduct(@RequestPart("mainImageFile") MultipartFile mainImageFile,
                                                                    @RequestPart("detailImageFiles") List<MultipartFile> detailImageFiles,
-                                                                   @RequestPart RegisterProductRequest request) {
+                                                                   @RequestPart RegisterProductRequest request,
+                                                                   @RequestPart List<Long> categoryIds) {
         return ResponseEntity.ok()
-                .body(productService.registerProduct(mainImageFile, detailImageFiles, request));
+                .body(productService.registerProduct(mainImageFile, detailImageFiles, request, categoryIds));
     }
 
     @GetMapping("/category")

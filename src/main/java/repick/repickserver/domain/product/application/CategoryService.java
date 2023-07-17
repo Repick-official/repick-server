@@ -17,12 +17,14 @@ public class CategoryService {
 
     public List<GetCategoryResponse> getCategories() {
         return categoryRepository.findAll().stream()
-                .map(category -> GetCategoryResponse.builder()
-                        .id(category.getId())
-                        .name(category.getName())
-                        .parentCategory(category.getParentCategory())
-                        .build())
+                .map(category -> new GetCategoryResponse(
+                        category.getId(),
+                        category.getName(),
+                        category.getParentCategory() != null ? category.getParentCategory().getId() : null,
+                        category.getParentCategory() != null ? category.getParentCategory().getName() : null
+                ))
                 .collect(Collectors.toList());
     }
+
 
 }
