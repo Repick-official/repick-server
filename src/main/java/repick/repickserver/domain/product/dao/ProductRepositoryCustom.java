@@ -17,4 +17,6 @@ public interface ProductRepositoryCustom {
     List<GetMyPickResponse> getMyPickProducts(Long cartId);
 
     List<GetHomeFittingResponse> getHomeFittingProducts(Long cartId);
+
+    List<GetHomeFittingResponse> getAllHomeFittingProducts(String homeFittingState);
 }

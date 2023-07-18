@@ -3,6 +3,7 @@ package repick.repickserver.domain.product.dao;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import repick.repickserver.domain.cart.domain.HomeFittingState;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.cart.dto.QGetHomeFittingResponse;
@@ -162,6 +163,35 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 홈피팅 상품 전체 조회 (관리자)
+     * 홈피팅 상태로 필터링 가능
+     */
+    public List<GetHomeFittingResponse> getAllHomeFittingProducts(String homeFittingState) {
+        return jpaQueryFactory
+                .select(new QGetHomeFittingResponse(
+                        new QGetProductResponse(product, productImage),
+                        homeFitting.id,
+                        homeFitting.homeFittingState,
+                        homeFitting.createdDate,
+                        homeFitting.lastModifiedDate))
+                .from(product)
+                .leftJoin(productImage)
+                .on(productImage.product.id.eq(product.id))
+                .leftJoin(cartProduct)
+                .on(cartProduct.product.id.eq(product.id))
+                .leftJoin(homeFitting)
+                .on(homeFitting.cartProduct.id.eq(cartProduct.id))
+                .where(homeFittingStateEq(homeFittingState),
+                        product.productState.eq(ProductState.SELLING),
+                        productImage.isMainImage.eq(true),
+                        cartProduct.cartProductState.eq(HOME_FITTING_REQUESTED))
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     private BooleanExpression ltProductId(Long cursorId) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
         return cursorId != null ? product.id.lt(cursorId) : null;
     }
@@ -188,6 +218,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.price.eq(cursorPrice)
                 .and(product.id.lt(cursorId))
                 .or(product.price.gt(cursorPrice));
+    }
+
+    private BooleanExpression homeFittingStateEq(String homeFittingState) {
+        return homeFittingState != null ? homeFitting.homeFittingState.eq(HomeFittingState.valueOf(homeFittingState)) : null;
     }
 
 }
