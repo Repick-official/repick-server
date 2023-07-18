@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.cart.application.HomeFittingService;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/home-fitting")
@@ -21,7 +22,7 @@ public class HomeFittingController {
     @Operation(summary = "상품 홈피팅 신청", description = "상품 홈피팅을 신청합니다.")
     @PostMapping("/{cartProductId}")
     public ResponseEntity<HomeFittingResponse> requestHomeFitting(@PathVariable("cartProductId") Long cartProductId,
-                                                                  @RequestHeader("Authorization") String token) {
+                                                                  @ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(homeFittingService.requestHomeFitting(cartProductId, token));
     }
