@@ -27,6 +27,13 @@ public class SignController {
                 .body(memberService.login(request, response));
     }
 
+    @Operation(summary = "토큰 리프레쉬", description = "리프레쉬 토큰을 받아 새로운 토큰을 줍니다.")
+    @PostMapping(value = "/refresh")
+    public ResponseEntity<String> refresh(@RequestBody String token) {
+        return ResponseEntity.ok()
+                .body(memberService.refresh(token));
+    }
+
     @Operation(summary = "일반 회원가입", description = "일반 회원가입을 처리합니다.")
     @PostMapping(value = "/register")
     public ResponseEntity<Boolean> signup(@RequestBody SignRequest request) {

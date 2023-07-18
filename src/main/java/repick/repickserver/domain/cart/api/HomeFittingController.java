@@ -8,7 +8,6 @@ import repick.repickserver.domain.cart.application.HomeFittingService;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
 import springfox.documentation.annotations.ApiIgnore;
-
 import java.util.List;
 
 @RestController
@@ -27,7 +26,7 @@ public class HomeFittingController {
     public ResponseEntity<HomeFittingResponse> requestHomeFitting(@PathVariable("cartProductId") Long cartProductId,
                                                                   @ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(homeFittingService.requestHomeFitting(cartProductId));
+                .body(homeFittingService.requestHomeFitting(cartProductId, token));
     }
 
     /**

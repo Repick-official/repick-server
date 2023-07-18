@@ -13,9 +13,10 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(400, "C003", "존재하지 않는 객체입니다."),
     INTERNAL_SERVER_ERROR(500, "C004", "서버 에러입니다."),
     INVALID_REQUEST_ERROR(400, "C001", "잘못된 요청입니다."),
+    TOKEN_MEMBER_NO_MATCH(400, "M001", "토큰과 일치하는 회원이 없습니다."),
+    TOKEN_EXPIRED(400, "M002", "토큰이 만료되었습니다."),
 
     // Member
-    TOKEN_MEMBER_NO_MATCH(400, "M001", "토큰과 일치하는 회원이 없습니다."),
     MEMBER_NOT_FOUND(400, "M001", "존재하지 않는 회원입니다."),
     MEMBER_REGISTER_FAIL(400, "M002", "회원 생성에 실패했습니다."),
     SUBSCRIBER_INFO_NOT_FOUND(400, "M003", "존재하지 않는 구독 정보입니다."),
@@ -40,6 +41,7 @@ public enum ErrorCode {
     // Cart, HomeFitting
     INVALID_CART_PRODUCT_ID(400, "C001", "존재하지 않는 마이픽 상품입니다."),
     INVALID_CART_PRODUCT_STATE(400, "C002", "홈피팅 신청할 수 없는 마이픽 상품입니다."),
+    ACCESS_DENIED_NOT_SUBSCRIBED(403, "C003", "홈피팅 신청은 구독 회원만 가능합니다."),
 
     //OrderNumber
     INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다.");
