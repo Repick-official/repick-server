@@ -45,7 +45,10 @@ public class SecurityConfig {
                 .antMatchers("/s3/**").permitAll()
                 .antMatchers("/subscribe/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
                 .antMatchers("/subscribe/**").hasAuthority("USER")
+                .antMatchers("/cart/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
                 .antMatchers("/cart/**").hasAuthority("USER")
+                .antMatchers(("/home-fitting/admin/**")).hasAuthority("USER") // TODO : ADMIN으로 변경
+                .antMatchers(("/home-fitting/**")).hasAuthority("USER")
                 .anyRequest().permitAll()
                 .and()
                 // JWT 인증 필터 적용

@@ -13,12 +13,14 @@ import repick.repickserver.domain.product.dto.GetProductResponse;
 public class GetMyPickResponse {
 
     private GetProductResponse product;
+    private Long cartProductId;
     private CartProductState cartProductState;
 
     @QueryProjection
     @Builder
-    public GetMyPickResponse(GetProductResponse product, CartProductState cartProductState) {
+    public GetMyPickResponse(GetProductResponse product, Long cartProductId,CartProductState cartProductState) {
         this.product = product;
+        this.cartProductId = cartProductId;
         this.cartProductState = cartProductState;
     }
 }
