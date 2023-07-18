@@ -28,4 +28,8 @@ public class HomeFitting extends BaseTimeEntity {
         this.cartProduct = cartProduct;
         this.homeFittingState = HomeFittingState.REQUESTED;
     }
+
+    public void changeHomeFittingState(String homeFittingState) {
+        this.homeFittingState = HomeFittingState.valueOf(homeFittingState);
+    }
 }

@@ -86,4 +86,11 @@ public class HomeFittingService {
     public List<GetHomeFittingResponse> getHomeFitting(String homeFittingState) {
         return productRepository.getAllHomeFittingProducts(homeFittingState);
     }
+
+    public void changeHomeFittingState(Long homeFittingId, String homeFittingState) {
+        HomeFitting homeFitting = homeFittingRepository.findById(homeFittingId)
+                .orElseThrow(() -> new CustomException(INVALID_HOME_FITTING_ID));
+
+        homeFitting.changeHomeFittingState(homeFittingState);
+    }
 }
