@@ -28,7 +28,6 @@ public class CartService {
     private final CartProductRepository cartProductRepository;
     private final ProductRepository productRepository;
     private final JwtProvider jwtProvider;
-    private final OrderNumberService orderNumberService;
 
     public MyPickResponse createMyPick(Long productId, String token) {
 
@@ -37,9 +36,11 @@ public class CartService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+        // 상품이 품절된 경우
         if(product.getProductState().equals(SOLD_OUT)) {
             throw new CustomException(PRODUCT_SOLD_OUT);
         }
+        // 판매하지 않는 상품인 경우
         else if(product.getProductState().equals(DELETED)) {
             throw new CustomException(PRODUCT_NOT_FOUND);
         }

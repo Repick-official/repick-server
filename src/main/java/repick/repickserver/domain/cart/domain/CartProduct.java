@@ -35,4 +35,8 @@ public class CartProduct extends BaseTimeEntity {
         this.product = product;
         this.cartProductState = CartProductState.IN_CART;
     }
+
+    public void changeState(CartProductState cartProductState) {
+        this.cartProductState = cartProductState;
+    }
 }

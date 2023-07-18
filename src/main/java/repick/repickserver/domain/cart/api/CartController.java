@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.cart.application.CartService;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.cart.dto.MyPickResponse;
-
 import java.util.List;
 
 @RestController

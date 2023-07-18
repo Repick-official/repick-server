@@ -112,7 +112,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<GetMyPickResponse> getMyPickProducts(Long cartId) {
         return jpaQueryFactory
                 .select(new QGetMyPickResponse(
-                        new QGetProductResponse(product, productImage), // TODO: 이 자리에는 엔티티가 와야하므로 수정하기
+                        new QGetProductResponse(product, productImage),
+                        cartProduct.id,
                         cartProduct.cartProductState))
                 .from(product)
                 .leftJoin(productImage)
