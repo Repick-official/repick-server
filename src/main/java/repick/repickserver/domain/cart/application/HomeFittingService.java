@@ -82,4 +82,8 @@ public class HomeFittingService {
 
         return productRepository.getHomeFittingProducts(cart.getId());
     }
+
+    public List<GetHomeFittingResponse> getHomeFitting(String homeFittingState) {
+        return productRepository.getAllHomeFittingProducts(homeFittingState);
+    }
 }
