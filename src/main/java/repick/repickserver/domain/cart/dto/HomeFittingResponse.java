@@ -1,5 +1,6 @@
 package repick.repickserver.domain.cart.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class HomeFittingResponse {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
+    @QueryProjection
     @Builder
     public HomeFittingResponse(HomeFitting homeFitting) {
         this.HomeFittingId = homeFitting.getId();

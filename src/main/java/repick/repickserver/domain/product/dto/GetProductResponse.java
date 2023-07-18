@@ -42,4 +42,21 @@ public class GetProductResponse {
                 .isMainImage(true)
                 .build();
     }
+
+    @Builder
+    public GetProductResponse(Product product, RegisterProductResponse.ImageFileInfo mainProductImage) {
+        this.productId = product.getId();
+        this.name = product.getName();
+        this.detail = product.getDetail();
+        this.brand = product.getBrand();
+        this.price = product.getPrice();
+        this.size = product.getSize();
+        this.discountRate = product.getDiscountRate();
+        this.productState = product.getProductState();
+        this.mainImageFile = RegisterProductResponse.ImageFileInfo.builder()
+                .imagePath(mainProductImage.getImagePath())
+                .imageKey(mainProductImage.getImageKey())
+                .isMainImage(true)
+                .build();
+    }
 }

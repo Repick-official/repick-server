@@ -3,7 +3,9 @@ package repick.repickserver.domain.product.dao;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
+import repick.repickserver.domain.cart.dto.QGetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.QGetMyPickResponse;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.cart.domain.QCartProduct.cartProduct;
+import static repick.repickserver.domain.cart.domain.QHomeFitting.homeFitting;
 import static repick.repickserver.domain.product.domain.QProduct.product;
 import static repick.repickserver.domain.product.domain.QProductCategory.productCategory;
 import static repick.repickserver.domain.product.domain.QProductImage.productImage;
@@ -124,6 +127,35 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true),
                         cartProduct.cartProductState.in(IN_CART, HOME_FITTING_REQUESTED))
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 홈피팅 상품 조회
+     * 상품의 상태(CartProductState) 가 HOME_FITTING_REQUESTED 인 상품만 조회
+     */
+    public List<GetHomeFittingResponse> getHomeFittingProducts(Long cartId) {
+        return jpaQueryFactory
+                .select(new QGetHomeFittingResponse(
+                        new QGetProductResponse(product, productImage),
+                        homeFitting.id,
+                        homeFitting.homeFittingState,
+                        homeFitting.createdDate,
+                        homeFitting.lastModifiedDate))
+                .from(product)
+                .leftJoin(productImage)
+                .on(productImage.product.id.eq(product.id))
+                .leftJoin(cartProduct)
+                .on(cartProduct.product.id.eq(product.id))
+                .leftJoin(homeFitting)
+                .on(homeFitting.cartProduct.id.eq(cartProduct.id))
+                .where(cartProduct.cart.id.eq(cartId),
+                        product.productState.eq(ProductState.SELLING),
+                        productImage.isMainImage.eq(true),
+                        cartProduct.cartProductState.eq(HOME_FITTING_REQUESTED))
                 .fetch()
                 .stream()
                 .distinct()

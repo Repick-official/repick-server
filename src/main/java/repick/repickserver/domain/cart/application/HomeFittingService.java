@@ -4,15 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repick.repickserver.domain.cart.dao.CartProductRepository;
+import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.dao.HomeFittingRepository;
+import repick.repickserver.domain.cart.domain.Cart;
 import repick.repickserver.domain.cart.domain.CartProduct;
 import repick.repickserver.domain.cart.domain.HomeFitting;
+import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
-import repick.repickserver.domain.member.application.SubscriberInfoService;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
-
+import repick.repickserver.global.jwt.JwtProvider;
+import java.util.List;
+import repick.repickserver.domain.member.application.SubscriberInfoService;
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.product.domain.ProductState.DELETED;
@@ -26,7 +32,10 @@ public class HomeFittingService {
 
     private final HomeFittingRepository homeFittingRepository;
     private final CartProductRepository cartProductRepository;
+    private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
+    private final JwtProvider jwtProvider;
     private final SubscriberInfoService subscriberInfoService;
 
     public HomeFittingResponse requestHomeFitting(Long cartProductId, String token) {
@@ -65,5 +74,12 @@ public class HomeFittingService {
                                 .cartProduct(cartProduct)
                                 .build()))
                 .build();
+    }
+
+    public List<GetHomeFittingResponse> getMyHomeFitting(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        Cart cart = cartRepository.findByMember(member);
+
+        return productRepository.getHomeFittingProducts(cart.getId());
     }
 }
