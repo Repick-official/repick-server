@@ -17,8 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.UUID;
 
-import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_REGISTER_FAIL;
-import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_NOT_FOUND;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
 @Transactional
@@ -198,4 +197,16 @@ public class MemberService {
     }
 
 
+    public String refresh(String token) {
+
+        token = "Bearer " + token;
+        System.out.println("token = " + token);
+        // 리프레쉬 토큰 검사
+        if (!jwtProvider.validateToken(token)) {
+            throw new CustomException("토큰이 만료되었습니다.", TOKEN_EXPIRED);
+        }
+        Member member = jwtProvider.getMemberByRawToken(token);
+        return jwtProvider.createAccessToken(new UserDetailsImpl(member));
+
+    }
 }

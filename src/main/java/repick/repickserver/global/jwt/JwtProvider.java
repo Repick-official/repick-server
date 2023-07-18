@@ -1,9 +1,6 @@
 package repick.repickserver.global.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,9 +100,11 @@ public class JwtProvider {
             } else {
                 token = token.split(" ")[1].trim();
             }
-            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            JwtParser build = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build();
 
-            // TODO : 토큰 종류 검사
+            Jws<Claims> claims = build.parseClaimsJws(token);
 
             // 만료되었을 시 false
             return !claims.getBody().getExpiration().before(new Date());

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import repick.repickserver.domain.cart.dao.CartRepository;
+import repick.repickserver.domain.cart.domain.Cart;
 import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
@@ -37,12 +38,13 @@ public class KakaoUserService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final OauthProperties oauthProperties;
+    private final CartRepository cartRepository;
 
     /**
      * 카카오 로그인
      * @param code 카카오 로그인 요청 시 발급받은 인가 코드
      * @param response JWT 토큰을 response Header에 추가하기 위해 사용
-     * @return SocialUserInfoDto id, nickname, email(선택)
+     * @return SocialUserInfoDto id, nickname, email(선택), accessToken, refreshToken
      * @throws JsonProcessingException JSON 파싱 오류
      * @author seochanhyeok
      */
@@ -59,9 +61,8 @@ public class KakaoUserService {
         // 4. 강제 로그인 처리
         Authentication authentication = forceLogin(kakaoUser);
 
-        // 5. response Header에 JWT 토큰 추가
-        kakaoUserInfo.setAccessToken(kakaoUsersAuthorizationInput(authentication, response));
-        return kakaoUserInfo;
+        // 5. response Header, Body에 JWT 토큰 추가
+        return kakaoUsersAuthorizationInput(kakaoUserInfo, authentication, response);
     }
 
     /**
@@ -134,7 +135,11 @@ public class KakaoUserService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
-        return new SocialUserInfoDto(id, nickname, email, ""); // TODO : HTTPS 구현 후 삭제
+        return SocialUserInfoDto.builder()
+                .id(id)
+                .email(email)
+                .nickname(nickname)
+                .build();
     }
 
 
@@ -168,6 +173,11 @@ public class KakaoUserService {
                     .password(encodedPassword)
                     .role(Role.USER)
                     .build();
+
+            cartRepository.save(Cart.builder()
+                    .member(kakaoUser)
+                    .build());
+
             System.out.println("kakaoUser = " + kakaoUser.toString());
 
             memberRepository.save(kakaoUser);
@@ -195,12 +205,19 @@ public class KakaoUserService {
      * @param response HttpServletResponse
      * @author seochanhyeok
      */
-    private String kakaoUsersAuthorizationInput(Authentication authentication, HttpServletResponse response) {
+    private SocialUserInfoDto kakaoUsersAuthorizationInput(SocialUserInfoDto kakaoUser, Authentication authentication, HttpServletResponse response) {
         UserDetailsImpl userDetailsImpl = ((UserDetailsImpl) authentication.getPrincipal());
         String accessToken = jwtProvider.createAccessToken(userDetailsImpl);
+        String refreshToken = jwtProvider.createRefreshToken(userDetailsImpl);
         response.addCookie(new Cookie("accessToken", accessToken));
-        response.addCookie(new Cookie("refreshToken", jwtProvider.createRefreshToken(userDetailsImpl)));
+        response.addCookie(new Cookie("refreshToken", refreshToken));
 
-        return accessToken; // TODO : HTTPS 구현 후 삭제
+        return SocialUserInfoDto.builder()
+                .id(kakaoUser.getId())
+                .email(kakaoUser.getEmail())
+                .nickname(kakaoUser.getNickname())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }
