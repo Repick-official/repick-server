@@ -41,6 +41,7 @@ public enum ErrorCode {
     // Cart, HomeFitting
     INVALID_CART_PRODUCT_ID(400, "C001", "존재하지 않는 마이픽 상품입니다."),
     INVALID_CART_PRODUCT_STATE(400, "C002", "홈피팅 신청할 수 없는 마이픽 상품입니다."),
+    ACCESS_DENIED_NOT_SUBSCRIBED(403, "C003", "홈피팅 신청은 구독 회원만 가능합니다."),
 
     //OrderNumber
     INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다.");

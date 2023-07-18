@@ -6,14 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import repick.repickserver.domain.cart.dao.CartProductRepository;
 import repick.repickserver.domain.cart.dao.HomeFittingRepository;
 import repick.repickserver.domain.cart.domain.CartProduct;
-import static repick.repickserver.domain.cart.domain.CartProductState.*;
-
 import repick.repickserver.domain.cart.domain.HomeFitting;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
+import repick.repickserver.domain.member.application.SubscriberInfoService;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
-import repick.repickserver.global.jwt.JwtProvider;
+
+import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
+import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.product.domain.ProductState.DELETED;
 import static repick.repickserver.domain.product.domain.ProductState.SOLD_OUT;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
@@ -26,8 +27,15 @@ public class HomeFittingService {
     private final HomeFittingRepository homeFittingRepository;
     private final CartProductRepository cartProductRepository;
     private final ProductRepository productRepository;
+    private final SubscriberInfoService subscriberInfoService;
 
-    public HomeFittingResponse requestHomeFitting(Long cartProductId) {
+    public HomeFittingResponse requestHomeFitting(Long cartProductId, String token) {
+
+        // 토큰으로 멤버의 구독여부를 반환합니다. ( "NONE": 구독 안함, "BASIC": 베이직 플랜, "PRO": 프로 플랜 )
+        String check = subscriberInfoService.check(token);
+
+        // 구독 안한 회원인 경우, 홈피팅 신청 불가하므로 ACCESS_DENIED_NOT_SUBSCRIBED 에러를 던집니다.
+        if (check.equals("NONE")) throw new CustomException(ACCESS_DENIED_NOT_SUBSCRIBED);
 
         CartProduct cartProduct = cartProductRepository.findById(cartProductId)
                 .orElseThrow(() -> new CustomException(INVALID_CART_PRODUCT_ID));
