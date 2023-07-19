@@ -15,7 +15,11 @@ public class DeliveryController {
 
     private final DeliveryService deliveryService;
 
-    @Operation(summary = "운송장 번호 등록", description = "운송장 번호를 등록합니다.")
+    @Operation(summary = "운송장 번호 등록", description = "운송장 번호를 등록합니다." +
+            "\n\n code = 택배사 코드" +
+            "\n\n 04 : CJ 대한통운" +
+            "\n\n 08 : 롯데택배" +
+            "\n\n 46 : CU 편의점택배입니다.")
     @PostMapping("/admin/register")
     public ResponseEntity<Boolean> postWaybillNumber(@RequestBody DeliveryRequest request) {
         return ResponseEntity.ok()
