@@ -9,7 +9,7 @@ import repick.repickserver.domain.delivery.dto.DeliveryRequest;
 import repick.repickserver.domain.delivery.dto.DeliveryResponse;
 
 @RestController
-@RequestMapping("/waybill-number")
+@RequestMapping("/delivery")
 @RequiredArgsConstructor
 public class DeliveryController {
 
