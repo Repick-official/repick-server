@@ -36,6 +36,11 @@ public class CartService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+
+        // 이미 장바구니에 담겨 있는 경우
+        if (cartProductRepository.existsByProductIdAndCartId(productId, cart.getId()))
+            throw new CustomException(PRODUCT_ALREADY_EXIST_IN_CART);
+
         // 상품이 품절된 경우
         if(product.getProductState().equals(SOLD_OUT)) {
             throw new CustomException(PRODUCT_SOLD_OUT);

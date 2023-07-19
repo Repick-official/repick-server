@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CartProductRepository extends JpaRepository<CartProduct, Long> {
     List<CartProduct> findByCartIdAndCartProductState(Long cartId, CartProductState cartProductState);
+    Boolean existsByProductIdAndCartId(Long productId, Long cartId);
 }
