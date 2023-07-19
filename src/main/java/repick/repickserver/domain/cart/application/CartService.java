@@ -37,6 +37,10 @@ public class CartService {
         Product product = productRepository.findByIdAndProductState(productId, SELLING)
                 .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING));
 
+        // 이미 장바구니에 담겨 있는 경우
+        if (cartProductRepository.existsByProductIdAndCartId(productId, cart.getId()))
+            throw new CustomException(PRODUCT_ALREADY_EXIST_IN_CART);
+
         CartProduct savedCartProduct = cartProductRepository.save(
                 CartProduct.builder()
                         .product(product)

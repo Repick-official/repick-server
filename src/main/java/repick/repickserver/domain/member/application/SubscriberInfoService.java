@@ -93,8 +93,10 @@ public class SubscriberInfoService {
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findValidRequests();
         subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
                 .id(subscriberInfo.getId())
-                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
+                .email(subscriberInfo.getMember().getEmail())
+                .name(subscriberInfo.getMember().getName())
                 .nickname(subscriberInfo.getMember().getNickname())
+                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
                 .orderNumber(subscriberInfo.getOrderNumber())
                 .createdDate(subscriberInfo.getCreatedDate())
                 .expireDate(subscriberInfo.getExpireDate())
@@ -105,12 +107,12 @@ public class SubscriberInfoService {
     }
 
     /**
-     * 관리자가 사용자의 구독을 승인한다: APPROVED 상태의 subscriberInfo 추가
+     * <h1>관리자가 사용자의 구독을 승인한다: APPROVED 상태의 subscriberInfo 추가</h1>
      * @param request request.email 사용, 사용자의 이메일로 사용자를 찾음
-     * @return true
+     * @return SubscriberInfoResponse 승인된 구독 정보를 반환한다. (id, email, name, nickname, phoneNumber, orderNumber, createdDate, expireDate, subscribeState, subscribeType)
      * @author seochanhyeok
      */
-    public Boolean add(SubscriberInfoRequest request) {
+    public SubscriberInfoResponse add(SubscriberInfoRequest request) {
         SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
@@ -125,17 +127,28 @@ public class SubscriberInfoService {
 
         subscriberInfoRepository.save(subscriberInfo);
 
-        return true;
+        return SubscriberInfoResponse.builder()
+                .id(subscriberInfo.getId())
+                .email(subscriberInfo.getMember().getEmail())
+                .name(subscriberInfo.getMember().getName())
+                .nickname(subscriberInfo.getMember().getNickname())
+                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
+                .build();
 
     }
 
     /**
-     * 관리자가 사용자의 구독을 거절한다: DENIED 상태의 subscriberInfo 추가
+     * <h1>관리자가 사용자의 구독을 거절한다: DENIED 상태의 subscriberInfo 추가</h1>
      * @param request request.email 사용, 사용자의 이메일로 사용자를 찾음
-     * @return 구독중이면 true, 아니면 false
+     * @return SubscriberInfoResponse 거절된 구독 정보를 반환한다. (id, email, name, nickname, phoneNumber, orderNumber, createdDate, expireDate, subscribeState, subscribeType)
      * @author seochanhyeok
      */
-    public Boolean deny(SubscriberInfoRequest request) {
+    public SubscriberInfoResponse deny(SubscriberInfoRequest request) {
         SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
@@ -149,18 +162,29 @@ public class SubscriberInfoService {
 
         subscriberInfoRepository.save(subscriberInfo);
 
-        return true;
+        return SubscriberInfoResponse.builder()
+                .id(subscriberInfo.getId())
+                .email(subscriberInfo.getMember().getEmail())
+                .name(subscriberInfo.getMember().getName())
+                .nickname(subscriberInfo.getMember().getNickname())
+                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
+                .build();
 
     }
 
     /**
      * 사용자가 구독을 요청한다: REQUESTED 상태의 subscriberInfo 추가
      * @param token 토큰으로 사용자를 찾음
-     * @return false(결제로직 미정으로 false 처리해두었음)
+     * @return SubscriberInfoResponse 구독 요청 정보
      * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
      * @author seochanhyeok
      */
-    public Boolean subscribeRequest(String token, SubscriberInfoRegisterRequest request) {
+    public SubscriberInfoResponse subscribeRequest(String token, SubscriberInfoRegisterRequest request) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
@@ -173,7 +197,18 @@ public class SubscriberInfoService {
 
         subscriberInfoRepository.save(subscriberInfo);
 
-        return true;
+        return SubscriberInfoResponse.builder()
+                .id(subscriberInfo.getId())
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
+                .email(member.getEmail())
+                .name(member.getName())
+                .nickname(member.getNickname())
+                .phoneNumber(member.getPhoneNumber())
+                .build();
     }
 
 }

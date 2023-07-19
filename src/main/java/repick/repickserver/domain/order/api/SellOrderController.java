@@ -39,7 +39,7 @@ public class SellOrderController {
 
     @Operation(summary = "옷장 수거 신청", description = "판매 주문을 요청합니다.")
     @PostMapping
-    public ResponseEntity<Boolean> postSellOrder(@RequestBody SellOrderRequest request,
+    public ResponseEntity<SellOrderResponse> postSellOrder(@RequestBody SellOrderRequest request,
                                                  @ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(sellOrderService.postSellOrder(request, token));
@@ -62,7 +62,7 @@ public class SellOrderController {
 
     @Operation(summary = "옷장 수거 현황 변경", description = "판매 주문의 상태를 변경합니다.")
     @PostMapping(value = "/admin/update")
-    public ResponseEntity<Boolean> updateSellOrder(@RequestBody SellOrderUpdateRequest request) {
+    public ResponseEntity<SellOrderResponse> updateSellOrder(@RequestBody SellOrderUpdateRequest request) {
         return ResponseEntity.ok()
                 .body(sellOrderService.updateSellOrderAdmin(request));
     }
