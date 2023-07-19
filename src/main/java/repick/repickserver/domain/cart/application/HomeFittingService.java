@@ -21,8 +21,7 @@ import java.util.List;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
-import static repick.repickserver.domain.product.domain.ProductState.DELETED;
-import static repick.repickserver.domain.product.domain.ProductState.SOLD_OUT;
+import static repick.repickserver.domain.product.domain.ProductState.*;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
@@ -49,16 +48,8 @@ public class HomeFittingService {
         CartProduct cartProduct = cartProductRepository.findById(cartProductId)
                 .orElseThrow(() -> new CustomException(INVALID_CART_PRODUCT_ID));
 
-        Product product = productRepository.findById(cartProduct.getProduct().getId())
-                .orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
-        // 상품이 품절된 경우
-        if(product.getProductState().equals(SOLD_OUT)) {
-            throw new CustomException(PRODUCT_SOLD_OUT);
-        }
-        // 판매하지 않는 상품인 경우
-        else if(product.getProductState().equals(DELETED)) {
-            throw new CustomException(PRODUCT_NOT_FOUND);
-        }
+        Product product = productRepository.findByIdAndProductState(cartProduct.getProduct().getId(), SELLING)
+                .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING));
 
         // 마이픽에 담긴 상품인지 확인
         if(cartProduct.getCartProductState().equals(IN_CART)) {

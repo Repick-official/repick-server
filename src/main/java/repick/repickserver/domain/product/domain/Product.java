@@ -43,4 +43,7 @@ public class Product extends BaseTimeEntity {
         this.productState = SELLING;
     }
 
+    public void changeProductState(ProductState productState) {
+        this.productState = productState;
+    }
 }
