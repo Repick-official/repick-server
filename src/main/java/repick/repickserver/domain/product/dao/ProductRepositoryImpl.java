@@ -111,7 +111,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     /**
      * 마이픽 상품 조회
-     * 상품의 상태(CartProductState) 가 IN_CART, HOME_FITTING_REQUESTED 인 상품만 조회
+     * 상품의 상태(CartProductState) 가 IN_CART 인 상품만 조회
      */
     public List<GetMyPickResponse> getMyPickProducts(Long cartId) {
         return jpaQueryFactory
@@ -127,7 +127,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(cartProduct.cart.id.eq(cartId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true),
-                        cartProduct.cartProductState.in(IN_CART, HOME_FITTING_REQUESTED))
+                        cartProduct.cartProductState.in(IN_CART))
                 .fetch()
                 .stream()
                 .distinct()

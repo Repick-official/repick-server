@@ -7,5 +7,4 @@ import repick.repickserver.domain.cart.domain.HomeFitting;
 import java.util.List;
 
 public interface HomeFittingRepository extends JpaRepository<HomeFitting, Long> {
-    List<HomeFitting> findByCartProductIn(List<CartProduct> cartProducts);
 }

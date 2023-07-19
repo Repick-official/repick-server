@@ -7,5 +7,4 @@ import repick.repickserver.domain.cart.domain.CartProductState;
 import java.util.List;
 
 public interface CartProductRepository extends JpaRepository<CartProduct, Long> {
-    List<CartProduct> findByCartIdAndCartProductState(Long cartId, CartProductState cartProductState);
 }
