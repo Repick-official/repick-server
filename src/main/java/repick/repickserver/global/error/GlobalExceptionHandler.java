@@ -7,9 +7,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import repick.repickserver.global.error.exception.CustomException;
@@ -19,6 +21,26 @@ import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * 카카오 로그인 요청 시 코드가 유효하지 않은 경우 예외 처리
+     */
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ErrorResponse> handleHttpClientErrorException(HttpClientErrorException e) {
+        System.out.println(e.toString());
+        return ResponseEntity.status(e.getStatusCode())
+                .body(new ErrorResponse(ErrorCode.INVALID_AUTHORIZATION_CODE));
+    }
+
+    /**
+     * 인증 헤더 없이 요청한 경우 예외 처리
+     */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
+        System.out.println(e.toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED));
+    }
 
     /**
      * 잘못된 요청으로 인한 예외 처리

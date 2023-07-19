@@ -9,6 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
     // Common
+    AUTHENTICATION_REQUIRED(401, "C001", "인증이 필요합니다."),
+    INVALID_AUTHORIZATION_CODE(401, "C002", "유효하지 않은 인증 코드입니다."),
     ACCESS_DENIED(403, "C002", "권한이 없는 사용자입니다."),
     ENTITY_NOT_FOUND(400, "C003", "존재하지 않는 객체입니다."),
     INTERNAL_SERVER_ERROR(500, "C004", "서버 에러입니다."),

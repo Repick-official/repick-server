@@ -12,9 +12,13 @@ import repick.repickserver.domain.delivery.dao.DeliveryRepository;
 import repick.repickserver.domain.delivery.domain.Delivery;
 import repick.repickserver.domain.delivery.dto.DeliveryRequest;
 import repick.repickserver.domain.delivery.dto.DeliveryResponse;
+import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
 import repick.repickserver.global.config.SweetTrackerProperties;
+import repick.repickserver.global.error.exception.CustomException;
 
 import javax.transaction.Transactional;
+
+import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
 
 @Service
 @Transactional
@@ -23,6 +27,7 @@ public class DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
     private final SweetTrackerProperties sweetTrackerProperties;
+    private final OrderNumberReository orderNumberReository;
 
     /**
      * <h1>운송장 번호 등록</h1>
@@ -31,6 +36,12 @@ public class DeliveryService {
      * @author seochanhyeok
      */
     public Boolean postWaybillNumber(DeliveryRequest request) {
+
+        // 주문번호가 유효하지 않는 경우 예외처리
+        if (!orderNumberReository.existsByOrderNumber(request.getOrderNumber())) {
+            throw new CustomException(ORDER_NOT_FOUND);
+        }
+
         Delivery delivery = Delivery.builder()
                 .code(request.getCode())
                 .waybillNumber(request.getWaybillNumber())
