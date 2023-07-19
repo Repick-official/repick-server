@@ -111,7 +111,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     /**
      * 마이픽 상품 조회
-     * 상품의 상태(CartProductState) 가 IN_CART 인 상품만 조회
+     * 상품의 상태(CartProductState) 가 IN_CART 인 상품만 조회 (홈피팅 신청한 상품은 제외)
      */
     public List<GetMyPickResponse> getMyPickProducts(Long cartId) {
         return jpaQueryFactory
