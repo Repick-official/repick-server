@@ -21,7 +21,7 @@ public class DeliveryController {
             "\n\n 08 : 롯데택배" +
             "\n\n 46 : CU 편의점택배입니다.")
     @PostMapping("/admin/register")
-    public ResponseEntity<Boolean> postWaybillNumber(@RequestBody DeliveryRequest request) {
+    public ResponseEntity<DeliveryResponse> postWaybillNumber(@RequestBody DeliveryRequest request) {
         return ResponseEntity.ok()
                 .body(deliveryService.postWaybillNumber(request));
     }

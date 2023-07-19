@@ -47,7 +47,9 @@ public enum ErrorCode {
     INVALID_HOME_FITTING_ID(400, "C004", "존재하지 않는 홈피팅입니다."),
 
     //OrderNumber
-    INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다.");
+    INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다."),
+    //Delivery
+    WAYBILL_NUMBER_NOT_REGISTERED(400, "C006", "운송장 번호가 등록되지 않았습니다.");
 
 
     private final int status;

@@ -19,6 +19,7 @@ import repick.repickserver.global.error.exception.CustomException;
 import javax.transaction.Transactional;
 
 import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
+import static repick.repickserver.global.error.exception.ErrorCode.WAYBILL_NUMBER_NOT_REGISTERED;
 
 @Service
 @Transactional
@@ -32,10 +33,11 @@ public class DeliveryService {
     /**
      * <h1>운송장 번호 등록</h1>
      * @param request (code, waybillNumber, orderNumber)
-     * @return true
+     * @return DeliveryResponse (code, waybillNumber, orderNumber)
+     * @exception CustomException (ORDER_NOT_FOUND)
      * @author seochanhyeok
      */
-    public Boolean postWaybillNumber(DeliveryRequest request) {
+    public DeliveryResponse postWaybillNumber(DeliveryRequest request) {
 
         // 주문번호가 유효하지 않는 경우 예외처리
         if (!orderNumberReository.existsByOrderNumber(request.getOrderNumber())) {
@@ -50,7 +52,11 @@ public class DeliveryService {
 
         deliveryRepository.save(delivery);
 
-        return true;
+        return DeliveryResponse.builder()
+                .code(delivery.getCode())
+                .waybillNumber(delivery.getWaybillNumber())
+                .orderNumber(delivery.getOrderNumber())
+                .build();
     }
 
     /**
@@ -60,7 +66,12 @@ public class DeliveryService {
      * @author seochanhyeok
      */
     public DeliveryResponse getWaybillNumber(String orderNumber) {
+
         Delivery delivery = deliveryRepository.findByOrderNumber(orderNumber);
+
+        // 운송장번호가 유효하지 않는 경우 예외처리
+        if (delivery == null) throw new CustomException(WAYBILL_NUMBER_NOT_REGISTERED);
+
         return DeliveryResponse.builder()
                 .code(delivery.getCode())
                 .waybillNumber(delivery.getWaybillNumber())
@@ -77,6 +88,9 @@ public class DeliveryService {
      */
     public String getWaybillStatus(String orderNumber) {
         Delivery delivery = deliveryRepository.findByOrderNumber(orderNumber);
+
+        // 운송장번호가 유효하지 않는 경우 예외처리
+        if (delivery == null) throw new CustomException(WAYBILL_NUMBER_NOT_REGISTERED);
 
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(new HttpHeaders());
 
