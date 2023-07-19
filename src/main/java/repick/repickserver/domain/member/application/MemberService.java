@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
-import repick.repickserver.domain.member.dto.SignRequest;
-import repick.repickserver.domain.member.dto.SignResponse;
+import repick.repickserver.domain.member.dto.SignLoginRequest;
+import repick.repickserver.domain.member.dto.SignLoginResponse;
+import repick.repickserver.domain.member.dto.SignUpdateRequest;
+import repick.repickserver.domain.member.dto.SignUserInfoResponse;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
@@ -32,7 +34,7 @@ public class MemberService {
      * 로그인
      * @param request (email, password)
      * @param response (accessToken, refreshToken 반환하기 위함)
-     * @return SignResponse (name, email, nickname, role)
+     * @return SignResponse (name, email, nickname, role, phoneNumber, address, accessToken, refreshToken)
      * @apiNote
      * 1. 이메일로 멤버를 찾는다.
      * 2. 멤버가 없으면 에러를 던진다.
@@ -40,7 +42,7 @@ public class MemberService {
      * 4. JWT 토큰을 생성하여 쿠키에 담아서 반환한다.
      * @author seochanhyeok
      */
-    public SignResponse login(SignRequest request, HttpServletResponse response) {
+    public SignLoginResponse login(SignLoginRequest request, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new CustomException("이메일에 해당하는 멤버를 찾을 수 없습니다.", MEMBER_NOT_FOUND));
 
@@ -48,16 +50,23 @@ public class MemberService {
             throw new CustomException("비밀번호가 올바르지 않습니다.", MEMBER_NOT_FOUND);
         }
 
-        response.addCookie(new Cookie("accessToken", jwtProvider.createAccessToken(new UserDetailsImpl(member))));
-        response.addCookie(new Cookie("refreshToken", jwtProvider.createAccessToken(new UserDetailsImpl(member))));
+        String accessToken = jwtProvider.createAccessToken(new UserDetailsImpl(member));
+        String refreshToken = jwtProvider.createRefreshToken(new UserDetailsImpl(member));
 
-        return SignResponse.builder()
+        response.addCookie(new Cookie("accessToken", accessToken));
+        response.addCookie(new Cookie("refreshToken", refreshToken));
+
+        return SignLoginResponse.builder()
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
+                .phoneNumber(member.getPhoneNumber())
+                .address(member.getAddress())
+                .bank(member.getBank())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
-
     }
 
     /**
@@ -72,7 +81,7 @@ public class MemberService {
      * 4. 비밀번호는 암호화하여 저장한다.
      * @author seochanhyeok
      */
-    public boolean register(SignRequest request) {
+    public SignUserInfoResponse register(SignUpdateRequest request) {
         try {
             Member member = Member.builder()
                     .userId(UUID.randomUUID().toString())
@@ -87,11 +96,21 @@ public class MemberService {
                     .build();
 
             memberRepository.save(member);
+
+            return SignUserInfoResponse.builder()
+                    .name(member.getName())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .role(member.getRole())
+                    .phoneNumber(member.getPhoneNumber())
+                    .address(member.getAddress())
+                    .bank(member.getBank())
+                    .build();
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new CustomException("회원 등록에 실패했습니다", MEMBER_REGISTER_FAIL);
         }
-        return true;
     }
 
     /**
@@ -105,10 +124,10 @@ public class MemberService {
      * 3. 멤버를 반환한다.
      * @author seochanhyeok
      */
-    public SignResponse getMember(String email) {
+    public SignUserInfoResponse getMember(String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException("이메일에 해당하는 멤버를 찾을 수 없습니다.", MEMBER_NOT_FOUND));
-        return SignResponse.builder()
+        return SignUserInfoResponse.builder()
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
@@ -131,9 +150,9 @@ public class MemberService {
      * 4. 토큰이 만료되었으면 에러를 던진다.
      * @author seochanhyeok
      */
-    public SignResponse userInfo(String token) {
+    public SignUserInfoResponse userInfo(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        return SignResponse.builder()
+        return SignUserInfoResponse.builder()
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
@@ -157,7 +176,7 @@ public class MemberService {
      * 4. 수정에 성공하면 true를 반환한다.
      * @author seochanhyeok
      */
-    public boolean update(SignRequest request, String token) {
+    public SignUserInfoResponse update(SignUpdateRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         // null인 항목들은 기존 정보로 가져옴
@@ -193,7 +212,15 @@ public class MemberService {
 
         memberRepository.save(member);
 
-        return true;
+        return SignUserInfoResponse.builder()
+                .name(member.getName())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .role(member.getRole())
+                .phoneNumber(member.getPhoneNumber())
+                .address(member.getAddress())
+                .bank(member.getBank())
+                .build();
     }
 
 
