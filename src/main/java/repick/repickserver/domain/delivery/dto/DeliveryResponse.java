@@ -1,11 +1,11 @@
-package repick.repickserver.domain.waybill.dto;
+package repick.repickserver.domain.delivery.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter @Builder
-public class WaybillNumberResponse {
+public class DeliveryResponse {
 
     @Schema(description = "택배사 코드", example = "04")
     private String code;

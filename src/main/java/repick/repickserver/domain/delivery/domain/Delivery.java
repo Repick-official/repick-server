@@ -1,4 +1,4 @@
-package repick.repickserver.domain.waybill.domain;
+package repick.repickserver.domain.delivery.domain;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import javax.persistence.Id;
 
 @Entity
 @Getter @NoArgsConstructor
-public class WaybillNumber extends BaseTimeEntity {
+public class Delivery extends BaseTimeEntity {
 
     @Id @GeneratedValue
     private Long id;
@@ -32,7 +32,7 @@ public class WaybillNumber extends BaseTimeEntity {
     private String orderNumber;
 
     @Builder
-    public WaybillNumber(String code, String waybillNumber, String orderNumber) {
+    public Delivery(String code, String waybillNumber, String orderNumber) {
         this.code = code;
         this.waybillNumber = waybillNumber;
         this.orderNumber = orderNumber;

@@ -1,4 +1,4 @@
-package repick.repickserver.domain.waybill.application;
+package repick.repickserver.domain.delivery.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import repick.repickserver.domain.waybill.dao.WaybillNumberRepository;
-import repick.repickserver.domain.waybill.domain.WaybillNumber;
-import repick.repickserver.domain.waybill.dto.WaybillNumberRequest;
-import repick.repickserver.domain.waybill.dto.WaybillNumberResponse;
+import repick.repickserver.domain.delivery.dao.DeliveryRepository;
+import repick.repickserver.domain.delivery.domain.Delivery;
+import repick.repickserver.domain.delivery.dto.DeliveryRequest;
+import repick.repickserver.domain.delivery.dto.DeliveryResponse;
 import repick.repickserver.global.config.SweetTrackerProperties;
 
 import javax.transaction.Transactional;
@@ -19,9 +19,9 @@ import javax.transaction.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class WaybillNumberService {
+public class DeliveryService {
 
-    private final WaybillNumberRepository waybillNumberRepository;
+    private final DeliveryRepository deliveryRepository;
     private final SweetTrackerProperties sweetTrackerProperties;
 
     /**
@@ -30,14 +30,14 @@ public class WaybillNumberService {
      * @return true
      * @author seochanhyeok
      */
-    public Boolean postWaybillNumber(WaybillNumberRequest request) {
-        WaybillNumber waybillNumber = WaybillNumber.builder()
+    public Boolean postWaybillNumber(DeliveryRequest request) {
+        Delivery delivery = Delivery.builder()
                 .code(request.getCode())
                 .waybillNumber(request.getWaybillNumber())
                 .orderNumber(request.getOrderNumber())
                 .build();
 
-        waybillNumberRepository.save(waybillNumber);
+        deliveryRepository.save(delivery);
 
         return true;
     }
@@ -45,15 +45,15 @@ public class WaybillNumberService {
     /**
      * <h1>주문 번호로 운송장 번호 조회</h1>
      * @param orderNumber (주문 번호)
-     * @return waybillNumberResponse (code, waybillNumber, orderNumber)
+     * @return deliveryResponse (code, waybillNumber, orderNumber)
      * @author seochanhyeok
      */
-    public WaybillNumberResponse getWaybillNumber(String orderNumber) {
-        WaybillNumber waybillNumber = waybillNumberRepository.findByOrderNumber(orderNumber);
-        return WaybillNumberResponse.builder()
-                .code(waybillNumber.getCode())
-                .waybillNumber(waybillNumber.getWaybillNumber())
-                .orderNumber(waybillNumber.getOrderNumber())
+    public DeliveryResponse getWaybillNumber(String orderNumber) {
+        Delivery delivery = deliveryRepository.findByOrderNumber(orderNumber);
+        return DeliveryResponse.builder()
+                .code(delivery.getCode())
+                .waybillNumber(delivery.getWaybillNumber())
+                .orderNumber(delivery.getOrderNumber())
                 .build();
     }
 
@@ -65,15 +65,15 @@ public class WaybillNumberService {
      * @author seochanhyeok
      */
     public String getWaybillStatus(String orderNumber) {
-        WaybillNumber waybillNumber = waybillNumberRepository.findByOrderNumber(orderNumber);
+        Delivery delivery = deliveryRepository.findByOrderNumber(orderNumber);
 
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(new HttpHeaders());
 
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response = rt.exchange(
                 "http://info.sweettracker.co.kr/api/v1/trackingInfo?t_key=" + sweetTrackerProperties.getApiKey() +
-                        "&t_code=" + waybillNumber.getCode() +
-                        "&t_invoice=" + waybillNumber.getWaybillNumber(),
+                        "&t_code=" + delivery.getCode() +
+                        "&t_invoice=" + delivery.getWaybillNumber(),
                 HttpMethod.GET,
                 httpEntity,
                 String.class
