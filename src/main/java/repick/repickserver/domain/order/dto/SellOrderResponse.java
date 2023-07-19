@@ -36,5 +36,7 @@ public class SellOrderResponse {
     private LocalDateTime returnDate;
     @Schema(description = "주문상태", example = "DELIVERED")
     private SellState sellState;
+    @Schema(description = "생성일", example = "2021-08-31T00:00:00")
+    private LocalDateTime createdDate;
 
 }

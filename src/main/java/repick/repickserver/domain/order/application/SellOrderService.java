@@ -37,11 +37,11 @@ public class SellOrderService {
      * 판매 수거 요청
      * @param request (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate)
      * @param token (accessToken)
-     * @return true
+     * @return SellOrderResponse (id, name, orderNumber, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
      * @exception CustomException (ORDER_FAIL)
      * @author seochanhyeok
      */
-    public boolean postSellOrder(SellOrderRequest request, String token) {
+    public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         try {
@@ -70,7 +70,19 @@ public class SellOrderService {
                     .sellState(SellState.REQUESTED)
                     .build());
 
-            return true;
+            return SellOrderResponse.builder()
+                    .id(sellOrder.getId())
+                    .name(sellOrder.getName())
+                    .orderNumber(sellOrder.getOrderNumber())
+                    .phoneNumber(sellOrder.getPhoneNumber())
+                    .bank(sellOrder.getBank())
+                    .bagQuantity(sellOrder.getBagQuantity())
+                    .productQuantity(sellOrder.getProductQuantity())
+                    .address(sellOrder.getAddress())
+                    .requestDetail(sellOrder.getRequestDetail())
+                    .returnDate(sellOrder.getReturnDate())
+                    .sellState(SellState.REQUESTED)
+                    .build();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -106,6 +118,7 @@ public class SellOrderService {
                         .returnDate(sellOrder.getReturnDate())
                         // 가장 최근에 업데이트된 state 가져옴
                         .sellState(sellOrderStateRepository.findLastStateBySellOrderId(sellOrder.getId()).getSellState())
+                        .createdDate(sellOrder.getCreatedDate())
                         .build()
         ));
 
@@ -143,6 +156,7 @@ public class SellOrderService {
                                 .requestDetail(sellOrder.getRequestDetail())
                                 .returnDate(sellOrder.getReturnDate())
                                 .sellState(reqState)
+                                .createdDate(sellOrder.getCreatedDate())
                                 .build()
                 );
             }
@@ -178,6 +192,7 @@ public class SellOrderService {
                                     .requestDetail(sellOrder.getRequestDetail())
                                     .returnDate(sellOrder.getReturnDate())
                                     .sellState(reqState)
+                                    .createdDate(sellOrder.getCreatedDate())
                                     .build());
                 }
         });
@@ -188,11 +203,11 @@ public class SellOrderService {
     /**
      * 관리자가 판매 요청을 업데이트함
      * @param request (orderNumber, sellState)
-     * @return true
+     * @return SellOrderResponse (id, name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
      * @exception CustomException orderNumber에 해당하는 order를 조회하지 못할 경우 ORDER_NOT_FOUND "판매 요청을 찾을 수 없음" 에러 발생
      * @author seochanhyeok
      */
-    public Boolean updateSellOrderAdmin(SellOrderUpdateRequest request) {
+    public SellOrderResponse updateSellOrderAdmin(SellOrderUpdateRequest request) {
         // 주문번호로 판매 주문을 가져온다.
         SellOrder sellOrderList = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
 
@@ -207,7 +222,20 @@ public class SellOrderService {
                 .sellState(request.getSellState())
                 .build());
 
-        return true;
+        return SellOrderResponse.builder()
+                .id(sellOrderList.getId())
+                .name(sellOrderList.getName())
+                .orderNumber(sellOrderList.getOrderNumber())
+                .phoneNumber(sellOrderList.getPhoneNumber())
+                .bank(sellOrderList.getBank())
+                .bagQuantity(sellOrderList.getBagQuantity())
+                .productQuantity(sellOrderList.getProductQuantity())
+                .address(sellOrderList.getAddress())
+                .requestDetail(sellOrderList.getRequestDetail())
+                .returnDate(sellOrderList.getReturnDate())
+                .sellState(request.getSellState())
+                .createdDate(sellOrderList.getCreatedDate())
+                .build();
 
     }
 }

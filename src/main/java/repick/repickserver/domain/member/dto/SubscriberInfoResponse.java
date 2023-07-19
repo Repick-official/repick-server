@@ -15,10 +15,14 @@ import java.time.LocalDateTime;
 public class SubscriberInfoResponse {
     @Schema(description = "DB 식별용 아이디", example = "1")
     private Long id;
-    @Schema(description = "전화번호", example = "01012345678")
-    private String phoneNumber;
-    @Schema(description = "회원 닉네임", example = "김리픽")
+    @Schema(description = "구독 신청자 이메일", example = "test@example.com")
+    private String email;
+    @Schema(description = "구독 신청자 이름", example = "김리픽")
+    private String name;
+    @Schema(description = "구독 신청자 닉네임", example = "리픽")
     private String nickname;
+    @Schema(description = "구독 신청자 전화번호", example = "01012345678")
+    private String phoneNumber;
     @Schema(description = "주문번호", example = "S230523D7BQ1")
     private String orderNumber;
     @Schema(description = "만료일", example = "2021-08-31T00:00:00")

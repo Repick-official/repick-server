@@ -48,7 +48,7 @@ public class SubscribeController {
     @Operation(summary = "구독 요청", description = "유저가 구독을 요청합니다. expireDate는 7일입니다." +
             "\n\n 구독 종류는 다음과 같습니다 : BASIC, PRO, PREMIUM")
     @PostMapping("/request")
-    public ResponseEntity<Boolean> subscribeRequest(@ApiIgnore @RequestHeader("Authorization") String token,
+    public ResponseEntity<SubscriberInfoResponse> subscribeRequest(@ApiIgnore @RequestHeader("Authorization") String token,
                                                     @RequestBody SubscriberInfoRegisterRequest request) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.subscribeRequest(token, request));
@@ -63,14 +63,14 @@ public class SubscribeController {
 
     @Operation(summary = "구독 승인", description = "관리자가 유저의 구독을 승인합니다. expireDate는 승인 후 한 달입니다.")
     @PostMapping("/admin/add")
-    public ResponseEntity<Boolean> add(@RequestBody SubscriberInfoRequest request) {
+    public ResponseEntity<SubscriberInfoResponse> add(@RequestBody SubscriberInfoRequest request) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.add(request));
     }
 
     @Operation(summary = "구독 거절", description = "관리자가 유저의 구독을 거절합니다. expireDate는 null입니다.")
     @PostMapping("/admin/deny")
-    public ResponseEntity<Boolean> deny(@RequestBody SubscriberInfoRequest request) {
+    public ResponseEntity<SubscriberInfoResponse> deny(@RequestBody SubscriberInfoRequest request) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.deny(request));
     }
