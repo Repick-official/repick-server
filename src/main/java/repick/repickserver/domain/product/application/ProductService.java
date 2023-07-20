@@ -194,4 +194,13 @@ public class ProductService {
     public List<GetProductResponse> getPageByProductPriceAsc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
         return productRepository.findPageByProductPriceAsc(cursorId, cursorPrice, categoryId, pageSize);
     }
+
+    /**
+     * 키워드로 상품 검색
+     * 제품명 또는 브랜드명
+     * No Offset Pagination (페이징 성능 향상)
+     */
+    public List<GetProductResponse> getPageByKeyword(String keyword, Long cursorId, int pageSize) {
+        return productRepository.getSearchProducts(keyword, cursorId, pageSize);
+    }
 }
