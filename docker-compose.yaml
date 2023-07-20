@@ -9,6 +9,12 @@ services:
     ports:
       - 8080:8080
     tty: true
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: "repick-web"
+        awslogs-region: ap-northeast-2
+        awslogs-stream-prefix: web
 
   nginx:
     container_name: nginx
