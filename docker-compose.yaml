@@ -16,7 +16,7 @@ services:
       options:
         awslogs-group: "repickLogGroup"
         awslogs-region: "ap-northeast-2"
-        awslogs-stream: "repickLogSteamTest"
+        awslogs-stream: "repickLogStream"
 
   nginx:
     container_name: nginx
