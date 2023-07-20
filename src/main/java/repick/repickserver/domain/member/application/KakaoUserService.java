@@ -48,9 +48,9 @@ public class KakaoUserService {
      * @throws JsonProcessingException JSON 파싱 오류
      * @author seochanhyeok
      */
-    public SocialUserInfoDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public SocialUserInfoDto kakaoLogin(String code, String redirect_uri, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getAccessToken(code);
+        String accessToken = getAccessToken(code, redirect_uri);
 
         // 2. 토큰으로 카카오 API 호출
         SocialUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
@@ -72,7 +72,7 @@ public class KakaoUserService {
      * @throws JsonProcessingException JSON 파싱 오류
      * @author seochanhyeok
      */
-    private String getAccessToken(String code) throws JsonProcessingException {
+    private String getAccessToken(String code, String redirect_uri) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -81,7 +81,7 @@ public class KakaoUserService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", oauthProperties.getClientId());
-        body.add("redirect_uri", "http://localhost:3000/login/kakaoLogin");
+        body.add("redirect_uri", redirect_uri);
         body.add("client_secret", oauthProperties.getClientSecret());
         body.add("code", code);
 
