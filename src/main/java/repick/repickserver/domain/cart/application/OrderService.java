@@ -7,17 +7,16 @@ import repick.repickserver.domain.cart.dao.*;
 import repick.repickserver.domain.cart.domain.*;
 import repick.repickserver.domain.cart.dto.OrderRequest;
 import repick.repickserver.domain.cart.dto.OrderResponse;
+import repick.repickserver.domain.cart.dto.OrderStateResponse;
+import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
 import repick.repickserver.domain.member.dao.MemberRepository;
-import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
 import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
 import static repick.repickserver.domain.cart.domain.HomeFittingState.*;
@@ -97,10 +96,22 @@ public class OrderService {
                 .orderProducts(orderProducts)
                 .build();
     }
+
+    public OrderStateResponse updateOrderState(UpdateOrderStateRequest request) {
+        // 주문번호로 주문 조회
+        Order order = orderRepository.findByOrderNumber(request.getOrderNumber())
+                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+
+        OrderState savedOrderState = orderStateRepository.save(OrderState.builder()
+                .order(order)
+                .orderCurrentState(OrderCurrentState.valueOf(request.getOrderState()))
+                .build());
+
+        return OrderStateResponse.builder()
+                .orderNumber(order.getOrderNumber())
+                .orderId(order.getId())
+                .orderStateId(savedOrderState.getId())
+                .orderCurrentState(savedOrderState.getOrderCurrentState())
+                .build();
+    }
 }
-
-
-/**
- * 주문 상태 변경 (관리자)
- * 입금 확인 시 배송 준비중으로 변경
- */
