@@ -1,5 +1,6 @@
 package repick.repickserver.global.error;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,6 +20,7 @@ import repick.repickserver.global.error.exception.ErrorCode;
 
 import javax.validation.ConstraintViolationException;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,7 +29,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<ErrorResponse> handleHttpClientErrorException(HttpClientErrorException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(e.getStatusCode())
                 .body(new ErrorResponse(ErrorCode.INVALID_AUTHORIZATION_CODE));
     }
@@ -37,7 +39,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED));
     }
@@ -47,49 +49,49 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
 
     @ExceptionHandler(BindException.class)
     protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
 
     @ExceptionHandler(MissingPathVariableException.class)
     protected ResponseEntity<ErrorResponse> handleMissingPathVariableException(MissingPathVariableException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.INVALID_REQUEST_ERROR));
     }
@@ -99,7 +101,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingServletRequestPartException.class)
     protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCode.IMAGE_FILE_MISSING));
     }
@@ -109,7 +111,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse(ErrorCode.ACCESS_DENIED));
     }
@@ -119,7 +121,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<ErrorResponse> handleBusinessException(final CustomException e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(new ErrorResponse(e.getErrorCode()));
     }
@@ -129,7 +131,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        System.out.println(e.toString());
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR));
     }

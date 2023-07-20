@@ -4,7 +4,4 @@ spring:
         - database
         - aws
         - security
-server:
-    server-address: https://repick.seoul.kr
-    servlet:
-        context-path: /api
+        - server
