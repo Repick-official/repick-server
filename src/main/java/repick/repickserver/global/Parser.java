@@ -32,7 +32,7 @@ public class Parser {
      * <h1>String을 SubscribeState으로 parse</h1>
      * @param state string (requested | approved | denied | request-expired | expired)
      * @exception CustomException (PATH_NOT_RESOLVED)
-     * @return SubscribeState
+     * @return Pair<SubscribeState, Boolean> (SubscribeState, isExpired)
      * @author seochanhyeok
      */
     public static Pair<SubscribeState, Boolean> parseSubscribeState(String state) {
