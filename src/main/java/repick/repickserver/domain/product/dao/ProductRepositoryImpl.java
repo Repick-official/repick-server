@@ -192,6 +192,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 상품 키워드 검색
+     * 검색한 키워드를 포함하는 상품명 또는 브랜드명 을 가진 상품 조회
+     */
+    public List<GetProductResponse> getSearchProducts(String keyword, Long cursorId, int pageSize) {
+        return jpaQueryFactory
+                .select(new QGetProductResponse(
+                        product,
+                        productImage))
+                .from(product)
+                .leftJoin(productImage)
+                .on(productImage.product.id.eq(product.id))
+                .where(product.name.contains(keyword).or(product.brand.contains(keyword)),
+                        ltProductId(cursorId),
+                        product.productState.eq(ProductState.SELLING),
+                        productImage.isMainImage.eq(true))
+                .orderBy(product.id.desc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     private BooleanExpression ltProductId(Long cursorId) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
         return cursorId != null ? product.id.lt(cursorId) : null;
     }

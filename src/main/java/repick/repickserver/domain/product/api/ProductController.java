@@ -83,4 +83,14 @@ public class ProductController {
         return ResponseEntity.ok()
                 .body(productService.getPageByProductPriceAsc(cursorId, cursorPrice, categoryId, pageSize));
     }
+
+    @Operation(summary = "키워드로 상품 검색 (상품명, 브랜드명)", description = "키워드로 상품 리스트 페이지를 조회합니다. (검색 결과가 없을 시 빈 리스트가 반환됩니다.)")
+    @GetMapping("/keyword")
+    public ResponseEntity<List<GetProductResponse>> getSearchProducts(@Parameter(description = "1번째 페이지 조회시 null, " +
+                                                "2번째 이상 페이지 조회시 직전 페이지의 마지막 product id") @RequestParam(required = false) Long cursorId,
+                                                @Parameter(description = "한 페이지에 가져올 상품 개수") @RequestParam int pageSize,
+                                                                      @Parameter(description = "검색 키워드") @RequestParam String keyword) {
+        return ResponseEntity.ok()
+                .body(productService.getPageByKeyword(keyword, cursorId, pageSize));
+    }
 }
