@@ -9,12 +9,14 @@ services:
     ports:
       - 8080:8080
     tty: true
+    environment:
+      - TZ=Asia/Seoul
     logging:
       driver: awslogs
       options:
         awslogs-group: "repickLogGroup"
         awslogs-region: "ap-northeast-2"
-        awslogs-stream: "repickLogStream"
+        awslogs-stream: "repickLogSteamTest"
 
   nginx:
     container_name: nginx
