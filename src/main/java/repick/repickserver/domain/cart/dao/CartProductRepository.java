@@ -5,10 +5,9 @@ import repick.repickserver.domain.cart.domain.CartProduct;
 import repick.repickserver.domain.cart.domain.CartProductState;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CartProductRepository extends JpaRepository<CartProduct, Long> {
-
-    List<CartProduct> findByCartIdAndCartProductState(Long cartId, CartProductState cartProductState);
     Boolean existsByProductIdAndCartId(Long productId, Long cartId);
-
+    Optional<CartProduct> findByCartIdAndProductId(Long cartId, Long productId);
 }

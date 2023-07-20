@@ -11,6 +11,7 @@ import repick.repickserver.domain.model.BaseTimeEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,7 +29,7 @@ public class Order extends BaseTimeEntity {
     private Member member;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderState> orderState;
+    private List<OrderState> orderState = new ArrayList<>();
 
     // 주문자 이름 (회원 이름과 다를 수 있음에 주의)
     @NotBlank
@@ -49,11 +50,6 @@ public class Order extends BaseTimeEntity {
     private String orderNumber;
 
     // TODO: 입금자명 추가
-
-    public void addOrderState(OrderState orderState) {
-        this.orderState.add(orderState);
-        orderState.setOrder(this);
-    }
 
     @Builder
     public Order(Member member, String personName, String phoneNumber, Address address, String requestDetail, String orderNumber) {
