@@ -15,6 +15,8 @@ import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
+import repick.repickserver.infra.SlackNotifier;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
@@ -38,6 +40,7 @@ public class OrderService {
     private final HomeFittingRepository homeFittingRepository;
     private final JwtProvider jwtProvider;
     private final OrderProductRepository orderProductRepository;
+    private final SlackNotifier slackNotifier;
 
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
@@ -57,6 +60,7 @@ public class OrderService {
                 // 구독자여서 홈피팅한 상품이라면, HomeFittingState 가 REQUESTED, DELIVERING, DELIVERED, RETURN_REQUESTED, RETURNED 중 하나일 것임 -> PURCHASED 로 변경
                 homeFittingRepository.findHomeFittingByCartIdAndProductId(cart.getId(), product.getId())
                         .ifPresent(homeFitting -> homeFitting.changeState(PURCHASED));
+
         }
 
         // 주문, 주문 상태 저장
@@ -89,6 +93,22 @@ public class OrderService {
                         .build())
                 .map(orderProductRepository::save)
                 .collect(Collectors.toList());
+
+        /*
+        * 주문 알림
+        * 주문자 이름, 주소, 전화번호
+        * 주문 상품 이름과 가격
+        * 모든 상품들에 대해 forEach
+         */
+        StringBuilder sb = new StringBuilder();
+        sb.append("신청자: ").append(orderRequest.getPersonName()).append("\n");
+        sb.append("연락처: ").append(orderRequest.getPhoneNumber()).append("\n");
+        sb.append("주소: ").append(orderRequest.getAddress().mainAddress).append("\n");
+        sb.append("상세 주소: ").append(orderRequest.getAddress().detailAddress).append("\n");
+        sb.append("우편 번호: ").append(orderRequest.getAddress().zipCode).append("\n");
+        sb.append("주문 상품: ").append("\n");
+        orderProducts.forEach(orderProduct -> sb.append(orderProduct.getProduct().getName()).append(" ").append(orderProduct.getProduct().getPrice()).append("\n"));
+        slackNotifier.sendSlackNotification(sb.toString());
 
         return OrderResponse.builder()
                 .order(savedOrder)

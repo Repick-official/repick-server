@@ -16,12 +16,14 @@ import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
+import repick.repickserver.infra.SlackNotifier;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static repick.repickserver.global.error.exception.ErrorCode.*;
+import static repick.repickserver.global.error.exception.ErrorCode.ORDER_FAIL;
+import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
 
 @Service
 @Transactional
@@ -32,6 +34,7 @@ public class SellOrderService {
     private final SellOrderStateRepository sellOrderStateRepository;
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
+    private final SlackNotifier slackNotifier;
 
     /**
      * 판매 수거 요청
@@ -69,6 +72,18 @@ public class SellOrderService {
                     .sellOrder(sellOrder)
                     .sellState(SellState.REQUESTED)
                     .build());
+
+            slackNotifier.sendSlackNotification("판매 수거 요청이 들어왔습니다.\n" +
+                    "주문번호: " + orderNumber + "\n" +
+                    "이름: " + request.getName() + "\n" +
+                    "연락처: " + request.getPhoneNumber() + "\n" +
+                    "주소: " + request.getAddress().mainAddress + "\n" +
+                    "상세주소: " + request.getAddress().detailAddress + "\n" +
+                    "우편번호: " + request.getAddress().zipCode + "\n" +
+                    "수거 시 희망사항: " + request.getRequestDetail() + "\n" +
+                    "수거 희망일: " + request.getReturnDate() + "\n" +
+                    "의류 수량: " + request.getProductQuantity() + "\n" +
+                    "리픽백 수량: " + request.getBagQuantity());
 
             return SellOrderResponse.builder()
                     .id(sellOrder.getId())

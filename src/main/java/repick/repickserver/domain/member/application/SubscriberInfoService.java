@@ -16,6 +16,7 @@ import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
+import repick.repickserver.infra.SlackNotifier;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class SubscriberInfoService {
     private final SubscriberInfoRepository subscriberInfoRepository;
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
+    private final SlackNotifier slackNotifier;
 
 
     /**
@@ -196,6 +198,13 @@ public class SubscriberInfoService {
                 .build();
 
         subscriberInfoRepository.save(subscriberInfo);
+
+        // Slack에 알림 보내기
+        slackNotifier.sendSlackNotification("구독 신청이 들어왔습니다." +
+                "\n이름: " + member.getName() +
+                "\n이메일: " + member.getEmail() +
+                "\n구독타입: " + request.getSubscribeType() +
+                "\n주문번호: " + subscriberInfo.getOrderNumber());
 
         return SubscriberInfoResponse.builder()
                 .id(subscriberInfo.getId())

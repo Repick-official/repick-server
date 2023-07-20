@@ -19,6 +19,8 @@ import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import java.util.List;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
+import repick.repickserver.infra.SlackNotifier;
+
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.product.domain.ProductState.*;
@@ -36,6 +38,7 @@ public class HomeFittingService {
     private final ProductImageRepository productImageRepository;
     private final JwtProvider jwtProvider;
     private final SubscriberInfoService subscriberInfoService;
+    private final SlackNotifier slackNotifier;
 
     public HomeFittingResponse requestHomeFitting(Long cartProductId, String token) {
 
@@ -58,6 +61,18 @@ public class HomeFittingService {
         else {
             throw new CustomException(INVALID_CART_PRODUCT_STATE);
         }
+
+        // Slack에 알림 보내기
+        slackNotifier.sendSlackNotification("홈피팅 신청이 들어왔습니다.\n" +
+                "신청자: " + cartProduct.getCart().getMember().getName() + "\n" +
+                "상품명: " + product.getName() + "\n" +
+                "주소: " + cartProduct.getCart().getMember().getAddress().mainAddress + "\n" +
+                "상세주소: " + cartProduct.getCart().getMember().getAddress().detailAddress + "\n" +
+                "우편번호: " + cartProduct.getCart().getMember().getAddress().zipCode + "\n" +
+                "연락처: " + cartProduct.getCart().getMember().getPhoneNumber() + "\n"
+        );
+        // FIXME: 2023/07/20 상품정보에 주소지가 없습니다.. 일단 회원정보로 대체합니다.
+
 
         return HomeFittingResponse.builder()
                 .homeFitting(homeFittingRepository.save(
