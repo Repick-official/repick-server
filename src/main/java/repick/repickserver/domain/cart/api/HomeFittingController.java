@@ -71,7 +71,7 @@ public class HomeFittingController {
     @PatchMapping("/admin/{homeFittingId}")
     public ResponseEntity<Void> changeHomeFittingState(@PathVariable("homeFittingId") Long homeFittingId,
                                                        @Parameter(description = "REQUESTED, DELIVERING, " +
-                                                        "DELIVERED, RETURN_REQUESTED, RETURNED, PURCHASED 중 하나를 요청")
+                                                        "DELIVERED, RETURN_REQUESTED(반품 요청), RETURNED(반품 완료), PURCHASED 중 하나를 요청")
                                                        @RequestParam("homeFittingState") String homeFittingState,
                                                        @ApiIgnore @RequestHeader("Authorization") String token) {
         // validation
