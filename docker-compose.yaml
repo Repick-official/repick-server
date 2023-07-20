@@ -14,7 +14,7 @@ services:
       options:
         awslogs-group: "repick-web"
         awslogs-region: ap-northeast-2
-        awslogs-stream-prefix: web
+        awslogs-stream: "web"
 
   nginx:
     container_name: nginx
