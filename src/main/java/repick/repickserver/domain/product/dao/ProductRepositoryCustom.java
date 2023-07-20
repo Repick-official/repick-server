@@ -19,4 +19,6 @@ public interface ProductRepositoryCustom {
     List<GetHomeFittingResponse> getHomeFittingProducts(Long cartId);
 
     List<GetHomeFittingResponse> getAllHomeFittingProducts(String homeFittingState);
+
+    List<GetProductResponse> getSearchProducts(String keyword, Long cursorId, int pageSize);
 }
