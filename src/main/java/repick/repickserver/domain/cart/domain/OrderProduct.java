@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import repick.repickserver.domain.model.BaseTimeEntity;
+import repick.repickserver.domain.product.domain.Product;
 
 import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class OrderState extends BaseTimeEntity {
-
+public class OrderProduct extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,12 +21,13 @@ public class OrderState extends BaseTimeEntity {
     @JoinColumn(name="order_id", nullable = false)
     private Order order;
 
-    @Enumerated(EnumType.STRING)
-    private OrderCurrentState orderCurrentState;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="product_id", nullable = false)
+    private Product product;
 
     @Builder
-    public OrderState(OrderCurrentState orderCurrentState, Order order) {
+    public OrderProduct(Order order, Product product) {
         this.order = order;
-        this.orderCurrentState = orderCurrentState;
+        this.product = product;
     }
 }

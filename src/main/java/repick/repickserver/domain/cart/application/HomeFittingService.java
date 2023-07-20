@@ -82,6 +82,6 @@ public class HomeFittingService {
         HomeFitting homeFitting = homeFittingRepository.findById(homeFittingId)
                 .orElseThrow(() -> new CustomException(INVALID_HOME_FITTING_ID));
 
-        homeFitting.changeHomeFittingState(homeFittingState);
+        homeFitting.changeState(homeFittingState);
     }
 }

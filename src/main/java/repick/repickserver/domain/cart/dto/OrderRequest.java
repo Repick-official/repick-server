@@ -30,6 +30,4 @@ public class OrderRequest {
     @Nullable
     private String requestDetail;
 
-    private OrderCurrentState orderCurrentState;
-
 }

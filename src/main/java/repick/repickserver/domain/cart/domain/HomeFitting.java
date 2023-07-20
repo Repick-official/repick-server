@@ -29,7 +29,11 @@ public class HomeFitting extends BaseTimeEntity {
         this.homeFittingState = HomeFittingState.REQUESTED;
     }
 
-    public void changeHomeFittingState(String homeFittingState) {
+    public void changeState(HomeFittingState homeFittingState) {
+        this.homeFittingState = homeFittingState;
+    }
+
+    public void changeState(String homeFittingState) {
         this.homeFittingState = HomeFittingState.valueOf(homeFittingState);
     }
 }
