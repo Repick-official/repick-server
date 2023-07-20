@@ -12,9 +12,9 @@ services:
     logging:
       driver: awslogs
       options:
-        awslogs-group: "repick-web"
-        awslogs-region: ap-northeast-2
-        awslogs-stream: "web"
+        awslogs-group: "repickLogGroup"
+        awslogs-region: "ap-northeast-2"
+        awslogs-stream: "repickLogStream"
 
   nginx:
     container_name: nginx
