@@ -100,15 +100,15 @@ public class OrderService {
         * 주문 상품 이름과 가격
         * 모든 상품들에 대해 forEach
          */
-        StringBuilder sb = new StringBuilder();
-        sb.append("신청자: ").append(orderRequest.getPersonName()).append("\n");
-        sb.append("연락처: ").append(orderRequest.getPhoneNumber()).append("\n");
-        sb.append("주소: ").append(orderRequest.getAddress().mainAddress).append("\n");
-        sb.append("상세 주소: ").append(orderRequest.getAddress().detailAddress).append("\n");
-        sb.append("우편 번호: ").append(orderRequest.getAddress().zipCode).append("\n");
-        sb.append("주문 상품: ").append("\n");
-        orderProducts.forEach(orderProduct -> sb.append(orderProduct.getProduct().getName()).append(" ").append(orderProduct.getProduct().getPrice()).append("\n"));
-        slackNotifier.sendSlackNotification(sb.toString());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("신청자: ").append(orderRequest.getPersonName()).append("\n");
+//        sb.append("연락처: ").append(orderRequest.getPhoneNumber()).append("\n");
+//        sb.append("주소: ").append(orderRequest.getAddress().mainAddress).append("\n");
+//        sb.append("상세 주소: ").append(orderRequest.getAddress().detailAddress).append("\n");
+//        sb.append("우편 번호: ").append(orderRequest.getAddress().zipCode).append("\n");
+//        sb.append("주문 상품: ").append("\n");
+//        orderProducts.forEach(orderProduct -> sb.append(orderProduct.getProduct().getName()).append(" ").append(orderProduct.getProduct().getPrice()).append("\n"));
+//        slackNotifier.sendSlackNotification(sb.toString());
 
         return OrderResponse.builder()
                 .order(savedOrder)
