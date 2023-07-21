@@ -109,7 +109,7 @@ public class OrderService {
         sb.append("우편 번호: ").append(orderRequest.getAddress().getZipCode()).append("\n");
         sb.append("주문 상품: ").append("\n");
         orderProducts.forEach(orderProduct -> sb.append(orderProduct.getProduct().getName()).append(" ").append(orderProduct.getProduct().getPrice()).append("\n"));
-        slackNotifier.sendSlackNotification(sb.toString());
+        slackNotifier.sendOrderSlackNotification(sb.toString());
 
         return OrderResponse.builder()
                 .order(savedOrder)

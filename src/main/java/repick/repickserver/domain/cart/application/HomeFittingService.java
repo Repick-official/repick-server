@@ -63,7 +63,7 @@ public class HomeFittingService {
         }
 
         // Slack에 알림 보내기
-        slackNotifier.sendSlackNotification("홈피팅 신청이 들어왔습니다.\n" +
+        slackNotifier.sendHomeFittingSlackNotification("홈피팅 신청이 들어왔습니다.\n" +
                 "신청자: " + cartProduct.getCart().getMember().getName() + "\n" +
                 "상품명: " + product.getName() + "\n" +
                 "주소: " + cartProduct.getCart().getMember().getAddress().getMainAddress() + "\n" +

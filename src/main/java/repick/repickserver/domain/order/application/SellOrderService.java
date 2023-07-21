@@ -73,7 +73,7 @@ public class SellOrderService {
                     .sellState(SellState.REQUESTED)
                     .build());
 
-            slackNotifier.sendSlackNotification("판매 수거 요청이 들어왔습니다.\n" +
+            slackNotifier.sendSellOrderSlackNotification("판매 수거 요청이 들어왔습니다.\n" +
                     "주문번호: " + orderNumber + "\n" +
                     "이름: " + request.getName() + "\n" +
                     "연락처: " + request.getPhoneNumber() + "\n" +

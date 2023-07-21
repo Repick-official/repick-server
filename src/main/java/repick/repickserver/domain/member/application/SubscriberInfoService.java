@@ -200,7 +200,7 @@ public class SubscriberInfoService {
         subscriberInfoRepository.save(subscriberInfo);
 
         // Slack에 알림 보내기
-        slackNotifier.sendSlackNotification("구독 신청이 들어왔습니다." +
+        slackNotifier.sendSubscribeSlackNotification("구독 신청이 들어왔습니다." +
                 "\n이름: " + member.getName() +
                 "\n이메일: " + member.getEmail() +
                 "\n구독타입: " + request.getSubscribeType() +

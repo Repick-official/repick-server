@@ -15,15 +15,46 @@ public class SlackNotifier {
 
     private final WebHookProperties webHookProperties;
 
-    public void sendSlackNotification(String message) {
-        RestTemplate restTemplate = new RestTemplate();
-
+    private HttpEntity<String> createRequest(String message) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=utf-8");
 
         String payload = String.format("{\"text\": \"%s\"}", message);
-        HttpEntity<String> request = new HttpEntity<>(payload, headers);
+        return new HttpEntity<>(payload, headers);
+    }
 
-        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getUri(), HttpMethod.POST, request, String.class);
+    public void sendSubscribeSlackNotification(String message) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> request = createRequest(message);
+
+        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getSubscribeUri(), HttpMethod.POST, request, String.class);
+    }
+
+    public void sendSellOrderSlackNotification(String message) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> request = createRequest(message);
+
+        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getSellOrderUri(), HttpMethod.POST, request, String.class);
+    }
+
+    public void sendHomeFittingSlackNotification(String message) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> request = createRequest(message);
+
+        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getHomeFittingUri(), HttpMethod.POST, request, String.class);
+    }
+
+    public void sendOrderSlackNotification(String message) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> request = createRequest(message);
+
+        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getOrderUri(), HttpMethod.POST, request, String.class);
+    }
+
+    public void sendExpenseSettlementSlackNotification(String message) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> request = createRequest(message);
+
+        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getExpenseSettlementUri(), HttpMethod.POST, request, String.class);
     }
 }

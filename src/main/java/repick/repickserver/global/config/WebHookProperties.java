@@ -8,5 +8,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("webhook")
 @Data
 public class WebHookProperties {
-    private String uri;
+    private String subscribeUri;
+    private String sellOrderUri;
+    private String homeFittingUri;
+    private String orderUri;
+    private String expenseSettlementUri;
 }
