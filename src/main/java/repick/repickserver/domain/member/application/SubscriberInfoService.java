@@ -271,6 +271,8 @@ public class SubscriberInfoService {
         * 타입이 "거절"이면 deny
         * 주문번호는 orderNumber로 저장
          */
+        if (request.getText() == null) throw new CustomException(INVALID_INPUT_VALUE);
+
         String[] parsedText = request.getText().split(" ");
         String type = parsedText[0];
         String orderNumber = parsedText[1];
