@@ -1,5 +1,6 @@
 package repick.repickserver.domain.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,9 +26,11 @@ public class SubscriberInfoResponse {
     private String phoneNumber;
     @Schema(description = "주문번호", example = "S230523D7BQ1")
     private String orderNumber;
-    @Schema(description = "만료일", example = "2021-08-31T00:00:00")
+    @Schema(description = "만료일")
+    @JsonFormat(pattern = "yyyy. MM. dd. HH:mm")
     private LocalDateTime expireDate;
-    @Schema(description = "생성일", example = "2021-08-31T00:00:00")
+    @Schema(description = "생성일")
+    @JsonFormat(pattern = "yyyy. MM. dd. HH:mm")
     private LocalDateTime createdDate;
     @Schema(description = "구독상태", example = "REQUESTED")
     private SubscribeState subscribeState;
