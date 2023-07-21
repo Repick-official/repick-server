@@ -10,6 +10,7 @@ import repick.repickserver.domain.cart.dto.OrderResponse;
 import repick.repickserver.domain.cart.dto.OrderStateResponse;
 import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
 import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
@@ -63,9 +64,12 @@ public class OrderService {
 
         }
 
+        // 토큰으로 멤버 찾기
+        Member member = jwtProvider.getMemberByRawToken(token);
+
         // 주문, 주문 상태 저장
         Order order = Order.builder()
-                .member(memberRepository.findById(orderRequest.getMemberId()).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND)))
+                .member(member)
                 .personName(orderRequest.getPersonName())
                 .phoneNumber(orderRequest.getPhoneNumber())
                 .address(orderRequest.getAddress())

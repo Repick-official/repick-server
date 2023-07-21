@@ -73,6 +73,7 @@ public class SubscriberInfoService {
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
         subscriberInfos.forEach(subscriberInfo -> {
 
+            assert subscriberInfo.getExpireDate() != null;
             if (subscriberInfo.getExpireDate().isBefore(LocalDateTime.now())) {
                 // 만료된 경우 state를 expired로 변경
                 subscriberInfoResponses.add(SubscriberInfoResponse.builder()
@@ -265,6 +266,11 @@ public class SubscriberInfoService {
                 .build();
     }
 
+    /**
+     * 슬랙 - 재피어로 승인/거절 요청 처리
+     * @param request 슬랙에서 받은 요청
+     * @author seochanhyeok
+     */
     public void slackBotRequest(SlackZaphierDto request) {
 
         /*
@@ -296,7 +302,6 @@ public class SubscriberInfoService {
                 throw new CustomException(INVALID_REQUEST_ERROR);
             }
         } catch (Exception e) {
-            slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 입력이 올바르지 않습니다.");
             throw new CustomException(INVALID_INPUT_VALUE);
         }
 
