@@ -278,7 +278,10 @@ public class SubscriberInfoService {
             String type = parsedText[0];
             String orderNumber = parsedText[1];
 
-            if (orderNumberReository.existsByOrderNumber(orderNumber)) throw new CustomException(ORDER_NOT_FOUND);
+            if (orderNumberReository.existsByOrderNumber(orderNumber)) {
+                slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 주문번호가 올바르지 않습니다.");
+                throw new CustomException(ORDER_NOT_FOUND);
+            }
 
             if (type.equals("승인")) {
                 // Slack에 알림 보내기
@@ -291,9 +294,11 @@ public class SubscriberInfoService {
                         "\n주문번호: " + orderNumber);
                 deny(new SubscriberInfoRequest(orderNumber));
             } else {
+                slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 요청이 올바르지 않습니다.");
                 throw new CustomException(INVALID_REQUEST_ERROR);
             }
         } catch (Exception e) {
+            slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 입력이 올바르지 않습니다.");
             throw new CustomException(INVALID_INPUT_VALUE);
         }
 
