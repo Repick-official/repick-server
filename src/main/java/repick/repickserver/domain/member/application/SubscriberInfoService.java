@@ -66,14 +66,30 @@ public class SubscriberInfoService {
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfoByMemberId(member.getId());
 
         List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
-        subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                .id(subscriberInfo.getId())
-                .orderNumber(subscriberInfo.getOrderNumber())
-                .createdDate(subscriberInfo.getCreatedDate())
-                .expireDate(subscriberInfo.getExpireDate())
-                .subscribeState(subscriberInfo.getSubscribeState())
-                .subscribeType(subscriberInfo.getSubscribeType())
-                .build()));
+        subscriberInfos.forEach(subscriberInfo -> {
+
+            if (subscriberInfo.getExpireDate().isBefore(LocalDateTime.now())) {
+                // 만료된 경우 state를 expired로 변경
+                subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+                        .id(subscriberInfo.getId())
+                        .orderNumber(subscriberInfo.getOrderNumber())
+                        .createdDate(subscriberInfo.getCreatedDate())
+                        .expireDate(subscriberInfo.getExpireDate())
+                        .subscribeState(SubscribeState.EXPIRED)
+                        .subscribeType(subscriberInfo.getSubscribeType())
+                        .build());
+            } else {
+                // 아닌경우 approved로 변경
+                subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+                        .id(subscriberInfo.getId())
+                        .orderNumber(subscriberInfo.getOrderNumber())
+                        .createdDate(subscriberInfo.getCreatedDate())
+                        .expireDate(subscriberInfo.getExpireDate())
+                        .subscribeState(subscriberInfo.getSubscribeState())
+                        .subscribeType(subscriberInfo.getSubscribeType())
+                        .build());
+            }
+        });
         return subscriberInfoResponses;
 
     }
