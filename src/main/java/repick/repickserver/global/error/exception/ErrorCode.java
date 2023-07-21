@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_REQUEST_ERROR(400, "C001", "잘못된 요청입니다."),
     TOKEN_MEMBER_NO_MATCH(400, "M001", "토큰과 일치하는 회원이 없습니다."),
     TOKEN_EXPIRED(400, "M002", "토큰이 만료되었습니다."),
+    INVALID_INPUT_VALUE(400, "C005", "잘못된 입력값입니다."),
 
     // Member
     MEMBER_NOT_FOUND(400, "M001", "존재하지 않는 회원입니다."),

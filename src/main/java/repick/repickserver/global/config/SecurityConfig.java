@@ -43,6 +43,7 @@ public class SecurityConfig {
                 // S3 파일 업로드 요청은 모두 승인
                 .antMatchers("/products/register").permitAll()
                 .antMatchers("/s3/**").permitAll()
+                .antMatchers("/subscribe/admin/autoadd").hasAuthority("ADMIN") // TODO : ADMIN으로 변경
                 .antMatchers("/subscribe/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
                 .antMatchers("/subscribe/**").hasAuthority("USER")
                 .antMatchers("/cart/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
