@@ -273,15 +273,25 @@ public class SubscriberInfoService {
          */
         if (request.getText() == null) throw new CustomException(INVALID_INPUT_VALUE);
 
-        String[] parsedText = request.getText().split(" ");
-        String type = parsedText[0];
-        String orderNumber = parsedText[1];
+        try {
+            String[] parsedText = request.getText().split(" ");
+            String type = parsedText[0];
+            String orderNumber = parsedText[1];
 
-        if (type.equals("승인")) {
-            add(new SubscriberInfoRequest(orderNumber));
-        } else if (type.equals("거절")) {
-            deny(new SubscriberInfoRequest(orderNumber));
-        } else {
+            if (type.equals("승인")) {
+                // Slack에 알림 보내기
+                slackNotifier.sendSubscribeSlackNotification("구독을 승인합니다." +
+                        "\n주문번호: " + orderNumber);
+                add(new SubscriberInfoRequest(orderNumber));
+            } else if (type.equals("거절")) {
+                // Slack에 알림 보내기
+                slackNotifier.sendSubscribeSlackNotification("구독을 거절합니다." +
+                        "\n주문번호: " + orderNumber);
+                deny(new SubscriberInfoRequest(orderNumber));
+            } else {
+                throw new CustomException(INVALID_INPUT_VALUE);
+            }
+        } catch (Exception e) {
             throw new CustomException(INVALID_INPUT_VALUE);
         }
 
