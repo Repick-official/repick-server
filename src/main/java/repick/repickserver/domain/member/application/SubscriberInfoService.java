@@ -13,6 +13,7 @@ import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
+import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static repick.repickserver.global.error.exception.ErrorCode.INVALID_INPUT_VALUE;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -36,6 +37,7 @@ public class SubscriberInfoService {
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
+    private final OrderNumberReository orderNumberReository;
 
 
     /**
@@ -271,12 +273,12 @@ public class SubscriberInfoService {
         * 타입이 "거절"이면 deny
         * 주문번호는 orderNumber로 저장
          */
-        if (request.getText() == null) throw new CustomException(INVALID_INPUT_VALUE);
-
         try {
             String[] parsedText = request.getText().split(" ");
             String type = parsedText[0];
             String orderNumber = parsedText[1];
+
+            if (orderNumberReository.existsByOrderNumber(orderNumber)) throw new CustomException(ORDER_NOT_FOUND);
 
             if (type.equals("승인")) {
                 // Slack에 알림 보내기
@@ -289,7 +291,7 @@ public class SubscriberInfoService {
                         "\n주문번호: " + orderNumber);
                 deny(new SubscriberInfoRequest(orderNumber));
             } else {
-                throw new CustomException(INVALID_INPUT_VALUE);
+                throw new CustomException(INVALID_REQUEST_ERROR);
             }
         } catch (Exception e) {
             throw new CustomException(INVALID_INPUT_VALUE);
