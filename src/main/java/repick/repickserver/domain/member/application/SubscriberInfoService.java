@@ -55,6 +55,30 @@ public class SubscriberInfoService {
     }
 
     /**
+     * 요청한 사용자의 구독 기록 중 expired와 approved 상태들을 모두 반환한다.
+     * @param token 토큰으로 사용자를 찾음
+     * @return 구독 기록 리스트
+     * @author seochanhyeok
+     */
+    public List<SubscriberInfoResponse> historyAll(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+
+        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfoByMemberId(member.getId());
+
+        List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
+        subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+                .id(subscriberInfo.getId())
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
+                .build()));
+        return subscriberInfoResponses;
+
+    }
+
+    /**
      * 요청한 사용자의 구독 기록을 모두 반환한다.
      * @param token 토큰으로 사용자를 찾음
      * @param state 요청, 승인, 거절 상태를 구분
@@ -68,7 +92,7 @@ public class SubscriberInfoService {
 
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfo(
+        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfoByMemberIdAndState(
                                                                         member.getId(),
                                                                         subscribeState.getFirst(),
                                                                         subscribeState.getSecond());

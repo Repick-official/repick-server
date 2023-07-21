@@ -47,7 +47,7 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
     }
 
     @Override
-    public List<SubscriberInfo> findSubscriberInfo(Long id, SubscribeState subscribeState, boolean isExpired) {
+    public List<SubscriberInfo> findSubscriberInfoByMemberIdAndState(Long id, SubscribeState subscribeState, boolean isExpired) {
         return jpaQueryFactory.selectFrom(subscriberInfo)
                 // 멤버 id 일치하는 것들로 필터
                 .where(subscriberInfo.member.id.eq(id)
@@ -58,6 +58,17 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
                 // 만료여부 필터
                 .and(isExpired ? subscriberInfo.expireDate.before(LocalDateTime.now())
                         : subscriberInfo.expireDate.after(LocalDateTime.now())))
+                .fetch();
+    }
+
+    @Override
+    public List<SubscriberInfo> findSubscriberInfoByMemberId(Long memberId) {
+        return jpaQueryFactory.selectFrom(subscriberInfo)
+                .where(subscriberInfo.member.id.eq(memberId)
+                // 상태가 승인됨인 것들로 필터
+                .and(subscriberInfo.subscribeState.eq(SubscribeState.APPROVED)))
+                // 날짜 최신순으로 정렬
+                .orderBy(subscriberInfo.expireDate.desc())
                 .fetch();
     }
 }

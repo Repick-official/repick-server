@@ -12,5 +12,7 @@ public interface SubscriberInfoRepositoryCustom {
 
     List<SubscriberInfo> findValidRequests();
 
-    List<SubscriberInfo> findSubscriberInfo(Long id, SubscribeState subscribeState, boolean isExpired);
+    List<SubscriberInfo> findSubscriberInfoByMemberIdAndState(Long id, SubscribeState subscribeState, boolean isExpired);
+
+    List<SubscriberInfo> findSubscriberInfoByMemberId(Long memberId);
 }

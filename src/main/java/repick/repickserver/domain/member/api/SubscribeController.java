@@ -27,6 +27,13 @@ public class SubscribeController {
                 .body(subscriberInfoService.check(token));
     }
 
+    @Operation(summary = "구독 기록 최신순 조회", description = "구독 기록 중 승인됨, 만료됨만 최신순으로 반환합니다.")
+    @GetMapping("/history/all")
+    public ResponseEntity<List<SubscriberInfoResponse>> historyAll(@ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(subscriberInfoService.historyAll(token));
+    }
+
     @Operation(summary = "구독 기록 조회", description = "요청한 유저 본인의 구독 기록을 조회합니다.\n" +
             "\nexpired: 승인 후 만료된 구독(유효기간 1달)\n" +
             "\nrequest-expired: 요청 만료된 구독 (입금 대기기간 7일)")
