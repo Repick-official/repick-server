@@ -3,6 +3,8 @@ package repick.repickserver.domain.member.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import repick.repickserver.domain.cart.dao.CartRepository;
+import repick.repickserver.domain.cart.domain.Cart;
 import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
@@ -29,6 +31,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final CartRepository cartRepository;
 
     /**
      * 로그인
@@ -96,6 +99,11 @@ public class MemberService {
                     .build();
 
             memberRepository.save(member);
+
+            // 장바구니 생성
+            cartRepository.save(Cart.builder()
+                    .member(member)
+                    .build());
 
             return SignUserInfoResponse.builder()
                     .name(member.getName())
