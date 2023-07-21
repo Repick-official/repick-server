@@ -8,6 +8,7 @@ import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.member.dto.SlackZaphierDto;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
@@ -22,6 +23,8 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static repick.repickserver.global.error.exception.ErrorCode.INVALID_INPUT_VALUE;
 
 @Slf4j
 @Service
@@ -260,4 +263,25 @@ public class SubscriberInfoService {
                 .build();
     }
 
+    public void slackBotRequest(SlackZaphierDto request) {
+
+        /*
+        * request.getText() -> "{타입} {주문번호}" 이므로 공백을 기준으로 파싱한다.
+        * 타입이 "승인"이면 add
+        * 타입이 "거절"이면 deny
+        * 주문번호는 orderNumber로 저장
+         */
+        String[] parsedText = request.getText().split(" ");
+        String type = parsedText[0];
+        String orderNumber = parsedText[1];
+
+        if (type.equals("승인")) {
+            add(new SubscriberInfoRequest(orderNumber));
+        } else if (type.equals("거절")) {
+            deny(new SubscriberInfoRequest(orderNumber));
+        } else {
+            throw new CustomException(INVALID_INPUT_VALUE);
+        }
+
+    }
 }
