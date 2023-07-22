@@ -239,7 +239,7 @@ public class SubscriberInfoService {
                 .member(member) // 요청회원정보
                 .orderNumber(orderNumberService.generateOrderNumber(OrderType.SUBSCRIBE)) // 주문번호 생성
                 .expireDate(LocalDateTime.now().plusDays(7)) // 무통장입금의 경우 입금대기기간 1주일로 임의로 잡았음
-                .subscribeState(SubscribeState.REQUESTED) // 상태는 요청
+                .subscribeState(SubscribeState.APPROVED) // 상태는 요청 //FIXME : 테스트용으로 APPROVED로 설정함
                 .subscribeType(request.getSubscribeType()) // 구독타입
                 .build();
 
@@ -250,7 +250,8 @@ public class SubscriberInfoService {
                 "\n이름: " + member.getName() +
                 "\n이메일: " + member.getEmail() +
                 "\n구독타입: " + request.getSubscribeType() +
-                "\n주문번호: " + subscriberInfo.getOrderNumber());
+                "\n주문번호: " + subscriberInfo.getOrderNumber() +
+                "\n해커톤 시연 : 자동 승인합니다.");
 
         return SubscriberInfoResponse.builder()
                 .id(subscriberInfo.getId())
