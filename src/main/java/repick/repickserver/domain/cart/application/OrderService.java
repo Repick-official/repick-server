@@ -55,7 +55,7 @@ public class OrderService {
 
                 // 바로 구매하는 상품이 아니라 마이픽 상품이라면, CartProductState 가 IN_CART 또는 HOME_FITTING_REQUESTED 일 것임 -> ORDERED 로 변경
                 Cart cart = cartRepository.findByMember(jwtProvider.getMemberByRawToken(token));
-                cartProductRepository.findByCartIdAndProductId(cart.getId(), product.getId())
+                cartProductRepository.findByCartIdAndProductIdAndIsNotDeleted(cart.getId(), product.getId())
                         .ifPresent(cartProduct -> cartProduct.changeState(ORDERED));
 
                 // 구독자여서 홈피팅한 상품이라면, HomeFittingState 가 REQUESTED, DELIVERING, DELIVERED, RETURN_REQUESTED, RETURNED 중 하나일 것임 -> PURCHASED 로 변경
