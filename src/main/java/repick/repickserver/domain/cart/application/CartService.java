@@ -41,7 +41,7 @@ public class CartService {
 
         // 이미 장바구니에 담겨 있는 경우 체크
         // DELETED 상태인 경우는 장바구니 담기 가능
-        if (cartProductRepository.existsByCartIdAndProductIdAndStateIsNotDeleted(cart.getId(), productId))
+        if (cartProductRepository.existsByCartIdAndProductIdAndIsNotDeleted(cart.getId(), productId))
             throw new CustomException(PRODUCT_ALREADY_EXIST_IN_CART);
 
         CartProduct savedCartProduct = cartProductRepository.save(
