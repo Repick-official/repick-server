@@ -174,13 +174,13 @@ public class KakaoUserService {
                     .role(Role.USER)
                     .build();
 
-            cartRepository.save(Cart.builder()
-                    .member(kakaoUser)
-                    .build());
-
             System.out.println("kakaoUser = " + kakaoUser.toString());
 
             memberRepository.save(kakaoUser);
+
+            cartRepository.save(Cart.builder()
+                    .member(kakaoUser)
+                    .build());
 
         }
         return kakaoUser;
