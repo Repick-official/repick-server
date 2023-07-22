@@ -112,7 +112,10 @@ public class OrderService {
         sb.append("상세 주소: ").append(orderRequest.getAddress().getDetailAddress()).append("\n");
         sb.append("우편 번호: ").append(orderRequest.getAddress().getZipCode()).append("\n");
         sb.append("주문 상품: ").append("\n");
-        orderProducts.forEach(orderProduct -> sb.append(orderProduct.getProduct().getName()).append(" ").append(orderProduct.getProduct().getPrice()).append("\n"));
+        orderProducts.forEach(orderProduct ->
+                sb.append(orderProduct.getProduct().getName()).append(" ")
+                        .append(orderProduct.getProduct().getPrice()).append(" ")
+                        .append(orderProduct.getProduct().getProductNumber()).append("\n"));
         slackNotifier.sendOrderSlackNotification(sb.toString());
 
         return OrderResponse.builder()

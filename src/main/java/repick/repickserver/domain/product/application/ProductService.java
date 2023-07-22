@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.CategoryRepository;
 import repick.repickserver.domain.product.dao.ProductCategoryRepository;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
@@ -29,6 +30,7 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final OrderNumberService orderNumberService;
 
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
                                                    RegisterProductRequest request, List<Long> categoryIds) {
@@ -51,6 +53,9 @@ public class ProductService {
             }
         }
 
+        // 상품 고유번호 생성
+        String productNumber = orderNumberService.generateProductNumber();
+
         // 상품 정보 저장
         Product product = Product.builder()
                 .name(request.getName())
@@ -59,6 +64,7 @@ public class ProductService {
                 .price(request.getPrice())
                 .size(request.getSize())
                 .discountRate(request.getDiscountRate())
+                .productNumber(productNumber)
                 .build();
 
         Product savedProduct = productRepository.save(product);

@@ -32,6 +32,44 @@ public class OrderNumberService {
     private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";
     private static final int LENGTH = 5;
 
+    private String saveOrderNumber(StringBuilder sb) {
+
+        /*
+         * 5자리 정수 생성 후, 해당 주문번호가 이미 존재하는지 확인을 반복한다.
+         * 매일, 타입마다 약 30^5 개의 주문번호를 생성할 수 있다. ( 정확히는 30^5 - 30^4 = 23,490,000개 )
+         * 현재 추정되는 하루 주문건수가 매우 낮으므로 서버에 치명적 문제가 발생할 확률이 매우 매우 매우 낮다.
+         * (하루에 2천만개 거래되면 난 이미 부자일 것이므로 서버고 뭐고 ...헉)
+         */
+        String randomString = "";
+        do {
+            randomString = generateRandomString();
+        } while (orderNumberReository.existsByOrderNumber(sb + randomString));
+
+        OrderNumber orderNumber = OrderNumber.builder()
+                .orderNumber(sb + randomString).build();
+
+        // 주문번호 저장
+        orderNumberReository.save(orderNumber);
+        return orderNumber.getOrderNumber();
+    }
+
+    private String generateDateString() {
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        return localDate.format(formatter);
+    }
+
+    private String generateRandomString() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < LENGTH; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(index));
+        }
+
+        return sb.toString();
+    }
 
     public String generateOrderNumber(OrderType orderType) {
 
@@ -46,52 +84,45 @@ public class OrderNumberService {
          */
 
         // 코드 타입 변환
-        String orderTypeCode = "";
+        StringBuilder sb = new StringBuilder();
         switch (orderType) {
             case SUBSCRIBE:
-                orderTypeCode = "S";
+                sb.append("S");
                 break;
             case ORDER:
-                orderTypeCode = "O";
+                sb.append("O");
                 break;
             case SELL_ORDER:
-                orderTypeCode = "R";
+                sb.append("R");
                 break;
             default:
                 throw new CustomException("오더 타입이 올바르지 않습니다.", INVALID_ORDER_TYPE);
         }
 
         // 년도와 날짜 정보를 담는다: yyMMdd 형식
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
-        String formattedDate = currentDate.format(formatter);
+        sb.append(generateDateString());
+        return saveOrderNumber(sb);
+    }
+
+    public String generateProductNumber() {
 
         /*
-        * 5자리 정수 생성 후, 해당 주문번호가 이미 존재하는지 확인을 반복한다.
-        * 매일, 타입마다 약 30^5 개의 주문번호를 생성할 수 있다. ( 정확히는 30^5 - 30^4 = 23,490,000개 )
-        * 현재 추정되는 하루 주문건수가 매우 낮으므로 서버에 치명적 문제가 발생할 확률이 매우 매우 매우 낮다.
-        * (하루에 2천만개 거래되면 난 이미 부자일 것이므로 서버고 뭐고 ...헉)
+         * 주문 번호 생성 로직
+         * 포맷은 TCCYYMMDDXXXXXX 이다.
+         * T : Type ( 항상 'P' )
+         * CC : 카테고리 ID
+         * YY : 년도
+         * MM : 월
+         * DD : 일
+         * XXXXX : 5자리 영문자 + 숫자
          */
-        String randomStr = "";
-        Random random = new Random();
-        do {
-            // 숫자, 알파벳 대소문자로 이루어진 5자리 랜덤 문자열 생성
-            StringBuilder sb = new StringBuilder(LENGTH);
-            for (int i = 0; i < LENGTH; i++) {
-                int randomIndex = random.nextInt(CHARACTERS.length());
-                char randomChar = CHARACTERS.charAt(randomIndex);
-                sb.append(randomChar);
-                randomStr = sb.toString();
-            }
+        StringBuilder sb = new StringBuilder();
+        sb.append("P");
 
-        } while (orderNumberReository.existsByOrderNumber(orderTypeCode + formattedDate + randomStr));
+        // 년도와 날짜 정보를 담는다: yyMMdd 형식
+        sb.append(generateDateString());
+        return saveOrderNumber(sb);
 
-        OrderNumber orderNumber = OrderNumber.builder()
-                .orderNumber(orderTypeCode + formattedDate + randomStr).build();
-
-        // 주문번호 저장
-        orderNumberReository.save(orderNumber);
-        return orderNumber.getOrderNumber();
     }
 
 

@@ -32,6 +32,20 @@ public class Product extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ProductState productState;
 
+    private String productNumber;
+
+    @Builder
+    public Product(String name, String detail, String brand, Long price, String size, Long discountRate, String productNumber) {
+        this.name = name;
+        this.detail = detail;
+        this.brand = brand;
+        this.price = price;
+        this.size = size;
+        this.discountRate = discountRate;
+        this.productState = SELLING;
+        this.productNumber = productNumber;
+    }
+
     @Builder
     public Product(String name, String detail, String brand, Long price, String size, Long discountRate) {
         this.name = name;
