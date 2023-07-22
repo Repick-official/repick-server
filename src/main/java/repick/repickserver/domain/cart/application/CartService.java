@@ -7,6 +7,7 @@ import repick.repickserver.domain.cart.dao.CartProductRepository;
 import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.domain.Cart;
 import repick.repickserver.domain.cart.domain.CartProduct;
+import repick.repickserver.domain.cart.domain.CartProductState;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.cart.dto.MyPickResponse;
 import repick.repickserver.domain.member.domain.Member;
@@ -16,6 +17,8 @@ import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import java.util.List;
+import java.util.Optional;
+
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 import static repick.repickserver.domain.product.domain.ProductState.*;
 
@@ -37,8 +40,9 @@ public class CartService {
         Product product = productRepository.findByIdAndProductState(productId, SELLING)
                 .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING));
 
-        // 이미 장바구니에 담겨 있는 경우
-        if (cartProductRepository.existsByProductIdAndCartId(productId, cart.getId()))
+        // 이미 장바구니에 담겨 있는 경우 체크
+        // DELETED 상태인 경우는 장바구니 담기 가능
+        if (cartProductRepository.existsByCartIdAndProductIdAndStateIsNotDeleted(cart.getId(), productId))
             throw new CustomException(PRODUCT_ALREADY_EXIST_IN_CART);
 
         CartProduct savedCartProduct = cartProductRepository.save(
