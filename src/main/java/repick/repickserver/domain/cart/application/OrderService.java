@@ -19,6 +19,7 @@ import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.SlackNotifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
 import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
@@ -141,5 +142,13 @@ public class OrderService {
                 .orderStateId(savedOrderState.getId())
                 .orderCurrentState(savedOrderState.getOrderCurrentState())
                 .build();
+    }
+
+    public List<OrderStateResponse> getOrderStates(String orderState) {
+        List<OrderStateResponse> orderStates = orderStateRepository.getOrderStates(orderState);
+        if(orderStates.isEmpty()) {
+            throw new CustomException(ORDER_STATE_NOT_FOUND);
+        }
+        return orderStates;
     }
 }
