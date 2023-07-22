@@ -1,5 +1,6 @@
 package repick.repickserver.domain.cart.domain;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class OrderState extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OrderCurrentState orderCurrentState;
 
+    @QueryProjection
     @Builder
     public OrderState(OrderCurrentState orderCurrentState, Order order) {
         this.order = order;
