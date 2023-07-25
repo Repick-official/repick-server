@@ -21,4 +21,6 @@ public interface ProductRepositoryCustom {
     List<GetHomeFittingResponse> getAllHomeFittingProducts(String homeFittingState);
 
     List<GetProductResponse> getSearchProducts(String keyword, Long cursorId, int pageSize);
+
+    List<GetProductResponse> getSearchProductsByPrice(String keyword, Long cursorId, Long cursorPrice, int pageSize, String sortType);
 }
