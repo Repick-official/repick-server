@@ -43,6 +43,7 @@ public enum ErrorCode {
     PRODUCT_SOLD_OUT(400, "P009", "품절된 상품입니다."),
     PRODUCT_NOT_SELLING(400, "P010", "품절 되었거나 판매 중이 아닌 상품입니다."),
     KEYWORD_PRODUCT_NOT_FOUND(400, "P011", "검색 결과가 없습니다."),
+    INVALID_PRICE_SORT_TYPE(400, "P012", "정렬 타입은 high 또는 low 로 요청해주세요."),
 
     // MyPick, HomeFitting
     INVALID_CART_PRODUCT_ID(400, "C001", "존재하지 않는 마이픽 상품입니다."),

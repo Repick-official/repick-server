@@ -9,6 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import repick.repickserver.domain.product.application.CategoryService;
 import repick.repickserver.domain.product.application.ProductService;
 import repick.repickserver.domain.product.dto.*;
+import repick.repickserver.global.error.exception.CustomException;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
+
 import java.util.List;
 
 @RestController
@@ -84,7 +87,7 @@ public class ProductController {
                 .body(productService.getPageByProductPriceAsc(cursorId, cursorPrice, categoryId, pageSize));
     }
 
-    @Operation(summary = "키워드로 상품 검색 (상품명, 브랜드명)", description = "키워드로 상품 리스트 페이지를 조회합니다. (검색 결과가 없을 시 빈 리스트가 반환됩니다.)")
+    @Operation(summary = "키워드로 상품 검색 (상품명, 브랜드명) - 최신순", description = "키워드로 상품 리스트 페이지를 조회합니다. (검색 결과가 없을 시 빈 리스트가 반환됩니다.)")
     @GetMapping("/keyword")
     public ResponseEntity<List<GetProductResponse>> getSearchProducts(@Parameter(description = "1번째 페이지 조회시 null, " +
                                                 "2번째 이상 페이지 조회시 직전 페이지의 마지막 product id") @RequestParam(required = false) Long cursorId,
@@ -92,5 +95,22 @@ public class ProductController {
                                                                       @Parameter(description = "검색 키워드") @RequestParam String keyword) {
         return ResponseEntity.ok()
                 .body(productService.getPageByKeyword(keyword, cursorId, pageSize));
+    }
+
+    @Operation(summary = "키워드로 상품 검색 (상품명, 브랜드명) - 가격높은/낮은순", description = "키워드로 상품 리스트 페이지를 조회합니다. (검색 결과가 없을 시 빈 리스트가 반환됩니다.)")
+    @GetMapping("/keyword/by-price")
+    public ResponseEntity<List<GetProductResponse>> getSearchProductsByPrice(@Parameter(description = "1번째 페이지 조회시 null, " +
+            "2번째 이상 페이지 조회시 직전 페이지의 마지막 product id") @RequestParam(required = false) Long cursorId,
+                                                                             @Parameter(description = "1번째 페이지 조회시 null, " +
+            "2번째 이상 페이지 조회시 직전 페이지의 마지막 product price") @RequestParam(required = false) Long cursorPrice,
+                                                                      @Parameter(description = "한 페이지에 가져올 상품 개수") @RequestParam int pageSize,
+                                                                      @Parameter(description = "검색 키워드") @RequestParam String keyword,
+                                                                      @Parameter(description = "가격높은순이면 high, 가격낮은순이면 low 로 요청") @RequestParam String sortType) {
+        if(!sortType.equals("high") && !sortType.equals("low")) {
+            throw new CustomException(INVALID_PRICE_SORT_TYPE);
+        }
+
+        return ResponseEntity.ok()
+                .body(productService.getPageByKeywordSortByPrice(keyword, cursorId, cursorPrice, pageSize, sortType));
     }
 }

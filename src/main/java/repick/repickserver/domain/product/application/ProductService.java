@@ -202,11 +202,20 @@ public class ProductService {
     }
 
     /**
-     * 키워드로 상품 검색
+     * 키워드로 상품 검색 (최신순)
      * 제품명 또는 브랜드명
      * No Offset Pagination (페이징 성능 향상)
      */
     public List<GetProductResponse> getPageByKeyword(String keyword, Long cursorId, int pageSize) {
         return productRepository.getSearchProducts(keyword, cursorId, pageSize);
+    }
+
+    /**
+     * 키워드로 상품 검색 (가격높은순 / 가격낮은순)
+     * 제품명 또는 브랜드명
+     * No Offset Pagination (페이징 성능 향상)
+     */
+    public List<GetProductResponse> getPageByKeywordSortByPrice(String keyword, Long cursorId, Long cursorPrice, int pageSize, String sortType) {
+        return productRepository.getSearchProductsByPrice(keyword, cursorId, cursorPrice, pageSize, sortType);
     }
 }
