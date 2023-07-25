@@ -34,4 +34,12 @@ public class CartController {
                 .body(cartService.getMyPick(token));
     }
 
+    @Operation(summary = "마이픽(장바구니) 삭제", description = "마이픽(장바구니)에 담긴 상품을 삭제합니다. 본인이 담은 상품만 삭제 가능합니다.")
+    @PatchMapping("/my-pick/{cartProductId}")
+    public ResponseEntity<Long> deleteMyPick(@PathVariable("cartProductId") Long cartProductId,
+                                             @ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(cartService.deleteMyPick(cartProductId, token));
+    }
+
 }
