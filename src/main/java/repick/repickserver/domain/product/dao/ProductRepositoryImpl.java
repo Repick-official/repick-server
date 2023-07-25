@@ -1,6 +1,8 @@
 package repick.repickserver.domain.product.dao;
 
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import repick.repickserver.domain.cart.domain.HomeFittingState;
@@ -17,6 +19,7 @@ import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTI
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.cart.domain.QCartProduct.cartProduct;
 import static repick.repickserver.domain.cart.domain.QHomeFitting.homeFitting;
+import static repick.repickserver.domain.cart.domain.QOrderState.orderState;
 import static repick.repickserver.domain.product.domain.QProduct.product;
 import static repick.repickserver.domain.product.domain.QProductCategory.productCategory;
 import static repick.repickserver.domain.product.domain.QProductImage.productImage;
@@ -42,6 +45,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productCategory)
                 .on(productCategory.product.id.eq(product.id))
                 .where(ltProductId(cursorId),
+                        filterByCategory(categoryId),
                         categoryIdEq(categoryId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true))
@@ -70,6 +74,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productCategory)
                 .on(productCategory.product.id.eq(product.id))
                 .where(cursorIdAndCursorPriceDesc(cursorId, cursorPrice),
+                        filterByCategory(categoryId),
                         categoryIdEq(categoryId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true))
@@ -98,6 +103,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productCategory)
                 .on(productCategory.product.id.eq(product.id))
                 .where(cursorIdAndCursorPriceAsc(cursorId, cursorPrice),
+                        filterByCategory(categoryId),
                         categoryIdEq(categoryId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true))
@@ -222,6 +228,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression categoryIdEq(Long categoryId) { // 카테고리가 없는 경우 전체 상품 조회
         return categoryId != null ? productCategory.category.id.eq(categoryId) : null;
+    }
+
+    // 각 productCategory 별 가장 최신의 productCategory id를 구함
+    SubQueryExpression<Long> maxProductCategoryIdSubQuery = JPAExpressions
+            .select(productCategory.id.max())
+            .from(productCategory)
+            .groupBy(productCategory.product.id);
+
+    private BooleanExpression filterByCategory(Long categoryId) {
+        return categoryId == null ? productCategory.id.in(maxProductCategoryIdSubQuery) : null;
     }
 
     private BooleanExpression cursorIdAndCursorPriceDesc(Long cursorId, Long cursorPrice) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
