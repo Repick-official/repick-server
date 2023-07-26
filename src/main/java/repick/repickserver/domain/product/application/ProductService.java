@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import repick.repickserver.domain.order.dao.SellOrderRepository;
+import repick.repickserver.domain.order.domain.SellOrder;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.CategoryRepository;
 import repick.repickserver.domain.product.dao.ProductCategoryRepository;
@@ -16,6 +18,7 @@ import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 import static repick.repickserver.domain.product.domain.ProductState.*;
@@ -31,9 +34,16 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final OrderNumberService orderNumberService;
+    private final SellOrderRepository sellOrderRepository;
 
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
                                                    RegisterProductRequest request, List<Long> categoryIds) {
+        // sellOrderNumber로 SellOrder 가져오고 없으면 에러
+        Optional<SellOrder> sellOrder = sellOrderRepository.findByOrderNumber(request.getSellOrderNumber());
+        if (sellOrder.isEmpty()) {
+            throw new CustomException(ORDER_NUMBER_NOT_FOUND);
+        }
+
         // S3 에 메인 이미지 업로드
         AwsS3 awsS3Main;
         try {
@@ -65,6 +75,7 @@ public class ProductService {
                 .size(request.getSize())
                 .discountRate(request.getDiscountRate())
                 .productNumber(productNumber)
+                .sellOrder(sellOrder.get())
                 .build();
 
         Product savedProduct = productRepository.save(product);

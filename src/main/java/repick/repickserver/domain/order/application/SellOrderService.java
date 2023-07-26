@@ -13,6 +13,11 @@ import repick.repickserver.domain.order.dto.SellOrderResponse;
 import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
+import repick.repickserver.domain.product.dao.ProductImageRepository;
+import repick.repickserver.domain.product.dao.ProductRepository;
+import repick.repickserver.domain.product.domain.Product;
+import repick.repickserver.domain.product.domain.ProductImage;
+import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
@@ -21,9 +26,9 @@ import repick.repickserver.infra.SlackNotifier;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static repick.repickserver.global.error.exception.ErrorCode.ORDER_FAIL;
-import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
 @Transactional
@@ -35,6 +40,8 @@ public class SellOrderService {
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
+    private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
 
     /**
      * 판매 수거 요청
@@ -224,33 +231,56 @@ public class SellOrderService {
      */
     public SellOrderResponse updateSellOrderAdmin(SellOrderUpdateRequest request) {
         // 주문번호로 판매 주문을 가져온다.
-        SellOrder sellOrderList = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
-
-        // 해당 판매 주문이 없으면 에러를 던진다.
-        if (sellOrderList == null) {
-            throw new CustomException(ORDER_NOT_FOUND);
+        Optional<SellOrder> bySellOrder = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
+        if (bySellOrder.isEmpty()) {
+            throw new CustomException(ORDER_NUMBER_NOT_FOUND);
         }
+        SellOrder sellOrder = bySellOrder.get();
 
         // 판매 주문의 상태를 업데이트한다.
         sellOrderStateRepository.save(SellOrderState.builder()
-                .sellOrder(sellOrderList)
+                .sellOrder(sellOrder)
                 .sellState(request.getSellState())
                 .build());
 
         return SellOrderResponse.builder()
-                .id(sellOrderList.getId())
-                .name(sellOrderList.getName())
-                .orderNumber(sellOrderList.getOrderNumber())
-                .phoneNumber(sellOrderList.getPhoneNumber())
-                .bank(sellOrderList.getBank())
-                .bagQuantity(sellOrderList.getBagQuantity())
-                .productQuantity(sellOrderList.getProductQuantity())
-                .address(sellOrderList.getAddress())
-                .requestDetail(sellOrderList.getRequestDetail())
-                .returnDate(sellOrderList.getReturnDate())
+                .id(sellOrder.getId())
+                .name(sellOrder.getName())
+                .orderNumber(sellOrder.getOrderNumber())
+                .phoneNumber(sellOrder.getPhoneNumber())
+                .bank(sellOrder.getBank())
+                .bagQuantity(sellOrder.getBagQuantity())
+                .productQuantity(sellOrder.getProductQuantity())
+                .address(sellOrder.getAddress())
+                .requestDetail(sellOrder.getRequestDetail())
+                .returnDate(sellOrder.getReturnDate())
                 .sellState(request.getSellState())
-                .createdDate(sellOrderList.getCreatedDate())
+                .createdDate(sellOrder.getCreatedDate())
                 .build();
 
+    }
+
+    public List<GetProductResponse> getPublishedProduct(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        List<Product> productList = productRepository.findByMemberId(member.getId());
+
+        List<GetProductResponse> getProductResponses = new ArrayList<>();
+
+        productList.forEach(product -> {
+
+            // MainImage 찾기
+            Optional<ProductImage> productMainImage = productImageRepository.findByProductAndIsMainImage(product, true);
+            // MainImage 없으면 에러
+            if (productMainImage.isEmpty()) throw new CustomException(PRODUCT_IMAGE_NOT_FOUND);
+
+            getProductResponses.add(
+                    GetProductResponse.builder()
+                            .product(product)
+                            .mainProductImage(productMainImage.get())
+                            .build()
+            );
+        });
+
+        return getProductResponses;
     }
 }

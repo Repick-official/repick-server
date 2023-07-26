@@ -10,6 +10,7 @@ import repick.repickserver.domain.order.application.SellOrderService;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
 import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
+import repick.repickserver.domain.product.dto.GetProductResponse;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
@@ -20,6 +21,14 @@ import java.util.List;
 public class SellOrderController {
 
     private final SellOrderService sellOrderService;
+
+
+    @Operation(summary = "옷장 정리 현황: 전체보기", description = "옷장 정리 현황을 전체보기로 조회합니다.")
+    @GetMapping(value = "/all")
+    public ResponseEntity<List<GetProductResponse>> getPublishedSellOrders(@ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.getPublishedProduct(token));
+    }
 
     @Operation(summary = "옷장 수거 내역", description = "주문 상태로 판매 주문을 조회합니다.")
     @GetMapping(value = "/{state}")
