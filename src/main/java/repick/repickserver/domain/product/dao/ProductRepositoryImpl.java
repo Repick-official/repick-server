@@ -242,9 +242,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return jpaQueryFactory.selectFrom(product)
                 // product의 sellorder의 memberId가 memberId와 같은 것만 조회
                 .where(product.sellOrder.member.id.eq(memberId)
-                // product state가 state와 같은 것들로 조회
-                .and(product.productState.eq(state)))
+                        // product state가 state와 같은 것들로 조회
+                        .and(product.productState.eq(state)))
                 .fetch();
+    }
 
     /**
      * 상품 키워드 검색 (가격높은순 / 가격낮은순)
