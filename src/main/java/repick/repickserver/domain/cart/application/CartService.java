@@ -17,9 +17,9 @@ import repick.repickserver.global.jwt.JwtProvider;
 
 import java.util.List;
 
+import static repick.repickserver.domain.cart.domain.CartProductState.*;
 import static repick.repickserver.domain.product.domain.ProductState.SELLING;
-import static repick.repickserver.global.error.exception.ErrorCode.PRODUCT_ALREADY_EXIST_IN_CART;
-import static repick.repickserver.global.error.exception.ErrorCode.PRODUCT_NOT_SELLING;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
 @Transactional
@@ -65,5 +65,18 @@ public class CartService {
         Cart cart = cartRepository.findByMember(member);
 
         return productRepository.getMyPickProducts(cart.getId());
+    }
+
+    public Long deleteMyPick(Long cartProductId, String token) {
+        CartProduct cartProduct = cartProductRepository.findByIdAndCartProductState(cartProductId, IN_CART)
+                .orElseThrow(() -> new CustomException(INVALID_CART_PRODUCT_ID));
+
+        Member member = jwtProvider.getMemberByRawToken(token);
+        Cart cart = cartRepository.findByMember(member);
+        if(!cartProduct.getCart().getId().equals(cart.getId()))
+            throw new CustomException(ACCESS_DENIED);
+
+        cartProduct.changeState(DELETED);
+        return cartProduct.getId();
     }
 }

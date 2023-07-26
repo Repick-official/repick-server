@@ -26,4 +26,7 @@ public interface ProductRepositoryCustom {
     List<Product> findByMemberId(Long memberId);
 
     List<Product> findByMemberIdAndState(Long memberId, ProductState state);
+
+    List<GetProductResponse> getSearchProductsByPrice(String keyword, Long cursorId, Long cursorPrice, int pageSize, String sortType);
+
 }

@@ -1,6 +1,9 @@
 package repick.repickserver.domain.product.dao;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import repick.repickserver.domain.cart.domain.HomeFittingState;
@@ -12,12 +15,16 @@ import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.QGetProductResponse;
+import repick.repickserver.global.error.exception.CustomException;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.cart.domain.QCartProduct.cartProduct;
 import static repick.repickserver.domain.cart.domain.QHomeFitting.homeFitting;
+import static repick.repickserver.domain.cart.domain.QOrderState.orderState;
 import static repick.repickserver.domain.product.domain.QProduct.product;
 import static repick.repickserver.domain.product.domain.QProductCategory.productCategory;
 import static repick.repickserver.domain.product.domain.QProductImage.productImage;
@@ -43,6 +50,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productCategory)
                 .on(productCategory.product.id.eq(product.id))
                 .where(ltProductId(cursorId),
+                        filterByCategory(categoryId),
                         categoryIdEq(categoryId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true))
@@ -71,6 +79,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productCategory)
                 .on(productCategory.product.id.eq(product.id))
                 .where(cursorIdAndCursorPriceDesc(cursorId, cursorPrice),
+                        filterByCategory(categoryId),
                         categoryIdEq(categoryId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true))
@@ -99,6 +108,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productCategory)
                 .on(productCategory.product.id.eq(product.id))
                 .where(cursorIdAndCursorPriceAsc(cursorId, cursorPrice),
+                        filterByCategory(categoryId),
                         categoryIdEq(categoryId),
                         product.productState.eq(ProductState.SELLING),
                         productImage.isMainImage.eq(true))
@@ -194,7 +204,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     /**
-     * 상품 키워드 검색
+     * 상품 키워드 검색 (최신순)
      * 검색한 키워드를 포함하는 상품명 또는 브랜드명 을 가진 상품 조회
      */
     public List<GetProductResponse> getSearchProducts(String keyword, Long cursorId, int pageSize) {
@@ -235,6 +245,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 // product state가 state와 같은 것들로 조회
                 .and(product.productState.eq(state)))
                 .fetch();
+
+    /**
+     * 상품 키워드 검색 (가격높은순 / 가격낮은순)
+     * 검색한 키워드를 포함하는 상품명 또는 브랜드명 을 가진 상품 조회
+     */
+    public List<GetProductResponse> getSearchProductsByPrice(String keyword, Long cursorId, Long cursorPrice, int pageSize, String sortType) {
+        return jpaQueryFactory
+                .select(new QGetProductResponse(
+                        product,
+                        productImage))
+                .from(product)
+                .leftJoin(productImage)
+                .on(productImage.product.id.eq(product.id))
+                .where(product.name.contains(keyword).or(product.brand.contains(keyword)),
+                        cursorIdAndCursorPriceType(sortType, cursorId, cursorPrice),
+                        product.productState.eq(ProductState.SELLING),
+                        productImage.isMainImage.eq(true))
+                .orderBy(orderByPriceType(sortType), product.id.desc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+
     }
 
     private BooleanExpression ltProductId(Long cursorId) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
@@ -243,6 +277,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression categoryIdEq(Long categoryId) { // 카테고리가 없는 경우 전체 상품 조회
         return categoryId != null ? productCategory.category.id.eq(categoryId) : null;
+    }
+
+    // 각 productCategory 별 가장 최신의 productCategory id를 구함
+    SubQueryExpression<Long> maxProductCategoryIdSubQuery = JPAExpressions
+            .select(productCategory.id.max())
+            .from(productCategory)
+            .groupBy(productCategory.product.id);
+
+    private BooleanExpression filterByCategory(Long categoryId) {
+        return categoryId == null ? productCategory.id.in(maxProductCategoryIdSubQuery) : null;
     }
 
     private BooleanExpression cursorIdAndCursorPriceDesc(Long cursorId, Long cursorPrice) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
@@ -269,4 +313,23 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return homeFittingState != null ? homeFitting.homeFittingState.eq(HomeFittingState.valueOf(homeFittingState)) : null;
     }
 
+    private OrderSpecifier<Long> orderByPriceType(String sortType) {
+        if(sortType.equals("high")) {
+            return product.price.desc();
+        }
+        else if (sortType.equals("low")) {
+            return product.price.asc();
+        }
+        else throw new CustomException(INVALID_REQUEST_ERROR);
+    }
+
+    private BooleanExpression cursorIdAndCursorPriceType(String sortType, Long cursorId, Long cursorPrice) {
+        if(sortType.equals("high")) {
+            return cursorIdAndCursorPriceDesc(cursorId, cursorPrice);
+        }
+        else if (sortType.equals("low")) {
+            return cursorIdAndCursorPriceAsc(cursorId, cursorPrice);
+        }
+        else throw new CustomException(INVALID_REQUEST_ERROR);
+    }
 }
