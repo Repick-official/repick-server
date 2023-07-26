@@ -24,10 +24,24 @@ public class SellOrderController {
 
 
     @Operation(summary = "옷장 정리 현황: 전체보기", description = "옷장 정리 현황을 전체보기로 조회합니다.")
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/history/published")
     public ResponseEntity<List<GetProductResponse>> getPublishedSellOrders(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(sellOrderService.getPublishedProduct(token));
+    }
+
+    @Operation(summary = "옷장 정리 현황: 판매중만", description = "옷장 정리 현황을 판매중만으로 조회합니다.")
+    @GetMapping(value = "/history/selling")
+    public ResponseEntity<List<GetProductResponse>> getSellingSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.getSellingProduct(token));
+    }
+
+    @Operation(summary = "옷장 정리 현황: 판매완료", description = "옷장 정리 현황을 판매완료만으로 조회합니다.")
+    @GetMapping(value = "/history/sold")
+    public ResponseEntity<List<GetProductResponse>> getSoldSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.getSoldProduct(token));
     }
 
     @Operation(summary = "옷장 수거 내역", description = "주문 상태로 판매 주문을 조회합니다.")

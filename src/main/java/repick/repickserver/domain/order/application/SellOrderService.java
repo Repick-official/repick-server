@@ -17,6 +17,7 @@ import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductImage;
+import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
@@ -260,10 +261,7 @@ public class SellOrderService {
 
     }
 
-    public List<GetProductResponse> getPublishedProduct(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberId(member.getId());
-
+    private List<GetProductResponse> handleProductList(List<Product> productList) {
         List<GetProductResponse> getProductResponses = new ArrayList<>();
 
         productList.forEach(product -> {
@@ -282,5 +280,26 @@ public class SellOrderService {
         });
 
         return getProductResponses;
+    }
+
+    public List<GetProductResponse> getPublishedProduct(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        List<Product> productList = productRepository.findByMemberId(member.getId());
+
+        return handleProductList(productList);
+    }
+
+    public List<GetProductResponse> getSellingProduct(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.SELLING);
+
+        return handleProductList(productList);
+    }
+
+    public List<GetProductResponse> getSoldProduct(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.SOLD_OUT);
+
+        return handleProductList(productList);
     }
 }

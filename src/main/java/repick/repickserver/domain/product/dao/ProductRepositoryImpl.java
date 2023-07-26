@@ -227,6 +227,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public List<Product> findByMemberIdAndState(Long memberId, ProductState state) {
+        return jpaQueryFactory.selectFrom(product)
+                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
+                .where(product.sellOrder.member.id.eq(memberId)
+                // product state가 state와 같은 것들로 조회
+                .and(product.productState.eq(state)))
+                .fetch();
+    }
+
     private BooleanExpression ltProductId(Long cursorId) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
         return cursorId != null ? product.id.lt(cursorId) : null;
     }
