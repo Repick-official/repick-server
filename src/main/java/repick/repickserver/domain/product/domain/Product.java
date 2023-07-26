@@ -1,10 +1,17 @@
 package repick.repickserver.domain.product.domain;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import repick.repickserver.domain.model.BaseTimeEntity;
+import repick.repickserver.domain.order.domain.SellOrder;
+
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import static repick.repickserver.domain.product.domain.ProductState.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,8 +41,12 @@ public class Product extends BaseTimeEntity {
 
     private String productNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sell_order_id")
+    private SellOrder sellOrder;
+
     @Builder
-    public Product(String name, String detail, String brand, Long price, String size, Long discountRate, String productNumber) {
+    public Product(String name, String detail, String brand, Long price, String size, Long discountRate, String productNumber, SellOrder sellOrder) {
         this.name = name;
         this.detail = detail;
         this.brand = brand;
@@ -44,6 +55,7 @@ public class Product extends BaseTimeEntity {
         this.discountRate = discountRate;
         this.productState = SELLING;
         this.productNumber = productNumber;
+        this.sellOrder = sellOrder;
     }
 
     @Builder

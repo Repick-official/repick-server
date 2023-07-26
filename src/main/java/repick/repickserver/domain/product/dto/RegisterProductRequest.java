@@ -21,4 +21,7 @@ public class RegisterProductRequest {
 
     private Long discountRate;
 
+    // 판매 주문번호
+    private String sellOrderNumber;
+
 }

@@ -11,6 +11,7 @@ import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.cart.dto.QGetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.QGetMyPickResponse;
+import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.QGetProductResponse;
@@ -226,6 +227,25 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Product> findByMemberId(Long memberId) {
+        return jpaQueryFactory.selectFrom(product)
+                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
+                .where(product.sellOrder.member.id.eq(memberId)
+                // product state가 deleted가 아닌 것들로 조회
+                .and(product.productState.ne(ProductState.DELETED)))
+                .fetch();
+    }
+
+    @Override
+    public List<Product> findByMemberIdAndState(Long memberId, ProductState state) {
+        return jpaQueryFactory.selectFrom(product)
+                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
+                .where(product.sellOrder.member.id.eq(memberId)
+                // product state가 state와 같은 것들로 조회
+                .and(product.productState.eq(state)))
+                .fetch();
+
     /**
      * 상품 키워드 검색 (가격높은순 / 가격낮은순)
      * 검색한 키워드를 포함하는 상품명 또는 브랜드명 을 가진 상품 조회
@@ -248,6 +268,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());
+
     }
 
     private BooleanExpression ltProductId(Long cursorId) { // 첫 페이지 조회와 두번째 이상 페이지 조회를 구분하기 위함
