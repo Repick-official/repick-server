@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/sign/register", "/sign/login").permitAll()
                 .antMatchers("/sign/update").hasAuthority("USER")
-                .antMatchers("/order/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/order/admin/**").hasAuthority("USER")
                 .antMatchers("/order/**").hasAuthority("USER")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
                 // S3 파일 업로드 요청은 모두 승인

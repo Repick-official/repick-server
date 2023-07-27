@@ -19,11 +19,11 @@ import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.SlackNotifier;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
+import static repick.repickserver.domain.cart.domain.HomeFittingState.PURCHASED;
 import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
-import static repick.repickserver.domain.cart.domain.HomeFittingState.*;
 import static repick.repickserver.domain.ordernumber.domain.OrderType.ORDER;
 import static repick.repickserver.domain.product.domain.ProductState.*;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
@@ -52,7 +52,8 @@ public class OrderService {
                 Product product = productRepository.findByIdAndProductState(productId, SELLING)
                         .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING));
 
-                product.changeProductState(SOLD_OUT);
+                // 주문 상태를 ORDERED 로 변경 : 다른 사람이 구매 신청할 수 없게 하기 위함
+                product.changeProductState(PENDING);
 
                 // 바로 구매하는 상품이 아니라 마이픽 상품이라면, CartProductState 가 IN_CART 또는 HOME_FITTING_REQUESTED 일 것임 -> ORDERED 로 변경
                 Cart cart = cartRepository.findByMember(jwtProvider.getMemberByRawToken(token));
@@ -135,6 +136,15 @@ public class OrderService {
                 .order(order)
                 .orderCurrentState(OrderCurrentState.valueOf(request.getOrderState()))
                 .build());
+
+        // Order에서 Product를 모두 조회
+        orderProductRepository.findByOrderId(order.getId()).forEach(orderProduct -> {
+            // 만약 Product의 State가 SELLING이라면 SOLD_OUT으로 변경
+            // (정산 신청한 상태가 변경되는 것을 방지)
+            if (orderProduct.getProduct().getProductState() == SELLING) {
+                orderProduct.getProduct().changeProductState(SOLD_OUT);
+            }
+        });
 
         return OrderStateResponse.builder()
                 .orderNumber(order.getOrderNumber())
