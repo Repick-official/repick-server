@@ -29,6 +29,7 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(400, "O001", "존재하지 않는 주문입니다."),
     PATH_NOT_RESOLVED(400, "O002", "경로를 찾을 수 없습니다."),
     ORDER_STATE_NOT_FOUND(400, "O003", "요청한 주문 상태가 존재하지 않습니다."),
+    ORDER_MEMBER_NOT_MATCH(400, "O004", "주문과 회원이 일치하지 않습니다."),
 
     // Product
     IMAGE_FILE_MISSING(400, "P001", "상품의 사진 파일을 입력해주세요."),
@@ -41,6 +42,7 @@ public enum ErrorCode {
     PRODUCT_IMAGE_NOT_FOUND(400, "P007", "존재하지 않는 상품 이미지입니다."),
     INVALID_CATEGORY_ID(400, "P008", "존재하지 않는 카테고리입니다."),
     PRODUCT_SOLD_OUT(400, "P009", "품절된 상품입니다."),
+    PRODUCT_NOT_SOLD_OUT(400, "P010", "판매되지 않은 상품입니다."),
     PRODUCT_NOT_SELLING(400, "P010", "품절 되었거나 판매 중이 아닌 상품입니다."),
     KEYWORD_PRODUCT_NOT_FOUND(400, "P011", "검색 결과가 없습니다."),
     INVALID_PRICE_SORT_TYPE(400, "P012", "정렬 타입은 high 또는 low 로 요청해주세요."),

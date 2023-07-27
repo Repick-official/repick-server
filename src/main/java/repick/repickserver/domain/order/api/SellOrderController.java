@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.order.application.SellOrderService;
-import repick.repickserver.domain.order.dto.SellOrderRequest;
-import repick.repickserver.domain.order.dto.SellOrderResponse;
-import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
+import repick.repickserver.domain.order.dto.*;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -21,6 +19,14 @@ import java.util.List;
 public class SellOrderController {
 
     private final SellOrderService sellOrderService;
+
+    @Operation(summary = "정산 신청", description = "정산 신청을 합니다.")
+    @PostMapping(value = "/settlement")
+    public ResponseEntity<Boolean> settlement(@ApiIgnore @RequestHeader("Authorization") String token,
+                                                         @RequestBody SettlementRequest settlementRequest) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.requestSettlement(token, settlementRequest));
+    }
 
 
     @Operation(summary = "옷장 정리 현황: 전체보기", description = "옷장 정리 현황을 전체보기로 조회합니다.")
@@ -87,7 +93,7 @@ public class SellOrderController {
     @PostMapping(value = "/admin/update")
     public ResponseEntity<SellOrderResponse> updateSellOrder(@RequestBody SellOrderUpdateRequest request) {
         return ResponseEntity.ok()
-                .body(sellOrderService.updateSellOrderAdmin(request));
+                .body(sellOrderService.updateSellOrderState(request));
     }
 
 }

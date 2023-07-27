@@ -11,6 +11,7 @@ import repick.repickserver.domain.order.domain.SellState;
 import repick.repickserver.domain.order.dto.SellOrderRequest;
 import repick.repickserver.domain.order.dto.SellOrderResponse;
 import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
+import repick.repickserver.domain.order.dto.SettlementRequest;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
@@ -28,6 +29,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -223,6 +225,14 @@ public class SellOrderService {
         return sellOrderResponses;
     }
 
+    private void buildSellOrderState(SellOrder sellOrder, SellState sellState) {
+        SellOrderState sellOrderState = SellOrderState.builder()
+                .sellOrder(sellOrder)
+                .sellState(sellState)
+                .build();
+        sellOrderStateRepository.save(sellOrderState);
+    }
+
     /**
      * 관리자가 판매 요청을 업데이트함
      * @param request (orderNumber, sellState)
@@ -230,7 +240,7 @@ public class SellOrderService {
      * @exception CustomException orderNumber에 해당하는 order를 조회하지 못할 경우 ORDER_NOT_FOUND "판매 요청을 찾을 수 없음" 에러 발생
      * @author seochanhyeok
      */
-    public SellOrderResponse updateSellOrderAdmin(SellOrderUpdateRequest request) {
+    public SellOrderResponse updateSellOrderState(SellOrderUpdateRequest request) {
         // 주문번호로 판매 주문을 가져온다.
         Optional<SellOrder> bySellOrder = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
         if (bySellOrder.isEmpty()) {
@@ -239,10 +249,7 @@ public class SellOrderService {
         SellOrder sellOrder = bySellOrder.get();
 
         // 판매 주문의 상태를 업데이트한다.
-        sellOrderStateRepository.save(SellOrderState.builder()
-                .sellOrder(sellOrder)
-                .sellState(request.getSellState())
-                .build());
+        buildSellOrderState(sellOrder, request.getSellState());
 
         return SellOrderResponse.builder()
                 .id(sellOrder.getId())
@@ -301,5 +308,36 @@ public class SellOrderService {
         List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.SOLD_OUT);
 
         return handleProductList(productList);
+    }
+
+    public Boolean requestSettlement(String token, SettlementRequest settlementRequest) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        AtomicLong totalPrice = new AtomicLong(0); // 총 가격을 저장하기 위한 AtomicLong
+        StringBuilder sb = new StringBuilder(); // 슬랙 메세지를 위한 StringBuilder
+        sb.append("정산 신청입니다.\n").append("신청 상품 정보들: \n");
+
+        settlementRequest.getProductIds().forEach(productId -> {
+            // 신청한 멤버와 request의 멤버가 맞는지 검사
+            Optional<Product> product = productRepository.findById(productId);
+            if (product.isEmpty()) throw new CustomException(PRODUCT_NOT_FOUND); // 상품이 없을 경우 에러
+            if (!product.get().getSellOrder().getMember().getId().equals(member.getId()))
+                throw new CustomException(ORDER_MEMBER_NOT_MATCH); // 신청한 멤버와 request의 멤버가 맞지 않을 경우 에러
+            if (product.get().getProductState() != ProductState.SOLD_OUT)
+                throw new CustomException(PRODUCT_NOT_SOLD_OUT); // 판매중인 상품이 아닐 경우 에러
+
+            // 정산 신청 상태로 변경
+            product.get().changeProductState(ProductState.SETTLEMENT_REQUESTED);
+            // 가격을 가져와 총 가격에 추가
+            totalPrice.addAndGet(product.get().getPrice());
+            // 슬랙 메세지에 상품 정보 추가
+            sb.append(product.get().getProductNumber()).append(" ").append(product.get().getPrice()).append("원\n");
+            sb.append(product.get().getSellOrder().getBank().getAccountNumber()).append(" ")
+                    .append(product.get().getSellOrder().getBank().getBankName()).append("\n");
+        });
+
+        sb.append("총 가격: ").append(totalPrice).append("원\n");
+        slackNotifier.sendExpenseSettlementSlackNotification(sb.toString());
+        return true;
+
     }
 }
