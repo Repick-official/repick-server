@@ -58,7 +58,7 @@ public class SellOrderController {
     }
 
     @Operation(summary = "옷장 정리 내역: 상태로 필터링", description = "주문 상태로 판매 주문을 조회합니다.")
-    @GetMapping(value = "/{state}")
+    @GetMapping(value = "/history/requests/{state}")
     @ApiImplicitParam(
             name = "state",
             value = "신청 상태 (requested | canceled | delivered | published)",
