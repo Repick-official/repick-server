@@ -7,6 +7,5 @@ import java.util.List;
 
 @Getter
 public class SettlementRequest {
-    @Schema(description = "상품 아이디", example = "[1, 2, 3]")
     private List<Long> productIds;
 }
