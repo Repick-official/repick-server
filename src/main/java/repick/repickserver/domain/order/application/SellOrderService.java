@@ -310,7 +310,7 @@ public class SellOrderService {
         return handleProductList(productList);
     }
 
-    public List<GetProductResponse> getSettlementProduct(String token) {
+    public List<GetProductResponse> getSettledProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.SETTLEMENT_REQUESTED, ProductState.SETTLEMENT_COMPLETED);
 
