@@ -280,6 +280,7 @@ public class SubscriberInfoService {
         * 타입이 "거절"이면 deny
         * 주문번호는 orderNumber로 저장
          */
+        System.out.println("request = " + request.getText());
         try {
             String[] parsedText = request.getText().split(" ");
             String type = parsedText[0];
