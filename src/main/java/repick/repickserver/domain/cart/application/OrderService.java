@@ -14,6 +14,7 @@ import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
+import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.SlackNotifier;
@@ -108,6 +109,7 @@ public class OrderService {
          */
         StringBuilder sb = new StringBuilder();
         sb.append("주문 신청이 들어왔습니다.\n");
+        sb.append("주문 번호: ").append(orderNumber).append("\n");
         sb.append("신청자: ").append(orderRequest.getPersonName()).append("\n");
         sb.append("연락처: ").append(orderRequest.getPhoneNumber()).append("\n");
         sb.append("주소: ").append(orderRequest.getAddress().getMainAddress()).append("\n");
@@ -139,9 +141,13 @@ public class OrderService {
 
         // Order에서 Product를 모두 조회
         orderProductRepository.findByOrderId(order.getId()).forEach(orderProduct -> {
+            // 주문 신청이 없는 상품의 경우 예외 발생
+            if (orderProduct.getProduct().getProductState() == SELLING)
+                throw new CustomException(PRODUCT_NOT_PENDING);
+
             // 만약 Product의 State가 SELLING이라면 SOLD_OUT으로 변경
-            // (정산 신청한 상태가 변경되는 것을 방지)
-            if (orderProduct.getProduct().getProductState() == SELLING) {
+            // (정산 신청한 상태가 변경되는 것을 방지
+            if (orderProduct.getProduct().getProductState() == PENDING) {
                 orderProduct.getProduct().changeProductState(SOLD_OUT);
             }
         });

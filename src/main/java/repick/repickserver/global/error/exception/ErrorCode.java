@@ -43,6 +43,7 @@ public enum ErrorCode {
     INVALID_CATEGORY_ID(400, "P008", "존재하지 않는 카테고리입니다."),
     PRODUCT_SOLD_OUT(400, "P009", "품절된 상품입니다."),
     PRODUCT_NOT_SOLD_OUT(400, "P010", "판매되지 않은 상품입니다."),
+    PRODUCT_NOT_PENDING(400, "P009", "주문 신청이 없는 상품입니다."),
     PRODUCT_NOT_SELLING(400, "P010", "품절 되었거나 판매 중이 아닌 상품입니다."),
     KEYWORD_PRODUCT_NOT_FOUND(400, "P011", "검색 결과가 없습니다."),
     INVALID_PRICE_SORT_TYPE(400, "P012", "정렬 타입은 high 또는 low 로 요청해주세요."),
