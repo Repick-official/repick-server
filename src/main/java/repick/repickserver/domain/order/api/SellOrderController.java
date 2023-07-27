@@ -50,14 +50,14 @@ public class SellOrderController {
                 .body(sellOrderService.getSoldProduct(token));
     }
 
-    @Operation(summary = "옷장 정리 내역", description = "판매 주문 현황을 조회합니다.")
+    @Operation(summary = "판매 주문 현황", description = "판매 주문 현황을 조회합니다.")
     @GetMapping(value = "/history/requests")
     public ResponseEntity<List<SellOrderResponse>> getSellOrderRequests(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(sellOrderService.getAllSellOrders(token));
     }
 
-    @Operation(summary = "옷장 정리 내역: 상태로 필터링", description = "주문 상태로 판매 주문을 조회합니다.")
+    @Operation(summary = "판매 주문 현황: 상태로 필터링", description = "주문 상태로 판매 주문을 조회합니다.")
     @GetMapping(value = "/history/requests/{state}")
     @ApiImplicitParam(
             name = "state",
