@@ -228,11 +228,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<Product> findByMemberIdAndIsSellingOrSoldOut(Long memberId) {
+    public List<Product> findByMemberId(Long memberId) {
         return jpaQueryFactory.selectFrom(product)
-                .where(product.sellOrder.member.id.eq(memberId)
-                        .and(product.productState.eq(ProductState.SELLING)
-                        .or(product.productState.eq(ProductState.SOLD_OUT))))
+                .where(product.sellOrder.member.id.eq(memberId))
                 .fetch();
     }
 
@@ -243,6 +241,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(product.sellOrder.member.id.eq(memberId)
                         // product state가 state와 같은 것들로 조회
                         .and(product.productState.eq(state)))
+                .fetch();
+    }
+
+    @Override
+    public List<Product> findByMemberIdAndTwoStates(Long memberId, ProductState state1, ProductState state2) {
+        return jpaQueryFactory.selectFrom(product)
+                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
+                .where(product.sellOrder.member.id.eq(memberId)
+                        // product state가 state1과 state2와 같은 것들로 조회
+                        .and(product.productState.eq(state1).or(product.productState.eq(state2))))
                 .fetch();
     }
 

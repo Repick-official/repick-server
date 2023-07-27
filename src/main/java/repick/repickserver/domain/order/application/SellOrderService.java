@@ -291,7 +291,7 @@ public class SellOrderService {
 
     public List<GetProductResponse> getPublishedProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndIsSellingOrSoldOut(member.getId());
+        List<Product> productList = productRepository.findByMemberId(member.getId());
 
         return handleProductList(productList);
     }
@@ -306,6 +306,13 @@ public class SellOrderService {
     public List<GetProductResponse> getSoldProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.SOLD_OUT);
+
+        return handleProductList(productList);
+    }
+
+    public List<GetProductResponse> getSettlementProduct(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.SETTLEMENT_REQUESTED, ProductState.SETTLEMENT_COMPLETED);
 
         return handleProductList(productList);
     }
