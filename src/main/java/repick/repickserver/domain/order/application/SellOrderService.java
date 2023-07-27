@@ -311,6 +311,9 @@ public class SellOrderService {
     }
 
     public Boolean requestSettlement(String token, SettlementRequest settlementRequest) {
+        // productIds가 없을 경우 에러
+        if (settlementRequest.getProductIds() == null) throw new CustomException(INVALID_REQUEST_ERROR);
+
         Member member = jwtProvider.getMemberByRawToken(token);
         AtomicLong totalPrice = new AtomicLong(0); // 총 가격을 저장하기 위한 AtomicLong
         StringBuilder sb = new StringBuilder(); // 슬랙 메세지를 위한 StringBuilder
