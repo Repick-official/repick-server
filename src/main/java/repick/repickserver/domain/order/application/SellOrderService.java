@@ -291,7 +291,7 @@ public class SellOrderService {
 
     public List<GetProductResponse> getPublishedProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberId(member.getId());
+        List<Product> productList = productRepository.findByMemberIdAndIsSellingOrSoldOut(member.getId());
 
         return handleProductList(productList);
     }

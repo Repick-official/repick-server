@@ -228,12 +228,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<Product> findByMemberId(Long memberId) {
+    public List<Product> findByMemberIdAndIsSellingOrSoldOut(Long memberId) {
         return jpaQueryFactory.selectFrom(product)
-                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
                 .where(product.sellOrder.member.id.eq(memberId)
-                // product state가 deleted가 아닌 것들로 조회
-                .and(product.productState.ne(ProductState.DELETED)))
+                        .and(product.productState.eq(ProductState.SELLING)
+                        .or(product.productState.eq(ProductState.SOLD_OUT))))
                 .fetch();
     }
 

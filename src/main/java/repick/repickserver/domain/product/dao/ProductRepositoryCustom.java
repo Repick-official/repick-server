@@ -23,7 +23,7 @@ public interface ProductRepositoryCustom {
 
     List<GetProductResponse> getSearchProducts(String keyword, Long cursorId, int pageSize);
 
-    List<Product> findByMemberId(Long memberId);
+    List<Product> findByMemberIdAndIsSellingOrSoldOut(Long memberId);
 
     List<Product> findByMemberIdAndState(Long memberId, ProductState state);
 
