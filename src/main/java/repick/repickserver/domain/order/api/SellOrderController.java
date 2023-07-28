@@ -20,6 +20,13 @@ public class SellOrderController {
 
     private final SellOrderService sellOrderService;
 
+    @Operation(summary =  "정산 상태 업데이트", description = "정산 상태를 업데이트 합니다.")
+    @PostMapping(value = "/settlement/admin/update")
+    public ResponseEntity<Boolean> updateSettlementState(@RequestBody UpdateSettlementStateRequest request) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.updateSettlementState(request));
+    }
+
     @Operation(summary = "정산 신청", description = "정산 신청을 합니다.")
     @PostMapping(value = "/settlement")
     public ResponseEntity<Boolean> settlement(@ApiIgnore @RequestHeader("Authorization") String token,

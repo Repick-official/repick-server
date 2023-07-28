@@ -58,6 +58,7 @@ public enum ErrorCode {
     //OrderNumber
     INVALID_ORDER_TYPE(400, "C005", "잘못된 오더 타입입니다."),
     ORDER_NUMBER_NOT_FOUND(400, "C006", "존재하지 않는 주문 번호입니다."),
+    PRODUCT_NOT_SETTLEMENT_REQUESTED(400, "C007", "결제 요청되지 않은 상품입니다."),
     //Delivery
     WAYBILL_NUMBER_NOT_REGISTERED(400, "C006", "운송장 번호가 등록되지 않았습니다.");
 

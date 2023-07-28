@@ -8,11 +8,9 @@ import repick.repickserver.domain.order.dao.SellOrderStateRepository;
 import repick.repickserver.domain.order.domain.SellOrder;
 import repick.repickserver.domain.order.domain.SellOrderState;
 import repick.repickserver.domain.order.domain.SellState;
-import repick.repickserver.domain.order.dto.SellOrderRequest;
-import repick.repickserver.domain.order.dto.SellOrderResponse;
-import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
-import repick.repickserver.domain.order.dto.SettlementRequest;
+import repick.repickserver.domain.order.dto.*;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
+import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
@@ -45,6 +43,7 @@ public class SellOrderService {
     private final SlackNotifier slackNotifier;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final OrderNumberReository orderNumberRepository;
 
     /**
      * 판매 수거 요청
@@ -350,5 +349,18 @@ public class SellOrderService {
         slackNotifier.sendExpenseSettlementSlackNotification(sb.toString());
         return true;
 
+    }
+
+    public Boolean updateSettlementState(UpdateSettlementStateRequest request) {
+        Optional<Product> product = productRepository.findByProductNumber(request.getProductNumber());
+        if (product.isEmpty()) throw new CustomException(PRODUCT_NOT_FOUND); // 상품이 없을 경우 에러
+
+        if (product.get().getProductState() != ProductState.SETTLEMENT_REQUESTED)
+            throw new CustomException(PRODUCT_NOT_SETTLEMENT_REQUESTED); // 정산 신청 상태가 아닐 경우 에러
+
+        product.ifPresent(target ->
+                target.changeProductState(ProductState.SETTLEMENT_COMPLETED)); // 정산 완료로 변경
+
+        return true;
     }
 }
