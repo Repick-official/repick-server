@@ -20,6 +20,7 @@ public class SlackApiService {
 
 
     public void addSubscribeRequest(SlackApiDto request) {
+        System.out.println("request = " + request.getOrderNumber());
         if (!orderNumberReository.existsByOrderNumber(request.getOrderNumber())) {
             slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 주문번호가 올바르지 않습니다.");
             throw new CustomException(ORDER_NOT_FOUND);
