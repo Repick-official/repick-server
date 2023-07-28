@@ -8,7 +8,6 @@ import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
-import repick.repickserver.domain.member.dto.SlackZaphierDto;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
@@ -18,14 +17,12 @@ import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
-import repick.repickserver.infra.SlackNotifier;
+import repick.repickserver.infra.slack.application.SlackNotifier;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -267,45 +264,4 @@ public class SubscriberInfoService {
                 .build();
     }
 
-    /**
-     * 슬랙 - 재피어로 승인/거절 요청 처리
-     * @param request 슬랙에서 받은 요청
-     * @author seochanhyeok
-     */
-    public void slackBotRequest(SlackZaphierDto request) {
-
-        /*
-        * request.getText() -> "{타입} {주문번호}" 이므로 공백을 기준으로 파싱한다.
-        * 타입이 "승인"이면 add
-        * 타입이 "거절"이면 deny
-        * 주문번호는 orderNumber로 저장
-         */
-        System.out.println("request = " + request.getText());
-        try {
-            String[] parsedText = request.getText().split(" ");
-            String type = parsedText[0];
-            String orderNumber = parsedText[1];
-
-            if (!orderNumberReository.existsByOrderNumber(orderNumber)) {
-                slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 주문번호가 올바르지 않습니다.");
-                throw new CustomException(ORDER_NOT_FOUND);
-            } else if (type.equals("승인")) {
-                // Slack에 알림 보내기
-                slackNotifier.sendSubscribeSlackNotification("구독을 승인합니다." +
-                        "\n주문번호: " + orderNumber);
-                add(new SubscriberInfoRequest(orderNumber));
-            } else if (type.equals("거절")) {
-                // Slack에 알림 보내기
-                slackNotifier.sendSubscribeSlackNotification("구독을 거절합니다." +
-                        "\n주문번호: " + orderNumber);
-                deny(new SubscriberInfoRequest(orderNumber));
-            } else {
-                slackNotifier.sendSubscribeSlackNotification("명령에 실패했습니다. 요청이 올바르지 않습니다.");
-                throw new CustomException(INVALID_REQUEST_ERROR);
-            }
-        } catch (Exception e) {
-            throw new CustomException(INVALID_INPUT_VALUE);
-        }
-
-    }
 }

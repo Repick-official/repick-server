@@ -23,7 +23,7 @@ import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
-import repick.repickserver.infra.SlackNotifier;
+import repick.repickserver.infra.slack.application.SlackNotifier;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;

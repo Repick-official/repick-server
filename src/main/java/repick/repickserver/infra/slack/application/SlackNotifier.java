@@ -1,4 +1,4 @@
-package repick.repickserver.infra;
+package repick.repickserver.infra.slack.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
