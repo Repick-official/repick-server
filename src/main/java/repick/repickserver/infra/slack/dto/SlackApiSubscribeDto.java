@@ -3,6 +3,6 @@ package repick.repickserver.infra.slack.dto;
 import lombok.Getter;
 
 @Getter
-public class SlackApiDto {
+public class SlackApiSubscribeDto {
     private String orderNumber;
 }
