@@ -8,4 +8,6 @@ import repick.repickserver.domain.cart.domain.HomeFittingState;
 import java.util.List;
 
 public interface HomeFittingRepository extends JpaRepository<HomeFitting, Long>, HomeFittingRepositoryCustom {
+    HomeFitting findByCartProductId(Long cartProductId);
+    List<HomeFitting> findByOrderNumber(String orderNumber);
 }

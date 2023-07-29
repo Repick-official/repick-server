@@ -23,9 +23,12 @@ public class HomeFitting extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private HomeFittingState homeFittingState;
 
+    private String orderNumber;
+
     @Builder
-    public HomeFitting(CartProduct cartProduct) {
+    public HomeFitting(CartProduct cartProduct, String orderNumber) {
         this.cartProduct = cartProduct;
+        this.orderNumber = orderNumber;
         this.homeFittingState = HomeFittingState.REQUESTED;
     }
 

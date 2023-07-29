@@ -95,6 +95,9 @@ public class OrderNumberService {
             case SELL_ORDER:
                 sb.append("R");
                 break;
+            case HOME_FITTING:
+                sb.append("H");
+                break;
             default:
                 throw new CustomException("오더 타입이 올바르지 않습니다.", INVALID_ORDER_TYPE);
         }
