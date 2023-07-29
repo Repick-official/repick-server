@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
     List<Product> findTop4ByProductStateOrderByIdDesc(ProductState productState);
+    Boolean existsByIdAndProductState(Long id, ProductState productState);
     Optional<Product> findByIdAndProductState(Long id, ProductState productState);
     Optional<Product> findByProductNumber(String productNumber);
 }

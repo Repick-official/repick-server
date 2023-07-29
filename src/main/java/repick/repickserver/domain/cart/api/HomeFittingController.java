@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.cart.application.HomeFittingService;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
+import repick.repickserver.domain.cart.dto.HomeFittingRequest;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
 import repick.repickserver.global.error.exception.CustomException;
 import springfox.documentation.annotations.ApiIgnore;
@@ -26,11 +27,11 @@ public class HomeFittingController {
      * 홈피팅 신청
      */
     @Operation(summary = "상품 홈피팅 신청", description = "상품 홈피팅을 신청합니다.")
-    @PostMapping("/{cartProductId}")
-    public ResponseEntity<HomeFittingResponse> requestHomeFitting(@PathVariable("cartProductId") Long cartProductId,
+    @PostMapping("")
+    public ResponseEntity<List<HomeFittingResponse>> requestHomeFitting(@RequestBody HomeFittingRequest homeFittingRequest,
                                                                   @ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(homeFittingService.requestHomeFitting(cartProductId, token));
+                .body(homeFittingService.requestHomeFitting(homeFittingRequest, token));
     }
 
     /**
