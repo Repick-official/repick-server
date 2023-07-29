@@ -71,24 +71,14 @@ public class HomeFittingService {
                 throw new CustomException(INVALID_CART_PRODUCT_STATE);
             }
 
-            // Slack에 알림 보내기
-            try {
-                slackNotifier.sendHomeFittingSlackNotification("홈피팅 신청이 들어왔습니다.\n" +
-                        "신청자: " + cartProduct.getCart().getMember().getName() + "\n" +
-                        "상품명: " + cartProduct.getProduct().getName() + "\n" +
-                        "주소: " + cartProduct.getCart().getMember().getAddress().getMainAddress() + "\n" +
-                        "상세주소: " + cartProduct.getCart().getMember().getAddress().getDetailAddress() + "\n" +
-                        "우편번호: " + cartProduct.getCart().getMember().getAddress().getZipCode() + "\n" +
-                        "연락처: " + cartProduct.getCart().getMember().getPhoneNumber() + "\n" +
-                        "상품번호: " + cartProduct.getProduct().getProductNumber() + "\n"
-                );
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            // FIXME: 2023/07/20 상품정보에 주소지가 없습니다.. 일단 회원정보로 대체합니다.
         }
 
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.HOME_FITTING);
+
+        // 슬랙 알림 메세지
+        slackNotifier.sendHomeFittingSlackNotification(
+                        "홈피팅 신청입니다.\n" +
+                        "주문번호: " + orderNumber + "\n");
 
         return cartProducts.stream()
                 .map(cartProduct -> {
@@ -98,6 +88,11 @@ public class HomeFittingService {
                             .build();
 
                     homeFitting = homeFittingRepository.save(homeFitting);
+
+                    // 슬랙 알림 메세지
+                    slackNotifier.sendHomeFittingSlackNotification(
+                                    "상품명: " + cartProduct.getProduct().getName() + "\n" +
+                                    "상품번호: " + cartProduct.getProduct().getProductNumber() + "\n");
 
                     return new HomeFittingResponse(homeFitting);
                 })
