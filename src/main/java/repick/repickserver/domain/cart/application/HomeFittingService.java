@@ -12,23 +12,22 @@ import repick.repickserver.domain.cart.domain.HomeFitting;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingRequest;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
+import repick.repickserver.domain.member.application.SubscriberInfoService;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
-import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
+import repick.repickserver.infra.slack.application.SlackNotifier;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
-import repick.repickserver.domain.member.application.SubscriberInfoService;
-import repick.repickserver.infra.slack.application.SlackNotifier;
-
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
-import static repick.repickserver.domain.product.domain.ProductState.*;
+import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
