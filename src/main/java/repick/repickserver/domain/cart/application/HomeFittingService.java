@@ -19,7 +19,7 @@ import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import java.util.List;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
-import repick.repickserver.infra.slack.application.SlackNotifier;
+import repick.repickserver.infra.SlackNotifier;
 
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;

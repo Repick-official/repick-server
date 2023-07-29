@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
+import repick.repickserver.domain.member.dto.SlackZaphierDto;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
@@ -80,6 +81,11 @@ public class SubscribeController {
     public ResponseEntity<SubscriberInfoResponse> deny(@RequestBody SubscriberInfoRequest request) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.deny(request));
+    }
+
+    @PostMapping("/admin/autoadd")
+    public void slackBotRequest(@RequestBody SlackZaphierDto request) {
+        subscriberInfoService.slackBotRequest(request);
     }
 
 }

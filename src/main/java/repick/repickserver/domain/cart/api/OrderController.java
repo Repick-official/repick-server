@@ -11,6 +11,7 @@ import repick.repickserver.domain.cart.dto.OrderResponse;
 import repick.repickserver.domain.cart.dto.OrderStateResponse;
 import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
 import repick.repickserver.global.error.exception.CustomException;
+import repick.repickserver.infra.sms.model.SmsResponse;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
@@ -57,5 +58,11 @@ public class OrderController {
 
         return ResponseEntity.ok()
                 .body(orderService.getOrderStates(orderState));
+    }
+
+    @PostMapping("/sms/test")
+    public ResponseEntity<SmsResponse> sendSmsTest(@RequestParam String to, @RequestParam String content) {
+        return ResponseEntity.ok()
+                .body(orderService.sendSmsTest(to, content));
     }
 }

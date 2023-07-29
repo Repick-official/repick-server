@@ -37,12 +37,14 @@ public class SecurityConfig {
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/sign/register", "/sign/login").permitAll()
                 .antMatchers("/sign/update").hasAuthority("USER")
+                .antMatchers(("/order/sms/test")).permitAll()
                 .antMatchers("/order/admin/**").hasAuthority("USER")
                 .antMatchers("/order/**").hasAuthority("USER")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
                 // S3 파일 업로드 요청은 모두 승인
                 .antMatchers("/products/register").permitAll()
                 .antMatchers("/s3/**").permitAll()
+                .antMatchers("/subscribe/admin/autoadd").permitAll() // TODO : ADMIN으로 변경
                 .antMatchers("/subscribe/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
                 .antMatchers("/subscribe/**").hasAuthority("USER")
                 .antMatchers("/cart/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경

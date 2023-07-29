@@ -16,11 +16,12 @@ import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
-import repick.repickserver.infra.slack.application.SlackNotifier;
-
+import repick.repickserver.infra.SlackNotifier;
+import repick.repickserver.infra.sms.SmsSender;
+import repick.repickserver.infra.sms.model.Message;
+import repick.repickserver.infra.sms.model.SmsResponse;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
 import static repick.repickserver.domain.cart.domain.HomeFittingState.PURCHASED;
 import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
@@ -43,6 +44,7 @@ public class OrderService {
     private final JwtProvider jwtProvider;
     private final OrderProductRepository orderProductRepository;
     private final SlackNotifier slackNotifier;
+    private final SmsSender smsSender;
 
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
@@ -165,5 +167,18 @@ public class OrderService {
             throw new CustomException(ORDER_STATE_NOT_FOUND);
         }
         return orderStates;
+    }
+
+    public SmsResponse sendSmsTest(String to, String content) {
+        try {
+            return smsSender.sendSms(Message.builder()
+                    .to(to)
+                    .content("[Repick]" + "\n" + content)
+                    .build());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new CustomException(SEND_SMS_FAIL);
+        }
     }
 }
