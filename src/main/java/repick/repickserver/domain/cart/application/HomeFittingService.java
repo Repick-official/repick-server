@@ -13,6 +13,8 @@ import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingRequest;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
 import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.ordernumber.application.OrderNumberService;
+import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
@@ -41,6 +43,7 @@ public class HomeFittingService {
     private final ProductImageRepository productImageRepository;
     private final JwtProvider jwtProvider;
     private final SubscriberInfoService subscriberInfoService;
+    private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
 
     public List<HomeFittingResponse> requestHomeFitting(HomeFittingRequest homeFittingRequest, String token) {
@@ -86,10 +89,13 @@ public class HomeFittingService {
             // FIXME: 2023/07/20 상품정보에 주소지가 없습니다.. 일단 회원정보로 대체합니다.
         }
 
+        String orderNumber = orderNumberService.generateOrderNumber(OrderType.HOME_FITTING);
+
         return cartProducts.stream()
                 .map(cartProduct -> {
                     HomeFitting homeFitting = HomeFitting.builder()
                             .cartProduct(cartProduct)
+                            .orderNumber(orderNumber)
                             .build();
 
                     homeFitting = homeFittingRepository.save(homeFitting);
