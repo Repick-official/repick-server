@@ -22,6 +22,7 @@ import repick.repickserver.infra.sms.model.Message;
 import repick.repickserver.infra.sms.model.SmsResponse;
 import java.util.List;
 import java.util.stream.Collectors;
+import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
 import static repick.repickserver.domain.cart.domain.HomeFittingState.PURCHASED;
 import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
@@ -49,6 +50,16 @@ public class OrderService {
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
 
+        // 신청자의 장바구니 가져옴
+        Cart cart = cartRepository.findByMember(jwtProvider.getMemberByRawToken(token));
+        cartProductRepository.findByCartIdAndProductIdAndCartProductState(cart.getId(), orderRequest.getProductIds().get(0), HOME_FITTING_REQUESTED)
+                .ifPresent(cartProduct -> {
+                    // 존재할 경우 해당 주문은 홈피팅 주문이다 : 해당 홈피팅 주문번호를 찾고, 홈피팅 주문번호가 같은 상품들 모두 RETURN_REQUESTED 로 변경
+                    HomeFitting homeFitting = homeFittingRepository.findByCartProductId(cartProduct.getId());
+                    homeFittingRepository.findByOrderNumber(homeFitting.getOrderNumber())
+                            .forEach(hf -> hf.changeState(HomeFittingState.RETURN_REQUESTED));
+                });
+
         for (Long productId : orderRequest.getProductIds()) {
                 // 요청한 상품의 품절/삭제 여부 확인 후 상태 변경 (입금 대기중일 때 다른 사람에게 판매되면 안되기 때문)
                 Product product = productRepository.findByIdAndProductState(productId, SELLING)
@@ -58,7 +69,6 @@ public class OrderService {
                 product.changeProductState(PENDING);
 
                 // 바로 구매하는 상품이 아니라 마이픽 상품이라면, CartProductState 가 IN_CART 또는 HOME_FITTING_REQUESTED 일 것임 -> ORDERED 로 변경
-                Cart cart = cartRepository.findByMember(jwtProvider.getMemberByRawToken(token));
                 cartProductRepository.findByCartIdAndProductIdAndIsNotDeleted(cart.getId(), product.getId())
                         .ifPresent(cartProduct -> cartProduct.changeState(ORDERED));
 
