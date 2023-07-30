@@ -1,6 +1,7 @@
 package repick.repickserver.domain.cart.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repick.repickserver.domain.cart.dao.*;
@@ -14,10 +15,15 @@ import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
+import repick.repickserver.global.config.SmsProperties;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
+import repick.repickserver.infra.sms.SmsSender;
+import repick.repickserver.infra.sms.model.Message;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +38,11 @@ import static repick.repickserver.global.error.exception.ErrorCode.*;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
     private final OrderNumberService orderNumberService;
     private final OrderRepository orderRepository;
     private final OrderStateRepository orderStateRepository;
-    private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final CartProductRepository cartProductRepository;
     private final CartRepository cartRepository;
@@ -44,6 +50,8 @@ public class OrderService {
     private final JwtProvider jwtProvider;
     private final OrderProductRepository orderProductRepository;
     private final SlackNotifier slackNotifier;
+    private final SmsSender smsSender;
+    private final SmsProperties smsProperties;
 
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
@@ -130,6 +138,31 @@ public class OrderService {
                         .append(orderProduct.getProduct().getPrice()).append(" ")
                         .append(orderProduct.getProduct().getProductNumber()).append("\n"));
         slackNotifier.sendOrderSlackNotification(sb.toString());
+
+        /**
+         * 주문 알림 문자 발송
+         * 주문 내역, 무통장입금 계좌번호, 입금 기한 안내
+         */
+        try {
+            smsSender.sendSms(Message.builder()
+                    .to(orderRequest.getPhoneNumber())
+                    .content("[리픽]" + "\n\n" + "안녕하세요, " + orderRequest.getPersonName() + "님 :)\n\n" +
+                            "주문일: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + "\n" +
+                            "주문 금액: " + orderProducts.stream()
+                                    .mapToLong(orderProduct -> orderProduct.getProduct().getPrice())
+                                    .sum() + "원\n" +
+                            "주문 번호: " + orderNumber + "\n\n" +
+                            "주문 내역이 접수되었습니다.\n\n" +
+                            "입금 계좌: " + smsProperties.getBankName() + " " + smsProperties.getBankAccount() + "\n" +
+                            "입금 기한: " + LocalDateTime.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + "\n\n" +
+                            "입금 확인 후, 빠른 출고 도와드릴 수 있도록 노력하겠습니다.\n" +
+                            "감사합니다 ♥")
+                    .build());
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CustomException(SMS_SEND_FAILED);
+        }
 
         return OrderResponse.builder()
                 .order(savedOrder)
