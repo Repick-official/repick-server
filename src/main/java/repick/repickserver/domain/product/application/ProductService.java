@@ -137,7 +137,7 @@ public class ProductService {
 
     public List<GetProductResponse> getMainPageProducts() {
         // TODO: 일단은 상태가 '판매중'인 신상품 4개 추천
-        List<Product> products = productRepository.findTop4ByProductStateOrderByIdDesc(SELLING);
+        List<Product> products = productRepository.findTop8ByProductStateOrderByIdDesc(SELLING);
         List<ProductImage> productImages = productImageRepository.findByProductInAndIsMainImage(products, true);
 
         return products.stream()
