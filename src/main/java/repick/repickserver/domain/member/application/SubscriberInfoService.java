@@ -8,6 +8,7 @@ import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
@@ -22,6 +23,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static repick.repickserver.global.error.exception.ErrorCode.ACCESS_DENIED_NO_USER_INFO;
 
@@ -59,38 +61,30 @@ public class SubscriberInfoService {
      * @return 구독 기록 리스트
      * @author seochanhyeok
      */
-    public List<SubscriberInfoResponse> historyAll(String token) {
+    public List<SubscribeHistoryResponse> historyAll(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfoByMemberId(member.getId());
 
-        List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
-        subscriberInfos.forEach(subscriberInfo -> {
-
+        return subscriberInfos.stream().map(subscriberInfo -> {
             assert subscriberInfo.getExpireDate() != null;
+
+            // 공통된 부분을 먼저 설정
+            SubscribeHistoryResponse.SubscribeHistoryResponseBuilder responseBuilder = SubscribeHistoryResponse.builder()
+                    .orderNumber(subscriberInfo.getOrderNumber())
+                    .createdDate(subscriberInfo.getCreatedDate())
+                    .expireDate(subscriberInfo.getExpireDate())
+                    .subscribeType(subscriberInfo.getSubscribeType());
+
+            // 만료일에 따라서 상태를 결정
             if (subscriberInfo.getExpireDate().isBefore(LocalDateTime.now())) {
-                // 만료된 경우 state를 expired로 변경
-                subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                        .id(subscriberInfo.getId())
-                        .orderNumber(subscriberInfo.getOrderNumber())
-                        .createdDate(subscriberInfo.getCreatedDate())
-                        .expireDate(subscriberInfo.getExpireDate())
-                        .subscribeState(SubscribeState.EXPIRED)
-                        .subscribeType(subscriberInfo.getSubscribeType())
-                        .build());
+                responseBuilder.subscribeState(SubscribeState.EXPIRED);
             } else {
-                // 아닌경우 approved로 변경
-                subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                        .id(subscriberInfo.getId())
-                        .orderNumber(subscriberInfo.getOrderNumber())
-                        .createdDate(subscriberInfo.getCreatedDate())
-                        .expireDate(subscriberInfo.getExpireDate())
-                        .subscribeState(subscriberInfo.getSubscribeState())
-                        .subscribeType(subscriberInfo.getSubscribeType())
-                        .build());
+                responseBuilder.subscribeState(subscriberInfo.getSubscribeState());
             }
-        });
-        return subscriberInfoResponses;
+
+            return responseBuilder.build();
+        }).collect(Collectors.toList());
 
     }
 

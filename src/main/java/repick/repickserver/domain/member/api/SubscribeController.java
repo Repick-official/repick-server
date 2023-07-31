@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
+import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
@@ -29,7 +30,7 @@ public class SubscribeController {
 
     @Operation(summary = "구독 기록 최신순 조회", description = "구독 기록 중 승인됨, 만료됨만 최신순으로 반환합니다.")
     @GetMapping("/history/all")
-    public ResponseEntity<List<SubscriberInfoResponse>> historyAll(@ApiIgnore @RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<SubscribeHistoryResponse>> historyAll(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.historyAll(token));
     }
