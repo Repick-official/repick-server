@@ -12,7 +12,6 @@ import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
-import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
@@ -36,7 +35,6 @@ public class SubscriberInfoService {
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
-    private final OrderNumberReository orderNumberReository;
     private final MemberService memberService;
 
 
@@ -48,15 +46,11 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public String check(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-        SubscriberInfo validSubscriberInfo = subscriberInfoRepository.findValidSubscriberInfo(member.getId());
-
-        if (validSubscriberInfo == null) {
-            return "NONE";
-        }
-        System.out.println("validSubscriberInfo = " + validSubscriberInfo);
-        return validSubscriberInfo.getSubscribeType().toString();
-
+        return subscriberInfoRepository.findValidSubscriberInfo(jwtProvider.getMemberByRawToken(token).getId())
+                // 유효한 구독 정보 있으면 반환
+                .map(subscriberInfo -> subscriberInfo.getSubscribeType().toString())
+                // 없으면 NONE 반환
+                .orElse("NONE");
     }
 
     /**

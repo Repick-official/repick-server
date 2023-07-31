@@ -4,11 +4,12 @@ import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SubscriberInfoRepositoryCustom {
 
 
-    SubscriberInfo findValidSubscriberInfo(Long id);
+    Optional<SubscriberInfo> findValidSubscriberInfo(Long id);
 
     List<SubscriberInfo> findValidRequests();
 

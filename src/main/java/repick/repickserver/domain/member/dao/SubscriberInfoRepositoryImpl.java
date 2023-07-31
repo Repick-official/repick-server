@@ -8,6 +8,7 @@ import repick.repickserver.domain.member.domain.SubscriberInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static repick.repickserver.domain.member.domain.QSubscriberInfo.subscriberInfo;
 
@@ -18,9 +19,9 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public SubscriberInfo findValidSubscriberInfo(Long id) {
+    public Optional<SubscriberInfo> findValidSubscriberInfo(Long id) {
 
-        return jpaQueryFactory.selectFrom(subscriberInfo)
+        SubscriberInfo validSubscriberInfo = jpaQueryFactory.selectFrom(subscriberInfo)
                 // 멤버 id 일치하는 것들로 필터
                 .where(subscriberInfo.member.id.eq(id)
                 // 승인된 것들로 필터
@@ -31,6 +32,8 @@ public class SubscriberInfoRepositoryImpl implements SubscriberInfoRepositoryCus
                 .orderBy(subscriberInfo.subscribeType.desc())
                 // 가장 먼저 나오는 것을 fetch
                 .fetchFirst();
+
+        return Optional.ofNullable(validSubscriberInfo);
     }
 
     @Override
