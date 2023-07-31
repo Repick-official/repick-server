@@ -12,6 +12,8 @@ public enum ErrorCode {
     AUTHENTICATION_REQUIRED(401, "C001", "인증이 필요합니다."),
     INVALID_AUTHORIZATION_CODE(401, "C002", "유효하지 않은 인증 코드입니다."),
     ACCESS_DENIED(403, "C002", "권한이 없는 사용자입니다."),
+    ACCESS_DENIED_NOT_SUBSCRIBED(403, "C003", "구독하지 않은 사용자입니다."),
+    ACCESS_DENIED_NO_USER_INFO(403, "C003", "사용자 정보가 없습니다."),
     ENTITY_NOT_FOUND(400, "C003", "존재하지 않는 객체입니다."),
     INTERNAL_SERVER_ERROR(500, "C004", "서버 에러입니다."),
     INVALID_REQUEST_ERROR(400, "C001", "잘못된 요청입니다."),
@@ -52,7 +54,6 @@ public enum ErrorCode {
     // MyPick, HomeFitting
     INVALID_CART_PRODUCT_ID(400, "C001", "존재하지 않는 마이픽 상품입니다."),
     INVALID_CART_PRODUCT_STATE(400, "C002", "홈피팅 신청할 수 없는 마이픽 상품입니다."),
-    ACCESS_DENIED_NOT_SUBSCRIBED(403, "C003", "홈피팅 신청은 구독 회원만 가능합니다."),
     INVALID_HOME_FITTING_ID(400, "C004", "존재하지 않는 홈피팅입니다."),
     PRODUCT_ALREADY_EXIST_IN_CART(400, "C005", "이미 장바구니에 담긴 상품입니다."),
 

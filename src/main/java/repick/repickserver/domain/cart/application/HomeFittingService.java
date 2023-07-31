@@ -12,6 +12,7 @@ import repick.repickserver.domain.cart.domain.HomeFitting;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingRequest;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
+import repick.repickserver.domain.member.application.MemberService;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
+import static repick.repickserver.domain.product.domain.ProductState.PENDING;
 import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -44,14 +46,18 @@ public class HomeFittingService {
     private final SubscriberInfoService subscriberInfoService;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
+    private final MemberService memberService;
 
     public List<HomeFittingResponse> requestHomeFitting(HomeFittingRequest homeFittingRequest, String token) {
 
         // 토큰으로 멤버의 구독여부를 반환합니다. ( "NONE": 구독 안함, "BASIC": 베이직 플랜, "PRO": 프로 플랜 )
-        String check = subscriberInfoService.check(token);
-
         // 구독 안한 회원인 경우, 홈피팅 신청 불가하므로 ACCESS_DENIED_NOT_SUBSCRIBED 에러를 던집니다.
-        if (check.equals("NONE")) throw new CustomException(ACCESS_DENIED_NOT_SUBSCRIBED);
+        if (subscriberInfoService.check(token).equals("NONE"))
+            throw new CustomException(ACCESS_DENIED_NOT_SUBSCRIBED);
+
+        // 신청하는 회원이 기본 정보를 가지고 있는지 체크합니다.
+        if (!memberService.check_info(jwtProvider.getMemberByRawToken(token)))
+            throw new CustomException(ACCESS_DENIED_NO_USER_INFO);
 
         List<CartProduct> cartProducts = cartProductRepository.findAllById(homeFittingRequest.getCartProductIds());
 
@@ -61,8 +67,20 @@ public class HomeFittingService {
 
         for (CartProduct cartProduct : cartProducts) {
             // 판매중인 상품인지 확인
-            if(!productRepository.existsByIdAndProductState(cartProduct.getProduct().getId(), SELLING))
-                throw new CustomException(PRODUCT_NOT_SELLING);
+            // if(!productRepository.existsByIdAndProductState(cartProduct.getProduct().getId(), SELLING))
+            //     throw new CustomException(PRODUCT_NOT_SELLING);
+
+            // 판매중인 상품인지 확인 후 상태 변경
+            productRepository.findByIdAndProductState(cartProduct.getProduct().getId(), SELLING)
+                    .ifPresentOrElse(
+                            product -> {
+                                // 상품의 상태를 PENDING 상태로 변경
+                                product.changeProductState(PENDING);
+                            },
+                            () -> {
+                                throw new CustomException(PRODUCT_NOT_SELLING);
+                            }
+                    );
 
             // 마이픽에 담긴 상품인지 확인
             if (cartProduct.getCartProductState().equals(IN_CART)) {
