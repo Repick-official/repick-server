@@ -21,7 +21,6 @@ import repick.repickserver.infra.slack.application.SlackNotifier;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,26 +96,25 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public List<SubscriberInfoResponse> history(String state, String token) {
-
         Pair<SubscribeState, Boolean> subscribeState = Parser.parseSubscribeState(state);
 
         Member member = jwtProvider.getMemberByRawToken(token);
 
         List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findSubscriberInfoByMemberIdAndState(
-                                                                        member.getId(),
-                                                                        subscribeState.getFirst(),
-                                                                        subscribeState.getSecond());
+                member.getId(),
+                subscribeState.getFirst(),
+                subscribeState.getSecond());
 
-        List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
-        subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
-                .id(subscriberInfo.getId())
-                .orderNumber(subscriberInfo.getOrderNumber())
-                .createdDate(subscriberInfo.getCreatedDate())
-                .expireDate(subscriberInfo.getExpireDate())
-                .subscribeState(subscriberInfo.getSubscribeState())
-                .subscribeType(subscriberInfo.getSubscribeType())
-                .build()));
-        return subscriberInfoResponses;
+        return subscriberInfos.stream().map(subscriberInfo ->
+                        SubscriberInfoResponse.builder()
+                                .id(subscriberInfo.getId())
+                                .orderNumber(subscriberInfo.getOrderNumber())
+                                .createdDate(subscriberInfo.getCreatedDate())
+                                .expireDate(subscriberInfo.getExpireDate())
+                                .subscribeState(subscriberInfo.getSubscribeState())
+                                .subscribeType(subscriberInfo.getSubscribeType())
+                                .build())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -125,9 +123,37 @@ public class SubscriberInfoService {
      * @author seochanhyeok
      */
     public List<SubscriberInfoResponse> getRequestedSubscriberInfos() {
-        List<SubscriberInfoResponse> subscriberInfoResponses = new ArrayList<>();
-        List<SubscriberInfo> subscriberInfos = subscriberInfoRepository.findValidRequests();
-        subscriberInfos.forEach(subscriberInfo -> subscriberInfoResponses.add(SubscriberInfoResponse.builder()
+        return subscriberInfoRepository.findValidRequests().stream()
+                .map(subscriberInfo -> SubscriberInfoResponse.builder()
+                        .id(subscriberInfo.getId())
+                        .email(subscriberInfo.getMember().getEmail())
+                        .name(subscriberInfo.getMember().getName())
+                        .nickname(subscriberInfo.getMember().getNickname())
+                        .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
+                        .orderNumber(subscriberInfo.getOrderNumber())
+                        .createdDate(subscriberInfo.getCreatedDate())
+                        .expireDate(subscriberInfo.getExpireDate())
+                        .subscribeState(subscriberInfo.getSubscribeState())
+                        .subscribeType(subscriberInfo.getSubscribeType())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private SubscriberInfoResponse handleRequest(SubscriberInfoRequest request, SubscribeState newState, LocalDateTime expireDate) {
+        SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
+
+        SubscriberInfo subscriberInfo = SubscriberInfo.builder()
+                .member(parent.getMember())
+                .orderNumber(parent.getOrderNumber())
+                .parentSubscriberInfo(parent)
+                .expireDate(expireDate)
+                .subscribeState(newState)
+                .subscribeType(parent.getSubscribeType())
+                .build();
+
+        subscriberInfoRepository.save(subscriberInfo);
+
+        return SubscriberInfoResponse.builder()
                 .id(subscriberInfo.getId())
                 .email(subscriberInfo.getMember().getEmail())
                 .name(subscriberInfo.getMember().getName())
@@ -138,79 +164,15 @@ public class SubscriberInfoService {
                 .expireDate(subscriberInfo.getExpireDate())
                 .subscribeState(subscriberInfo.getSubscribeState())
                 .subscribeType(subscriberInfo.getSubscribeType())
-                .build()));
-        return subscriberInfoResponses;
+                .build();
     }
 
-    /**
-     * <h1>관리자가 사용자의 구독을 승인한다: APPROVED 상태의 subscriberInfo 추가</h1>
-     * @param request request.email 사용, 사용자의 이메일로 사용자를 찾음
-     * @return SubscriberInfoResponse 승인된 구독 정보를 반환한다. (id, email, name, nickname, phoneNumber, orderNumber, createdDate, expireDate, subscribeState, subscribeType)
-     * @author seochanhyeok
-     */
     public SubscriberInfoResponse add(SubscriberInfoRequest request) {
-        SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
-
-        SubscriberInfo subscriberInfo = SubscriberInfo.builder()
-                .member(parent.getMember())
-                .orderNumber(parent.getOrderNumber())
-                .parentSubscriberInfo(parent)
-                // 승인 시점으로부터 한 달 뒤 만료
-                .expireDate(LocalDateTime.now().plusMonths(1))
-                .subscribeState(SubscribeState.APPROVED)
-                .subscribeType(parent.getSubscribeType())
-                .build();
-
-        subscriberInfoRepository.save(subscriberInfo);
-
-        return SubscriberInfoResponse.builder()
-                .id(subscriberInfo.getId())
-                .email(subscriberInfo.getMember().getEmail())
-                .name(subscriberInfo.getMember().getName())
-                .nickname(subscriberInfo.getMember().getNickname())
-                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
-                .orderNumber(subscriberInfo.getOrderNumber())
-                .createdDate(subscriberInfo.getCreatedDate())
-                .expireDate(subscriberInfo.getExpireDate())
-                .subscribeState(subscriberInfo.getSubscribeState())
-                .subscribeType(subscriberInfo.getSubscribeType())
-                .build();
-
+        return handleRequest(request, SubscribeState.APPROVED, LocalDateTime.now().plusMonths(1));
     }
 
-    /**
-     * <h1>관리자가 사용자의 구독을 거절한다: DENIED 상태의 subscriberInfo 추가</h1>
-     * @param request request.email 사용, 사용자의 이메일로 사용자를 찾음
-     * @return SubscriberInfoResponse 거절된 구독 정보를 반환한다. (id, email, name, nickname, phoneNumber, orderNumber, createdDate, expireDate, subscribeState, subscribeType)
-     * @author seochanhyeok
-     */
     public SubscriberInfoResponse deny(SubscriberInfoRequest request) {
-        SubscriberInfo parent = subscriberInfoRepository.findByOrderNumberAndSubscribeState(request.getOrderNumber(), SubscribeState.REQUESTED);
-
-        SubscriberInfo subscriberInfo = SubscriberInfo.builder()
-                .member(parent.getMember())
-                .orderNumber(parent.getOrderNumber())
-                .parentSubscriberInfo(parent)
-                .expireDate(LocalDateTime.now()) // 만료시점을 현재로 설정하여 만료시킴
-                .subscribeState(SubscribeState.DENIED)
-                .subscribeType(parent.getSubscribeType())
-                .build();
-
-        subscriberInfoRepository.save(subscriberInfo);
-
-        return SubscriberInfoResponse.builder()
-                .id(subscriberInfo.getId())
-                .email(subscriberInfo.getMember().getEmail())
-                .name(subscriberInfo.getMember().getName())
-                .nickname(subscriberInfo.getMember().getNickname())
-                .phoneNumber(subscriberInfo.getMember().getPhoneNumber())
-                .orderNumber(subscriberInfo.getOrderNumber())
-                .createdDate(subscriberInfo.getCreatedDate())
-                .expireDate(subscriberInfo.getExpireDate())
-                .subscribeState(subscriberInfo.getSubscribeState())
-                .subscribeType(subscriberInfo.getSubscribeType())
-                .build();
-
+        return handleRequest(request, SubscribeState.DENIED, LocalDateTime.now());
     }
 
     /**
