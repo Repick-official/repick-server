@@ -244,4 +244,13 @@ public class MemberService {
         return jwtProvider.createAccessToken(new UserDetailsImpl(member));
 
     }
+
+    public Boolean check_info(Member member) {
+        return member.getNickname() != null
+                && member.getPhoneNumber() != null
+                && member.getAddress() != null
+                && member.getBank() != null
+                && member.getName() != null
+                && member.getEmail() != null;
+    }
 }
