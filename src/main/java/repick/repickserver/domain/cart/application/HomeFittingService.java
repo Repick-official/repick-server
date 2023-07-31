@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
+import static repick.repickserver.domain.product.domain.ProductState.PENDING;
 import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -61,8 +62,20 @@ public class HomeFittingService {
 
         for (CartProduct cartProduct : cartProducts) {
             // 판매중인 상품인지 확인
-            if(!productRepository.existsByIdAndProductState(cartProduct.getProduct().getId(), SELLING))
-                throw new CustomException(PRODUCT_NOT_SELLING);
+            // if(!productRepository.existsByIdAndProductState(cartProduct.getProduct().getId(), SELLING))
+            //     throw new CustomException(PRODUCT_NOT_SELLING);
+
+            // 판매중인 상품인지 확인 후 상태 변경
+            productRepository.findByIdAndProductState(cartProduct.getProduct().getId(), SELLING)
+                    .ifPresentOrElse(
+                            product -> {
+                                // 상품의 상태를 PENDING 상태로 변경
+                                product.changeProductState(PENDING);
+                            },
+                            () -> {
+                                throw new CustomException(PRODUCT_NOT_SELLING);
+                            }
+                    );
 
             // 마이픽에 담긴 상품인지 확인
             if (cartProduct.getCartProductState().equals(IN_CART)) {
