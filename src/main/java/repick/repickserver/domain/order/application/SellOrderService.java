@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -124,12 +125,8 @@ public class SellOrderService {
      * @author seochanhyeok
      */
     public List<SellOrderResponse> getAllSellOrders(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-
-        List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
-
-        sellOrderRepository.getSellOrdersById(member.getId()).forEach(sellOrder -> sellOrderResponses.add(
-                SellOrderResponse.builder()
+        return sellOrderRepository.getSellOrdersById(jwtProvider.getMemberByRawToken(token).getId()).stream()
+                .map(sellOrder -> SellOrderResponse.builder()
                         .id(sellOrder.getId())
                         .orderNumber(sellOrder.getOrderNumber())
                         .name(sellOrder.getName())
@@ -143,11 +140,8 @@ public class SellOrderService {
                         // 가장 최근에 업데이트된 state 가져옴
                         .sellState(sellOrderStateRepository.findLastStateBySellOrderId(sellOrder.getId()).getSellState())
                         .createdDate(sellOrder.getCreatedDate())
-                        .build()
-        ));
-
-        return sellOrderResponses;
-
+                        .build())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -159,34 +153,25 @@ public class SellOrderService {
      * @author seochanhyeok
      */
     public List<SellOrderResponse> getSellOrders(String state, String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-
         SellState reqState = Parser.parseSellState(state);
 
-        List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
-        sellOrderRepository.getSellOrdersByIdAndState(member.getId(), reqState).forEach(sellOrder -> {
-
-            if (sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState)) {
-                sellOrderResponses.add(
-                        SellOrderResponse.builder()
-                                .id(sellOrder.getId())
-                                .orderNumber(sellOrder.getOrderNumber())
-                                .name(sellOrder.getName())
-                                .phoneNumber(sellOrder.getPhoneNumber())
-                                .bank(sellOrder.getBank())
-                                .bagQuantity(sellOrder.getBagQuantity())
-                                .productQuantity(sellOrder.getProductQuantity())
-                                .address(sellOrder.getAddress())
-                                .requestDetail(sellOrder.getRequestDetail())
-                                .returnDate(sellOrder.getReturnDate())
-                                .sellState(reqState)
-                                .createdDate(sellOrder.getCreatedDate())
-                                .build()
-                );
-            }
-        });
-
-        return sellOrderResponses;
+        return sellOrderRepository.getSellOrdersByIdAndState(jwtProvider.getMemberByRawToken(token).getId(), reqState).stream()
+                .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
+                .map(sellOrder -> SellOrderResponse.builder()
+                        .id(sellOrder.getId())
+                        .orderNumber(sellOrder.getOrderNumber())
+                        .name(sellOrder.getName())
+                        .phoneNumber(sellOrder.getPhoneNumber())
+                        .bank(sellOrder.getBank())
+                        .bagQuantity(sellOrder.getBagQuantity())
+                        .productQuantity(sellOrder.getProductQuantity())
+                        .address(sellOrder.getAddress())
+                        .requestDetail(sellOrder.getRequestDetail())
+                        .returnDate(sellOrder.getReturnDate())
+                        .sellState(reqState)
+                        .createdDate(sellOrder.getCreatedDate())
+                        .build())
+                .collect(Collectors.toList());
 
     }
 
@@ -196,32 +181,25 @@ public class SellOrderService {
      * @author seochanhyeok
      */
     public List<SellOrderResponse> getAllSellOrdersAdmin(String state) {
-
         SellState reqState = Parser.parseSellState(state);
 
-        List<SellOrderResponse> sellOrderResponses = new ArrayList<>();
-        List<SellOrder> sellOrders = sellOrderRepository.getSellOrdersByState(reqState);
-        sellOrders.forEach(sellOrder -> {
-                if (sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState)) {
-                    sellOrderResponses.add(
-                            SellOrderResponse.builder()
-                                    .id(sellOrder.getId())
-                                    .name(sellOrder.getName())
-                                    .orderNumber(sellOrder.getOrderNumber())
-                                    .phoneNumber(sellOrder.getPhoneNumber())
-                                    .bank(sellOrder.getBank())
-                                    .bagQuantity(sellOrder.getBagQuantity())
-                                    .productQuantity(sellOrder.getProductQuantity())
-                                    .address(sellOrder.getAddress())
-                                    .requestDetail(sellOrder.getRequestDetail())
-                                    .returnDate(sellOrder.getReturnDate())
-                                    .sellState(reqState)
-                                    .createdDate(sellOrder.getCreatedDate())
-                                    .build());
-                }
-        });
-
-        return sellOrderResponses;
+        return sellOrderRepository.getSellOrdersByState(reqState).stream()
+                .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
+                .map(sellOrder -> SellOrderResponse.builder()
+                        .id(sellOrder.getId())
+                        .name(sellOrder.getName())
+                        .orderNumber(sellOrder.getOrderNumber())
+                        .phoneNumber(sellOrder.getPhoneNumber())
+                        .bank(sellOrder.getBank())
+                        .bagQuantity(sellOrder.getBagQuantity())
+                        .productQuantity(sellOrder.getProductQuantity())
+                        .address(sellOrder.getAddress())
+                        .requestDetail(sellOrder.getRequestDetail())
+                        .returnDate(sellOrder.getReturnDate())
+                        .sellState(reqState)
+                        .createdDate(sellOrder.getCreatedDate())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private void buildSellOrderState(SellOrder sellOrder, SellState sellState) {
