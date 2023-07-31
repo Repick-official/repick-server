@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static repick.repickserver.global.error.exception.ErrorCode.ACCESS_DENIED_NO_USER_INFO;
+
 @Slf4j
 @Service
 @Transactional
@@ -35,6 +37,7 @@ public class SubscriberInfoService {
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
     private final OrderNumberReository orderNumberReository;
+    private final MemberService memberService;
 
 
     /**
@@ -231,6 +234,10 @@ public class SubscriberInfoService {
      */
     public SubscriberInfoResponse subscribeRequest(String token, SubscriberInfoRegisterRequest request) {
         Member member = jwtProvider.getMemberByRawToken(token);
+
+        // 기본 회원정보 없는 사람들 차단
+        if (!memberService.check_info(member))
+            throw new CustomException(ACCESS_DENIED_NO_USER_INFO);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()
                 .member(member) // 요청회원정보
