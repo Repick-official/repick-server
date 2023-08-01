@@ -2,13 +2,16 @@ package repick.repickserver.domain.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscribeType;
 
 import java.time.LocalDateTime;
 
-@Builder
+@Getter @Builder
 public class SubscribeHistoryResponse {
 
     @Schema(description = "주문번호", example = "S230523D7BQ1")
