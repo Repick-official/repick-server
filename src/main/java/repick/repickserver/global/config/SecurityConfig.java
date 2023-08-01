@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .antMatchers("/subscribe/**").hasAuthority("USER")
                 .antMatchers("/cart/admin/**").hasAuthority("USER") // TODO : ADMIN으로 변경
                 .antMatchers("/cart/**").hasAuthority("USER")
-                .antMatchers(("/home-fitting/admin/**")).hasAuthority("USER") // TODO : ADMIN으로 변경
+                .antMatchers(("/home-fitting/admin/**")).permitAll() // TODO : ADMIN으로 변경
                 .antMatchers(("/home-fitting/**")).hasAuthority("USER")
                 .anyRequest().permitAll()
                 .and()
