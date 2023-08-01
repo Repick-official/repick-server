@@ -1,5 +1,6 @@
 package repick.repickserver.domain.order.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import repick.repickserver.domain.model.Address;
@@ -28,7 +29,8 @@ public class SellOrderRequest {
     private Address address;
     @Schema(description = "수거시 추가 요청사항", example = "사랑을 가득 담아주세요~")
     private String requestDetail;
-    @Schema(description = "수거 희망일자", example = "2021-08-31T00:00:00")
+    @Schema(description = "수거 희망일자", example = "2021-08-31")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime returnDate;
     @Schema(description = "주문상태", example = "DELIVERED")
     private SellState sellState;
