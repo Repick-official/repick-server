@@ -24,6 +24,7 @@ import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +72,8 @@ public class SellOrderService {
                     .productQuantity(request.getProductQuantity())
                     .address(request.getAddress())
                     .requestDetail(request.getRequestDetail())
-                    .returnDate(request.getReturnDate())
+                    // returnDate는 'yyyy-MM-dd' 형식 문자열으로 들어옴
+                    .returnDate(LocalDateTime.parse(request.getReturnDate()))
                     .member(member)
                     .build();
 
