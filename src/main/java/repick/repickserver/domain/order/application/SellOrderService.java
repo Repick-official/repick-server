@@ -73,7 +73,7 @@ public class SellOrderService {
                     .address(request.getAddress())
                     .requestDetail(request.getRequestDetail())
                     // returnDate는 'yyyy-MM-dd' 형식 문자열으로 들어옴
-                    .returnDate(LocalDateTime.parse(request.getReturnDate()))
+                    .returnDate(LocalDateTime.parse(request.getReturnDate() + "T00:00:00"))
                     .member(member)
                     .build();
 
