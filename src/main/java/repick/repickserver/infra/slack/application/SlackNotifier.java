@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import repick.repickserver.global.config.WebHookProperties;
+import repick.repickserver.infra.slack.domain.WebHookType;
 
 @Service
 @RequiredArgsConstructor
@@ -23,38 +24,47 @@ public class SlackNotifier {
         return new HttpEntity<>(payload, headers);
     }
 
-    public void sendSubscribeSlackNotification(String message) {
+    private String getSubscribeUri(WebHookType webHookType) {
+        switch (webHookType) {
+            case SUBSCRIBE:
+                return webHookProperties.getSubscribeUri();
+            case SELL_ORDER:
+                return webHookProperties.getSellOrderUri();
+            case HOME_FITTING:
+                return webHookProperties.getHomeFittingUri();
+            case ORDER:
+                return webHookProperties.getOrderUri();
+            case EXPENSE_SETTLEMENT:
+                return webHookProperties.getExpenseSettlementUri();
+            default:
+                throw new IllegalArgumentException("Not supported WebHookType");
+        }
+    }
+
+    public void sendSlackNotification(WebHookType webHookType, String message) {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = createRequest(message);
 
-        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getSubscribeUri(), HttpMethod.POST, request, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(getSubscribeUri(webHookType), HttpMethod.POST, request, String.class);
+    }
+
+    public void sendSubscribeSlackNotification(String message) {
+        sendSlackNotification(WebHookType.SUBSCRIBE, message);
     }
 
     public void sendSellOrderSlackNotification(String message) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> request = createRequest(message);
-
-        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getSellOrderUri(), HttpMethod.POST, request, String.class);
+        sendSlackNotification(WebHookType.SELL_ORDER, message);
     }
 
     public void sendHomeFittingSlackNotification(String message) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> request = createRequest(message);
-
-        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getHomeFittingUri(), HttpMethod.POST, request, String.class);
+        sendSlackNotification(WebHookType.HOME_FITTING, message);
     }
 
     public void sendOrderSlackNotification(String message) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> request = createRequest(message);
-
-        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getOrderUri(), HttpMethod.POST, request, String.class);
+        sendSlackNotification(WebHookType.ORDER, message);
     }
 
     public void sendExpenseSettlementSlackNotification(String message) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<String> request = createRequest(message);
-
-        ResponseEntity<String> response = restTemplate.exchange(webHookProperties.getExpenseSettlementUri(), HttpMethod.POST, request, String.class);
+        sendSlackNotification(WebHookType.EXPENSE_SETTLEMENT, message);
     }
 }
