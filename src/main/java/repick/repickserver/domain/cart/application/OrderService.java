@@ -154,7 +154,7 @@ public class OrderService {
                             "주문 번호: " + orderNumber + "\n\n" +
                             "주문 내역이 접수되었습니다.\n\n" +
                             "입금 계좌: " + smsProperties.getBankName() + " " + smsProperties.getBankAccount() + "\n" +
-                            "입금 기한: " + LocalDateTime.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + "\n\n" +
+                            "입금 기한: " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + "\n\n" +
                             "입금 확인 후, 빠른 출고 도와드릴 수 있도록 노력하겠습니다.\n" +
                             "감사합니다 ♥")
                     .build());
