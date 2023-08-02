@@ -12,7 +12,6 @@ import repick.repickserver.domain.cart.domain.HomeFitting;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingRequest;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
-import repick.repickserver.domain.member.application.SubscriberInfoService;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.validator.MemberValidator;
 import repick.repickserver.domain.member.validator.SubscribeValidator;
@@ -44,7 +43,6 @@ public class HomeFittingService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final JwtProvider jwtProvider;
-    private final SubscriberInfoService subscriberInfoService;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
     private final MemberValidator memberValidator;
