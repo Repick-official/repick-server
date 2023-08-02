@@ -37,6 +37,11 @@ public enum ErrorCode {
     ORDER_STATE_NOT_FOUND(400, "O003", "요청한 주문 상태가 존재하지 않습니다."),
     ORDER_MEMBER_NOT_MATCH(400, "O004", "주문과 회원이 일치하지 않습니다."),
     SMS_SEND_FAILED(500, "O005", "주문 내역 SMS 발송에 실패했습니다."),
+    ORDER_NAME_NOT_FOUND(400, "O006", "주문자 이름을 입력해주세요."),
+    ORDER_ADDRESS_NOT_FOUND(400, "O007", "주문자 주소를 입력해주세요."),
+    ORDER_BAG_QUANTITY_NOT_FOUND(400, "O008", "주문자 주문 가방 수량을 입력해주세요."),
+    ORDER_PRODUCT_QUANTITY_NOT_FOUND(400, "O009", "주문자 주문 상품 수량을 입력해주세요."),
+    ORDER_PHONE_NUMBER_NOT_FOUND(400, "O010", "주문자 전화번호를 입력해주세요."),
 
     // Product
     IMAGE_FILE_MISSING(400, "P001", "상품의 사진 파일을 입력해주세요."),

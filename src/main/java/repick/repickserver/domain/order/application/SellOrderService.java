@@ -9,8 +9,9 @@ import repick.repickserver.domain.order.domain.SellOrder;
 import repick.repickserver.domain.order.domain.SellOrderState;
 import repick.repickserver.domain.order.domain.SellState;
 import repick.repickserver.domain.order.dto.*;
+import repick.repickserver.domain.order.mapper.SellOrderMapper;
+import repick.repickserver.domain.order.validator.SellOrderValidator;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
-import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
@@ -24,7 +25,6 @@ import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,206 +45,78 @@ public class SellOrderService {
     private final SlackNotifier slackNotifier;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
-    private final OrderNumberReository orderNumberRepository;
+    private final SellOrderMapper sellOrderMapper;
+    private final SellOrderValidator sellOrderValidator;
 
-    /**
-     * 판매 수거 요청
-     * @param request (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate)
-     * @param token (accessToken)
-     * @return SellOrderResponse (id, name, orderNumber, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @exception CustomException (ORDER_FAIL)
-     * @author seochanhyeok
-     */
     public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        try {
-            // 주문번호 생성
-            String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
+        sellOrderValidator.validateSellOrder(request);
 
-            // sellOrder 생성
-            SellOrder sellOrder = SellOrder.builder()
-                    .name(request.getName())
-                    .orderNumber(orderNumber)
-                    .phoneNumber(request.getPhoneNumber())
-                    .bank(request.getBank())
-                    .bagQuantity(request.getBagQuantity())
-                    .productQuantity(request.getProductQuantity())
-                    .address(request.getAddress())
-                    .requestDetail(request.getRequestDetail())
-                    // returnDate는 'yyyy-MM-dd' 형식 문자열으로 들어옴
-                    .returnDate(LocalDateTime.parse(request.getReturnDate() + "T00:00:00"))
-                    .member(member)
-                    .build();
+        // 주문번호 생성
+        String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
-            sellOrderRepository.save(sellOrder);
+        // sellOrder 생성
+        SellOrder sellOrder = sellOrderMapper.toSellOrder(request, orderNumber, member);
 
-            // sellOrderState 생성
-            sellOrderStateRepository.save(SellOrderState.builder()
-                    .sellOrder(sellOrder)
-                    .sellState(SellState.REQUESTED)
-                    .build());
+        sellOrderRepository.save(sellOrder);
 
-            slackNotifier.sendSellOrderSlackNotification("판매 수거 요청이 들어왔습니다.\n" +
-                    "주문번호: " + orderNumber + "\n" +
-                    "이름: " + request.getName() + "\n" +
-                    "연락처: " + request.getPhoneNumber() + "\n" +
-                    "주소: " + request.getAddress().mainAddress + "\n" +
-                    "상세주소: " + request.getAddress().detailAddress + "\n" +
-                    "우편번호: " + request.getAddress().zipCode + "\n" +
-                    "수거 시 희망사항: " + request.getRequestDetail() + "\n" +
-                    "수거 희망일: " + request.getReturnDate() + "\n" +
-                    "의류 수량: " + request.getProductQuantity() + "\n" +
-                    "리픽백 수량: " + request.getBagQuantity());
+        // sellOrderState 생성
+        sellOrderStateRepository.save(SellOrderState.builder()
+                .sellOrder(sellOrder)
+                .sellState(SellState.REQUESTED)
+                .build());
 
-            return SellOrderResponse.builder()
-                    .id(sellOrder.getId())
-                    .name(sellOrder.getName())
-                    .orderNumber(sellOrder.getOrderNumber())
-                    .phoneNumber(sellOrder.getPhoneNumber())
-                    .bank(sellOrder.getBank())
-                    .bagQuantity(sellOrder.getBagQuantity())
-                    .productQuantity(sellOrder.getProductQuantity())
-                    .address(sellOrder.getAddress())
-                    .requestDetail(sellOrder.getRequestDetail())
-                    .returnDate(sellOrder.getReturnDate())
-                    .sellState(SellState.REQUESTED)
-                    .build();
+        slackNotifier.sendSellOrderSlackNotification("판매 수거 요청이 들어왔습니다.\n" +
+                "주문번호: " + orderNumber + "\n" +
+                "이름: " + request.getName() + "\n" +
+                "연락처: " + request.getPhoneNumber() + "\n" +
+                "주소: " + request.getAddress().getMainAddress() + "\n" +
+                "상세주소: " + request.getAddress().getDetailAddress() + "\n" +
+                "우편번호: " + request.getAddress().getZipCode() + "\n" +
+                "수거 시 희망사항: " + request.getRequestDetail() + "\n" +
+                "수거 희망일: " + request.getReturnDate() + "\n" +
+                "의류 수량: " + request.getProductQuantity() + "\n" +
+                "리픽백 수량: " + request.getBagQuantity());
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new CustomException(ORDER_FAIL);
-        }
-
+        return sellOrderMapper.toSellOrderResponse(sellOrder);
     }
 
-    /**
-     * <h1>모든 판매 조회</h1>
-     * @param token (accessToken)
-     * @return List<SellOrderResponse> (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @exception CustomException (PATH_NOT_RESOLVED)
-     * @apiNote 사용자의 판매 주문들을 sellState 와 관계 없이 가져옵니다.
-     * @author seochanhyeok
-     */
     public List<SellOrderResponse> getAllSellOrders(String token) {
         return sellOrderRepository.getSellOrdersById(jwtProvider.getMemberByRawToken(token).getId()).stream()
-                .map(sellOrder -> SellOrderResponse.builder()
-                        .id(sellOrder.getId())
-                        .orderNumber(sellOrder.getOrderNumber())
-                        .name(sellOrder.getName())
-                        .phoneNumber(sellOrder.getPhoneNumber())
-                        .bank(sellOrder.getBank())
-                        .bagQuantity(sellOrder.getBagQuantity())
-                        .productQuantity(sellOrder.getProductQuantity())
-                        .address(sellOrder.getAddress())
-                        .requestDetail(sellOrder.getRequestDetail())
-                        .returnDate(sellOrder.getReturnDate())
-                        // 가장 최근에 업데이트된 state 가져옴
-                        .sellState(sellOrderStateRepository.findLastStateBySellOrderId(sellOrder.getId()).getSellState())
-                        .createdDate(sellOrder.getCreatedDate())
-                        .build())
+                .map(sellOrderMapper::toSellOrderResponse)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * <h1>판매 조회</h1>
-     * @param state (requested | canceled | delivered | published)
-     * @param token (accessToken)
-     * @return List<SellOrderResponse> (name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @exception CustomException (PATH_NOT_RESOLVED)
-     * @author seochanhyeok
-     */
     public List<SellOrderResponse> getSellOrders(String state, String token) {
         SellState reqState = Parser.parseSellState(state);
 
         return sellOrderRepository.getSellOrdersByIdAndState(jwtProvider.getMemberByRawToken(token).getId(), reqState).stream()
                 .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(sellOrder -> SellOrderResponse.builder()
-                        .id(sellOrder.getId())
-                        .orderNumber(sellOrder.getOrderNumber())
-                        .name(sellOrder.getName())
-                        .phoneNumber(sellOrder.getPhoneNumber())
-                        .bank(sellOrder.getBank())
-                        .bagQuantity(sellOrder.getBagQuantity())
-                        .productQuantity(sellOrder.getProductQuantity())
-                        .address(sellOrder.getAddress())
-                        .requestDetail(sellOrder.getRequestDetail())
-                        .returnDate(sellOrder.getReturnDate())
-                        .sellState(reqState)
-                        .createdDate(sellOrder.getCreatedDate())
-                        .build())
+                .map(sellOrderMapper::toSellOrderResponse)
                 .collect(Collectors.toList());
-
     }
 
-    /**
-     * 관리자가 모든 유저들의, 마지막 상태에 해당하는 판매 주문을 조회한다.
-     * @return List<SellOrderResponse> (id, name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @author seochanhyeok
-     */
     public List<SellOrderResponse> getAllSellOrdersAdmin(String state) {
         SellState reqState = Parser.parseSellState(state);
 
         return sellOrderRepository.getSellOrdersByState(reqState).stream()
                 .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(sellOrder -> SellOrderResponse.builder()
-                        .id(sellOrder.getId())
-                        .name(sellOrder.getName())
-                        .orderNumber(sellOrder.getOrderNumber())
-                        .phoneNumber(sellOrder.getPhoneNumber())
-                        .bank(sellOrder.getBank())
-                        .bagQuantity(sellOrder.getBagQuantity())
-                        .productQuantity(sellOrder.getProductQuantity())
-                        .address(sellOrder.getAddress())
-                        .requestDetail(sellOrder.getRequestDetail())
-                        .returnDate(sellOrder.getReturnDate())
-                        .sellState(reqState)
-                        .createdDate(sellOrder.getCreatedDate())
-                        .build())
+                .map(sellOrderMapper::toSellOrderResponse)
                 .collect(Collectors.toList());
     }
 
-    private void buildSellOrderState(SellOrder sellOrder, SellState sellState) {
-        SellOrderState sellOrderState = SellOrderState.builder()
-                .sellOrder(sellOrder)
-                .sellState(sellState)
-                .build();
-        sellOrderStateRepository.save(sellOrderState);
-    }
-
-    /**
-     * 관리자가 판매 요청을 업데이트함
-     * @param request (orderNumber, sellState)
-     * @return SellOrderResponse (id, name, phoneNumber, bankName, accountNumber, bagQuantity, productQuantity, address, requestDetail, returnDate, sellState)
-     * @exception CustomException orderNumber에 해당하는 order를 조회하지 못할 경우 ORDER_NOT_FOUND "판매 요청을 찾을 수 없음" 에러 발생
-     * @author seochanhyeok
-     */
     public SellOrderResponse updateSellOrderState(SellOrderUpdateRequest request) {
-        // 주문번호로 판매 주문을 가져온다.
-        Optional<SellOrder> bySellOrder = sellOrderRepository.findByOrderNumber(request.getOrderNumber());
-        if (bySellOrder.isEmpty()) {
-            throw new CustomException(ORDER_NUMBER_NOT_FOUND);
-        }
-        SellOrder sellOrder = bySellOrder.get();
 
-        // 판매 주문의 상태를 업데이트한다.
-        buildSellOrderState(sellOrder, request.getSellState());
+        SellOrder sellOrder = sellOrderRepository.findByOrderNumber(request.getOrderNumber())
+                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
 
-        return SellOrderResponse.builder()
-                .id(sellOrder.getId())
-                .name(sellOrder.getName())
-                .orderNumber(sellOrder.getOrderNumber())
-                .phoneNumber(sellOrder.getPhoneNumber())
-                .bank(sellOrder.getBank())
-                .bagQuantity(sellOrder.getBagQuantity())
-                .productQuantity(sellOrder.getProductQuantity())
-                .address(sellOrder.getAddress())
-                .requestDetail(sellOrder.getRequestDetail())
-                .returnDate(sellOrder.getReturnDate())
+        sellOrderStateRepository.save(SellOrderState.builder()
+                .sellOrder(sellOrder)
                 .sellState(request.getSellState())
-                .createdDate(sellOrder.getCreatedDate())
-                .build();
+                .build());
 
+        return sellOrderMapper.toSellOrderResponse(sellOrder);
     }
 
     private List<GetProductResponse> handleProductList(List<Product> productList) {
