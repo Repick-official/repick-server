@@ -37,17 +37,18 @@ public class SecurityConfig {
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/sign/register", "/sign/login").permitAll()
                 .antMatchers("/sign/update").hasAuthority("USER")
-                .antMatchers("/order/admin/**").permitAll() // TODO : ADMIN으로 변경
+                .antMatchers("/order/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/order/**").hasAuthority("USER")
+                .antMatchers("/sell/admin/**").hasAuthority("ADMIN")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
                 // S3 파일 업로드 요청은 모두 승인
                 .antMatchers("/products/register").permitAll()
                 .antMatchers("/s3/**").permitAll()
-                .antMatchers("/subscribe/admin/**").permitAll() // TODO : ADMIN으로 변경
+                .antMatchers("/subscribe/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/subscribe/**").hasAuthority("USER")
-                .antMatchers("/cart/admin/**").permitAll() // TODO : ADMIN으로 변경
+                .antMatchers("/cart/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/cart/**").hasAuthority("USER")
-                .antMatchers(("/home-fitting/admin/**")).permitAll() // TODO : ADMIN으로 변경
+                .antMatchers(("/home-fitting/admin/**")).hasAuthority("ADMIN")
                 .antMatchers(("/home-fitting/**")).hasAuthority("USER")
                 .anyRequest().permitAll()
                 .and()
