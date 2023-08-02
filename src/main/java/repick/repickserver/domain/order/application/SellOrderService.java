@@ -23,6 +23,7 @@ import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
+import repick.repickserver.infra.slack.mapper.SlackMapper;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class SellOrderService {
     private final ProductImageRepository productImageRepository;
     private final SellOrderMapper sellOrderMapper;
     private final SellOrderValidator sellOrderValidator;
+    private final SlackMapper slackMapper;
 
     public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
@@ -67,17 +69,7 @@ public class SellOrderService {
                 .sellState(SellState.REQUESTED)
                 .build());
 
-        slackNotifier.sendSellOrderSlackNotification("판매 수거 요청이 들어왔습니다.\n" +
-                "주문번호: " + orderNumber + "\n" +
-                "이름: " + request.getName() + "\n" +
-                "연락처: " + request.getPhoneNumber() + "\n" +
-                "주소: " + request.getAddress().getMainAddress() + "\n" +
-                "상세주소: " + request.getAddress().getDetailAddress() + "\n" +
-                "우편번호: " + request.getAddress().getZipCode() + "\n" +
-                "수거 시 희망사항: " + request.getRequestDetail() + "\n" +
-                "수거 희망일: " + request.getReturnDate() + "\n" +
-                "의류 수량: " + request.getProductQuantity() + "\n" +
-                "리픽백 수량: " + request.getBagQuantity());
+        slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
         return sellOrderMapper.toSellOrderResponse(sellOrder);
     }

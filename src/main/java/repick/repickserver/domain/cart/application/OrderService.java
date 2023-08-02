@@ -10,7 +10,6 @@ import repick.repickserver.domain.cart.dto.OrderRequest;
 import repick.repickserver.domain.cart.dto.OrderResponse;
 import repick.repickserver.domain.cart.dto.OrderStateResponse;
 import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
-import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
@@ -19,6 +18,7 @@ import repick.repickserver.global.config.SmsProperties;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
+import repick.repickserver.infra.slack.mapper.SlackMapper;
 import repick.repickserver.infra.sms.SmsSender;
 import repick.repickserver.infra.sms.model.Message;
 
@@ -52,6 +52,7 @@ public class OrderService {
     private final SlackNotifier slackNotifier;
     private final SmsSender smsSender;
     private final SmsProperties smsProperties;
+    private final SlackMapper slackMapper;
 
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
@@ -118,26 +119,8 @@ public class OrderService {
                 .map(orderProductRepository::save)
                 .collect(Collectors.toList());
 
-        /*
-        * 주문 알림
-        * 주문자 이름, 주소, 전화번호
-        * 주문 상품 이름과 가격
-        * 모든 상품들에 대해 forEach
-         */
-        StringBuilder sb = new StringBuilder();
-        sb.append("주문 신청이 들어왔습니다.\n");
-        sb.append("주문 번호: ").append(orderNumber).append("\n");
-        sb.append("신청자: ").append(orderRequest.getPersonName()).append("\n");
-        sb.append("연락처: ").append(orderRequest.getPhoneNumber()).append("\n");
-        sb.append("주소: ").append(orderRequest.getAddress().getMainAddress()).append("\n");
-        sb.append("상세 주소: ").append(orderRequest.getAddress().getDetailAddress()).append("\n");
-        sb.append("우편 번호: ").append(orderRequest.getAddress().getZipCode()).append("\n");
-        sb.append("주문 상품: ").append("\n");
-        orderProducts.forEach(orderProduct ->
-                sb.append(orderProduct.getProduct().getName()).append(" ")
-                        .append(orderProduct.getProduct().getPrice()).append(" ")
-                        .append(orderProduct.getProduct().getProductNumber()).append("\n"));
-        slackNotifier.sendOrderSlackNotification(sb.toString());
+        // 슬랙 알림
+        slackNotifier.sendOrderSlackNotification(slackMapper.toOrderSlackNoticeString(orderNumber, orderRequest, orderProducts));
 
         /**
          * 주문 알림 문자 발송

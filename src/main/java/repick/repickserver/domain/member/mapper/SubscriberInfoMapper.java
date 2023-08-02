@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscribeState;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,16 @@ public class SubscriberInfoMapper {
                 .expireDate(expireDate)
                 .subscribeState(newState)
                 .subscribeType(parent.getSubscribeType())
+                .build();
+    }
+
+    public SubscribeHistoryResponse toSubscribeHistoryResponse(SubscriberInfo subscriberInfo) {
+        return SubscribeHistoryResponse.builder()
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
                 .build();
     }
 

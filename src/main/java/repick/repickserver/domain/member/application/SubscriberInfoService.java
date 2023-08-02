@@ -19,6 +19,7 @@ import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
+import repick.repickserver.infra.slack.mapper.SlackMapper;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ public class SubscriberInfoService {
     private final SlackNotifier slackNotifier;
     private final MemberValidator memberValidator;
     private final SubscriberInfoMapper subscriberInfoMapper;
+    private final SlackMapper slackMapper;
 
     public List<SubscribeHistoryResponse> historyAll(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
@@ -75,14 +77,7 @@ public class SubscriberInfoService {
                 subscribeState.getFirst(),
                 subscribeState.getSecond());
 
-        return subscriberInfos.stream().map(subscriberInfo ->
-                        SubscribeHistoryResponse.builder()
-                                .orderNumber(subscriberInfo.getOrderNumber())
-                                .createdDate(subscriberInfo.getCreatedDate())
-                                .expireDate(subscriberInfo.getExpireDate())
-                                .subscribeState(subscriberInfo.getSubscribeState())
-                                .subscribeType(subscriberInfo.getSubscribeType())
-                                .build())
+        return subscriberInfos.stream().map(subscriberInfoMapper::toSubscribeHistoryResponse)
                 .collect(Collectors.toList());
     }
 
@@ -127,12 +122,7 @@ public class SubscriberInfoService {
         subscriberInfoRepository.save(subscriberInfo);
 
         // Slack에 알림 보내기
-        slackNotifier.sendSubscribeSlackNotification("구독 신청이 들어왔습니다." +
-                "\n이름: " + member.getName() +
-                "\n이메일: " + member.getEmail() +
-                "\n구독타입: " + request.getSubscribeType() +
-                "\n주문번호: " + subscriberInfo.getOrderNumber() +
-                "\n해커톤 시연 : 자동 승인합니다.");
+        slackNotifier.sendSubscribeSlackNotification(slackMapper.toSubscribeSlackNoticeString(member, request, subscriberInfo));
 
         return subscriberInfoMapper.toSubscriberInfoResponse(subscriberInfo, member);
     }
