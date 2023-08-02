@@ -34,6 +34,7 @@ import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
 import static repick.repickserver.domain.ordernumber.domain.OrderType.ORDER;
 import static repick.repickserver.domain.product.domain.ProductState.*;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
+import static repick.repickserver.global.util.formatPhoneNumber.removeHyphens;
 
 @Service
 @Transactional
@@ -128,7 +129,7 @@ public class OrderService {
          */
         try {
             smsSender.sendSms(Message.builder()
-                    .to(orderRequest.getPhoneNumber())
+                    .to(removeHyphens(orderRequest.getPhoneNumber()))
                     .content("[리픽]" + "\n\n" + "안녕하세요, " + orderRequest.getPersonName() + "님 :)\n\n" +
                             "주문일: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + "\n" +
                             "주문 금액: " + orderProducts.stream()
