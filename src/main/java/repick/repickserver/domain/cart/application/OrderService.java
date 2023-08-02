@@ -195,8 +195,7 @@ public class OrderService {
         });
 
         return OrderStateResponse.builder()
-                .orderNumber(order.getOrderNumber())
-                .orderId(order.getId())
+                .order(order)
                 .orderStateId(savedOrderState.getId())
                 .orderCurrentState(savedOrderState.getOrderCurrentState())
                 .build();

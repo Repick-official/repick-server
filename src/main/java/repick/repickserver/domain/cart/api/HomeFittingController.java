@@ -55,10 +55,12 @@ public class HomeFittingController {
                                                                         "DELIVERED, RETURN_REQUESTED, RETURNED, PURCHASED 중 하나를 요청, 없을시 전체 조회")
                                                                         @RequestParam(value = "homeFittingState", required = false) String homeFittingState,
                                                                @ApiIgnore @RequestHeader("Authorization") String token) {
-        // validation
-        if (!homeFittingState.equals("REQUESTED") && !homeFittingState.equals("DELIVERING") && !homeFittingState.equals("DELIVERED")
-                && !homeFittingState.equals("RETURN_REQUESTED") && !homeFittingState.equals("RETURNED") && !homeFittingState.equals("PURCHASED"))
-            throw new CustomException(INVALID_REQUEST_ERROR);
+        if(homeFittingState != null) {
+            // validation
+            if (!homeFittingState.equals("REQUESTED") && !homeFittingState.equals("DELIVERING") && !homeFittingState.equals("DELIVERED")
+                    && !homeFittingState.equals("RETURN_REQUESTED") && !homeFittingState.equals("RETURNED") && !homeFittingState.equals("PURCHASED"))
+                throw new CustomException(INVALID_REQUEST_ERROR);
+        }
 
         return ResponseEntity.ok()
                 .body(homeFittingService.getHomeFitting(homeFittingState));

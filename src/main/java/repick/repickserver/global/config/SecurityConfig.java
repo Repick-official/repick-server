@@ -37,8 +37,9 @@ public class SecurityConfig {
                 .antMatchers("/api/swagger-ui.html").permitAll()
                 .antMatchers("/api/sign/register", "/sign/login").permitAll()
                 .antMatchers("/api/sign/update").hasAuthority("USER")
-                .antMatchers("/api/order/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/api/order/**").hasAuthority("USER")
+                // .antMatchers("/api/order/admin/**").hasAuthority("ADMIN") TODO: 주석 해제
+                .antMatchers("/api/order/**").permitAll() // TODO: 임시로 모두 허용한 것 삭제
+                // .antMatchers("/api/order/**").hasAuthority("USER") TODO: 주석 해제
                 .antMatchers("/api/sell/admin/**").hasAuthority("ADMIN")
                 .antMatchers("카카오 로그인 요청 API").permitAll()
                 // S3 파일 업로드 요청은 모두 승인

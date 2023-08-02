@@ -74,7 +74,7 @@ public class ProductController {
                 .body(productService.getPageByProductPriceDesc(cursorId, cursorPrice, categoryId, pageSize));
     }
 
-    @Operation(summary = "전체/카테고리 상품 보기 (가격 높은순)", description = "가격 낮은순으로 상품 리스트 페이지를 조회합니다.")
+    @Operation(summary = "전체/카테고리 상품 보기 (가격 낮은순)", description = "가격 낮은순으로 상품 리스트 페이지를 조회합니다.")
     @GetMapping("/price-lowest")
     public ResponseEntity<List<GetProductResponse>> getPriceLowestProducts(@Parameter(description = "1번째 페이지 조회시 null, " +
             "2번째 이상 페이지 조회시 직전 페이지의 마지막 product id") @RequestParam(required = false) Long cursorId,

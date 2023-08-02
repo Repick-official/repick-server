@@ -50,10 +50,12 @@ public class OrderController {
     public ResponseEntity<List<OrderStateResponse>> getOrderStates(@Parameter(description = "UNPAID, PREPARING, DELIVERING, DELIVERED, CANCELED 중 하나를 요청, 없을시 전체 조회")
                                                     @RequestParam(value = "orderState", required = false) String orderState,
                                                     @ApiIgnore @RequestHeader("Authorization") String token) {
-        // validation
-        if(!orderState.equals("UNPAID") && !orderState.equals("PREPARING") && !orderState.equals("DELIVERING")
-                && !orderState.equals("DELIVERED") && !orderState.equals("CANCELED"))
-            throw new CustomException(INVALID_REQUEST_ERROR);
+        if(orderState != null) {
+            // validation
+            if(!orderState.equals("UNPAID") && !orderState.equals("PREPARING") && !orderState.equals("DELIVERING")
+                    && !orderState.equals("DELIVERED") && !orderState.equals("CANCELED"))
+                throw new CustomException(INVALID_REQUEST_ERROR);
+        }
 
         return ResponseEntity.ok()
                 .body(orderService.getOrderStates(orderState));

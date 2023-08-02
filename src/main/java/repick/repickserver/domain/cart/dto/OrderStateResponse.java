@@ -13,15 +13,15 @@ import repick.repickserver.domain.cart.domain.OrderState;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderStateResponse {
 
-    private String orderNumber;
-    private Long orderId;
+//    private String orderNumber;
+//    private Long orderId;
+    private Order order;
     private Long orderStateId;
     private OrderCurrentState orderCurrentState;
 
     @Builder
-    public OrderStateResponse(String orderNumber, Long orderId, Long orderStateId, OrderCurrentState orderCurrentState) {
-        this.orderNumber = orderNumber;
-        this.orderId = orderId;
+    public OrderStateResponse(Order order, Long orderStateId, OrderCurrentState orderCurrentState) {
+        this.order = order;
         this.orderStateId = orderStateId;
         this.orderCurrentState = orderCurrentState;
     }
@@ -29,8 +29,7 @@ public class OrderStateResponse {
     @QueryProjection
     @Builder
     public OrderStateResponse(Order order, OrderState orderState) {
-        this.orderNumber = order.getOrderNumber();
-        this.orderId = order.getId();
+        this.order = order;
         this.orderStateId = orderState.getId();
         this.orderCurrentState = orderState.getOrderCurrentState();
     }
