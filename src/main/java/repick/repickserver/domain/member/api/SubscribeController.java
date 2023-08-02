@@ -10,6 +10,7 @@ import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
+import repick.repickserver.domain.member.validator.SubscribeValidator;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
@@ -20,12 +21,13 @@ import java.util.List;
 public class SubscribeController {
 
     private final SubscriberInfoService subscriberInfoService;
+    private final SubscribeValidator subscribeValidator;
 
     @Operation(summary = "구독 여부 조회", description = "요청한 유저 본인의 현재 구독 여부를 조회합니다.")
     @GetMapping("/check")
     public ResponseEntity<String> check(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(subscriberInfoService.check(token));
+                .body(subscribeValidator.check(token));
     }
 
     @Operation(summary = "구독 기록 최신순 조회", description = "구독 기록 중 승인됨, 만료됨만 최신순으로 반환합니다.")
@@ -47,7 +49,7 @@ public class SubscribeController {
             defaultValue = "None"
     )
     @GetMapping("/history/{state}")
-    public ResponseEntity<List<SubscriberInfoResponse>> history(@PathVariable("state") String state,
+    public ResponseEntity<List<SubscribeHistoryResponse>> history(@PathVariable("state") String state,
                                                                 @ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
                 .body(subscriberInfoService.history(state, token));

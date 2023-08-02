@@ -1,7 +1,6 @@
 package repick.repickserver.domain.member.application;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.domain.Cart;
@@ -21,7 +20,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
-import static repick.repickserver.global.error.exception.ErrorCode.*;
+import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_NOT_FOUND;
+import static repick.repickserver.global.error.exception.ErrorCode.TOKEN_EXPIRED;
 
 @Service
 @Transactional
@@ -29,7 +29,6 @@ import static repick.repickserver.global.error.exception.ErrorCode.*;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final CartRepository cartRepository;
     private final MemberMapper memberMapper;

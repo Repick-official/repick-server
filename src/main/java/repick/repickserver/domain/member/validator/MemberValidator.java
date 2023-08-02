@@ -18,13 +18,14 @@ public class MemberValidator {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Boolean check_info(Member member) {
-        return member.getNickname() != null
-                && member.getPhoneNumber() != null
-                && member.getAddress() != null
-                && member.getBank() != null
-                && member.getName() != null
-                && member.getEmail() != null;
+    public void check_info(Member member) {
+        if (member.getNickname() == null
+                || member.getPhoneNumber() == null
+                || member.getAddress() == null
+                || member.getBank() == null
+                || member.getName() == null
+                || member.getEmail() == null)
+            throw new CustomException(ACCESS_DENIED_NO_USER_INFO);
     }
 
     public void validateDuplicateEmail(String email, String userId) {
