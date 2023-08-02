@@ -35,14 +35,14 @@ public class Member extends BaseTimeEntity {
     @Embedded
     private Bank bank;
 
-    public void update(String email, String password, String nickname, String name, String phoneNumber, Address address, Bank bank) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.bank = bank;
+    public void update(Member member) {
+        this.email = member.getEmail();
+        this.password = member.getPassword();
+        this.nickname = member.getNickname();
+        this.name = member.getName();
+        this.phoneNumber = member.getPhoneNumber();
+        this.address = member.getAddress();
+        this.bank = member.getBank();
     }
 
 

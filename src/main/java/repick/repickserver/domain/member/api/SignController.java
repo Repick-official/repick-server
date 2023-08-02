@@ -45,9 +45,9 @@ public class SignController {
 
     @Operation(summary = "유저 정보 가져오기", description = "요청한 유저 본인의 개인정보를 가져옵니다.")
     @GetMapping(value = "/userInfo")
-    public ResponseEntity<SignUserInfoResponse> update(@ApiIgnore @RequestHeader("Authorization") String token) {
+    public ResponseEntity<SignUserInfoResponse> getUserInfo(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(memberService.userInfo(token));
+                .body(memberService.getUserInfo(token));
     }
 
     @Operation(summary = "유저 정보 수정하기", description = "유저의 개인정보를 수정합니다." +

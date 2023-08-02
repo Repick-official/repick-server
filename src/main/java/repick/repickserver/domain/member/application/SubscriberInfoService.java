@@ -12,6 +12,7 @@ import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
+import repick.repickserver.domain.member.validator.MemberValidator;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
@@ -36,7 +37,7 @@ public class SubscriberInfoService {
     private final JwtProvider jwtProvider;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
-    private final MemberService memberService;
+    private final MemberValidator memberValidator;
 
 
     /**
@@ -186,7 +187,7 @@ public class SubscriberInfoService {
         Member member = jwtProvider.getMemberByRawToken(token);
 
         // 기본 회원정보 없는 사람들 차단
-        if (!memberService.check_info(member))
+        if (!memberValidator.check_info(member))
             throw new CustomException(ACCESS_DENIED_NO_USER_INFO);
 
         SubscriberInfo subscriberInfo = SubscriberInfo.builder()

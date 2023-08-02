@@ -12,9 +12,9 @@ import repick.repickserver.domain.cart.domain.HomeFitting;
 import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.HomeFittingRequest;
 import repick.repickserver.domain.cart.dto.HomeFittingResponse;
-import repick.repickserver.domain.member.application.MemberService;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
 import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.member.validator.MemberValidator;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
@@ -46,7 +46,7 @@ public class HomeFittingService {
     private final SubscriberInfoService subscriberInfoService;
     private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
-    private final MemberService memberService;
+    private final MemberValidator memberValidator;
 
     public List<HomeFittingResponse> requestHomeFitting(HomeFittingRequest homeFittingRequest, String token) {
 
@@ -56,7 +56,7 @@ public class HomeFittingService {
             throw new CustomException(ACCESS_DENIED_NOT_SUBSCRIBED);
 
         // 신청하는 회원이 기본 정보를 가지고 있는지 체크합니다.
-        if (!memberService.check_info(jwtProvider.getMemberByRawToken(token)))
+        if (!memberValidator.check_info(jwtProvider.getMemberByRawToken(token)))
             throw new CustomException(ACCESS_DENIED_NO_USER_INFO);
 
         List<CartProduct> cartProducts = cartProductRepository.findAllById(homeFittingRequest.getCartProductIds());

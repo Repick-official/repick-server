@@ -7,11 +7,12 @@ import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.domain.Cart;
 import repick.repickserver.domain.member.dao.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
-import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.member.dto.SignLoginRequest;
 import repick.repickserver.domain.member.dto.SignLoginResponse;
 import repick.repickserver.domain.member.dto.SignUpdateRequest;
 import repick.repickserver.domain.member.dto.SignUserInfoResponse;
+import repick.repickserver.domain.member.mapper.MemberMapper;
+import repick.repickserver.domain.member.validator.MemberValidator;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
@@ -19,7 +20,6 @@ import repick.repickserver.global.jwt.UserDetailsImpl;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import java.util.UUID;
 
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -32,26 +32,14 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final CartRepository cartRepository;
+    private final MemberMapper memberMapper;
+    private final MemberValidator memberValidator;
 
-    /**
-     * 로그인
-     * @param request (email, password)
-     * @param response (accessToken, refreshToken 반환하기 위함)
-     * @return SignResponse (name, email, nickname, role, phoneNumber, address, accessToken, refreshToken)
-     * @apiNote
-     * 1. 이메일로 멤버를 찾는다.
-     * 2. 멤버가 없으면 에러를 던진다.
-     * 3. 비밀번호가 일치하지 않으면 에러를 던진다.
-     * 4. JWT 토큰을 생성하여 쿠키에 담아서 반환한다.
-     * @author seochanhyeok
-     */
     public SignLoginResponse login(SignLoginRequest request, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new CustomException("이메일에 해당하는 멤버를 찾을 수 없습니다.", MEMBER_NOT_FOUND));
 
-        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new CustomException("비밀번호가 올바르지 않습니다.", MEMBER_NOT_FOUND);
-        }
+        memberValidator.validatePassword(member, request.getPassword());
 
         String accessToken = jwtProvider.createAccessToken(new UserDetailsImpl(member));
         String refreshToken = jwtProvider.createRefreshToken(new UserDetailsImpl(member));
@@ -59,178 +47,46 @@ public class MemberService {
         response.addCookie(new Cookie("accessToken", accessToken));
         response.addCookie(new Cookie("refreshToken", refreshToken));
 
-        return SignLoginResponse.builder()
-                .name(member.getName())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .role(member.getRole())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .bank(member.getBank())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return memberMapper.toSignLoginResponse(member, accessToken, refreshToken);
     }
 
-    /**
-     * 회원가입
-     * @param request (email, password, name, nickname, phoneNumber, address)
-     * @return true
-     * @exception CustomException (MEMBER_REGISTER_FAIL)
-     * @apiNote
-     * 1. 멤버를 생성 후 저장한다.
-     * 2. 저장에 실패하면 에러를 던진다.
-     * 3. 회원가입 시 기본 권한은 USER이다.
-     * 4. 비밀번호는 암호화하여 저장한다.
-     * @author seochanhyeok
-     */
     public SignUserInfoResponse register(SignUpdateRequest request) {
-        try {
-            Member member = Member.builder()
-                    .userId(UUID.randomUUID().toString())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .email(request.getEmail())
-                    .name(request.getName())
-                    .nickname(request.getNickname())
-                    .phoneNumber(request.getPhoneNumber())
-                    .address(request.getAddress())
-                    .bank(request.getBank())
-                    .role(Role.USER)
-                    .build();
 
-            memberRepository.save(member);
+        Member member = memberMapper.registerRequestToMember(request);
 
-            // 장바구니 생성
-            cartRepository.save(Cart.builder()
-                    .member(member)
-                    .build());
-
-            return SignUserInfoResponse.builder()
-                    .name(member.getName())
-                    .email(member.getEmail())
-                    .nickname(member.getNickname())
-                    .role(member.getRole())
-                    .phoneNumber(member.getPhoneNumber())
-                    .address(member.getAddress())
-                    .bank(member.getBank())
-                    .build();
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new CustomException("회원 등록에 실패했습니다", MEMBER_REGISTER_FAIL);
-        }
-    }
-
-    /**
-     * 멤버 조회
-     * @param email (email)
-     * @return SignResponse (name, email, nickname, role, phoneNumber, address, bank)
-     * @exception CustomException (MEMBER_NOT_FOUND)
-     * @apiNote
-     * 1. 이메일로 멤버를 찾는다.
-     * 2. 멤버가 없으면 에러를 던진다.
-     * 3. 멤버를 반환한다.
-     * @author seochanhyeok
-     */
-    public SignUserInfoResponse getMember(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException("이메일에 해당하는 멤버를 찾을 수 없습니다.", MEMBER_NOT_FOUND));
-        return SignUserInfoResponse.builder()
-                .name(member.getName())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .role(member.getRole())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .bank(member.getBank())
-                .build();
-    }
-
-    /**
-     * 멤버 조회
-     * @param token (accessToken)
-     * @return SignResponse (name, email, nickname, role, phoneNumber, address, bank)
-     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
-     * @apiNote
-     * 1. 토큰으로 멤버를 찾는다.
-     * 2. 멤버가 없으면 에러를 던진다.
-     * 3. 멤버를 반환한다.
-     * 4. 토큰이 만료되었으면 에러를 던진다.
-     * @author seochanhyeok
-     */
-    public SignUserInfoResponse userInfo(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-        return SignUserInfoResponse.builder()
-                .name(member.getName())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .role(member.getRole())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .bank(member.getBank())
-                .build();
-    }
-
-    /**
-     * 멤버 수정
-     * @param request (email, password, name, nickname, phoneNumber, address, bank)
-     * @param token (accessToken)
-     * @return true
-     * @exception CustomException (TOKEN_MEMBER_NO_MATCH) 토큰에 해당하는 멤버의 userId를 찾을 수 없을 때
-     * @apiNote
-     * 1. 토큰으로 멤버를 찾는다.
-     * 2. 멤버가 없으면 에러를 던진다.
-     * 3. 멤버를 수정한다.
-     * 4. 수정에 성공하면 true를 반환한다.
-     * @author seochanhyeok
-     */
-    public SignUserInfoResponse update(SignUpdateRequest request, String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-
-        // null인 항목들은 기존 정보로 가져옴
-        if (request.getEmail() == null) {
-            request.setEmail(member.getEmail());
-        }
-        if (request.getPassword() == null) {
-            request.setPassword(member.getPassword());
-        }
-        if (request.getName() == null) {
-            request.setName(member.getName());
-        }
-        if (request.getNickname() == null) {
-            request.setNickname(member.getNickname());
-        }
-        if (request.getPhoneNumber() == null) {
-            request.setPhoneNumber(member.getPhoneNumber());
-        }
-        if (request.getAddress() == null) {
-            request.setAddress(member.getAddress());
-        }
-        if (request.getBank() == null) {
-            request.setBank(member.getBank());
-        }
-
-        member.update(request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getNickname(),
-                request.getName(),
-                request.getPhoneNumber(),
-                request.getAddress(),
-                request.getBank());
+        // 중복 체크
+        memberValidator.validateDuplicateEmail(member.getEmail());
+        memberValidator.validateDuplicateNickname(member.getNickname());
 
         memberRepository.save(member);
 
-        return SignUserInfoResponse.builder()
-                .name(member.getName())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .role(member.getRole())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .bank(member.getBank())
-                .build();
+        // 장바구니 생성
+        cartRepository.save(Cart.builder()
+                .member(member)
+                .build());
+
+        return memberMapper.toSignUserInfoResponse(member);
     }
 
+    public SignUserInfoResponse getUserInfo(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        return memberMapper.toSignUserInfoResponse(member);
+    }
+
+    public SignUserInfoResponse update(SignUpdateRequest request, String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+
+        // request의 null은 기존 member 정보로 대체
+        Member updatedMember = memberMapper.mapRequestToMember(member, request);
+
+        memberValidator.validateDuplicateEmail(updatedMember.getEmail(), member.getUserId());
+        memberValidator.validateDuplicateNickname(updatedMember.getNickname(), member.getUserId());
+
+        member.update(updatedMember);
+        memberRepository.save(member);
+
+        return memberMapper.toSignUserInfoResponse(member);
+    }
 
     public String refresh(String token) {
 
@@ -242,15 +98,6 @@ public class MemberService {
         }
         Member member = jwtProvider.getMemberByRawToken(token);
         return jwtProvider.createAccessToken(new UserDetailsImpl(member));
-
     }
 
-    public Boolean check_info(Member member) {
-        return member.getNickname() != null
-                && member.getPhoneNumber() != null
-                && member.getAddress() != null
-                && member.getBank() != null
-                && member.getName() != null
-                && member.getEmail() != null;
-    }
 }
