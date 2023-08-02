@@ -128,6 +128,8 @@ public class OrderService {
          * 주문 내역, 무통장입금 계좌번호, 입금 기한 안내
          */
         try {
+            String bankName = smsProperties.getBankName();
+            Long bankAccount = smsProperties.getBankAccount();
             smsSender.sendSms(Message.builder()
                     .to(removeHyphens(orderRequest.getPhoneNumber()))
                     .content("[리픽]" + "\n\n" + "안녕하세요, " + orderRequest.getPersonName() + "님 :)\n\n" +
@@ -137,7 +139,8 @@ public class OrderService {
                                     .sum() + "원\n" +
                             "주문 번호: " + orderNumber + "\n\n" +
                             "주문 내역이 접수되었습니다.\n\n" +
-                            "입금 계좌: " + smsProperties.getBankName() + " " + smsProperties.getBankAccount() + "\n" +
+                            // "입금 계좌: " + smsProperties.getBankName() + " " + smsProperties.getBankAccount() + "\n" +
+                            "입금 계좌: " + (bankName != null ? bankName + " " : "가상뱅크") + (bankAccount != null ? bankAccount : "가상계좌") + "\n" +
                             "입금 기한: " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + "\n\n" +
                             "입금 확인 후, 빠른 출고 도와드릴 수 있도록 노력하겠습니다.\n" +
                             "감사합니다 ♥")
