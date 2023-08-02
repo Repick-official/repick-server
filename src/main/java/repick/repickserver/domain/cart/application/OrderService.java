@@ -121,7 +121,13 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         // 슬랙 알림
-        slackNotifier.sendOrderSlackNotification(slackMapper.toOrderSlackNoticeString(orderNumber, orderRequest, orderProducts));
+        try {
+            slackNotifier.sendOrderSlackNotification(slackMapper.toOrderSlackNoticeString(orderNumber, orderRequest, orderProducts));
+        }
+        catch (Exception e) {
+            log.error("Slack 알림 전송 실패");
+        }
+
 
         /**
          * 주문 알림 문자 발송
