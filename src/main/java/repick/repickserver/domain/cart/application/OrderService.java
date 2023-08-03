@@ -70,7 +70,7 @@ public class OrderService {
 
         for (Long productId : orderRequest.getProductIds()) {
                 // 요청한 상품의 품절/삭제 여부 확인 후 상태 변경 (입금 대기중일 때 다른 사람에게 판매되면 안되기 때문)
-                Product product = productRepository.findByIdAndProductState(productId, SELLING)
+                Product product = productRepository.findByIdAndProductState(productId, PENDING)
                         .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING));
 
                 // 주문 상태를 ORDERED 로 변경 : 다른 사람이 구매 신청할 수 없게 하기 위함
