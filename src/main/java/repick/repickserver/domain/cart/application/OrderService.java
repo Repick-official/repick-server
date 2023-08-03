@@ -55,11 +55,17 @@ public class OrderService {
     private final SmsProperties smsProperties;
     private final SlackMapper slackMapper;
 
+    private Boolean isHomeFittingProduct(Product product, Member member) {
+        return homeFittingRepository.existsByMemberAndProduct(member.getId(), product.getId());
+    }
+
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
 
+        Member member = jwtProvider.getMemberByRawToken(token);
+
         // 신청자의 장바구니 가져옴
-        Cart cart = cartRepository.findByMember(jwtProvider.getMemberByRawToken(token));
+        Cart cart = cartRepository.findByMember(member);
         cartProductRepository.findByCartIdAndProductIdAndCartProductState(cart.getId(), orderRequest.getProductIds().get(0), HOME_FITTING_REQUESTED)
                 .ifPresent(cartProduct -> {
                     // 존재할 경우 해당 주문은 홈피팅 주문이다 : 해당 홈피팅 주문번호를 찾고, 홈피팅 주문번호가 같은 상품들 모두 RETURN_REQUESTED 로 변경
@@ -70,8 +76,12 @@ public class OrderService {
 
         for (Long productId : orderRequest.getProductIds()) {
                 // 요청한 상품의 품절/삭제 여부 확인 후 상태 변경 (입금 대기중일 때 다른 사람에게 판매되면 안되기 때문)
-                Product product = productRepository.findByIdAndProductState(productId, PENDING)
-                        .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING));
+                Product product = productRepository.findByIdAndProductState(productId, SELLING)
+                        // 만약 못 찾았을 경우 PENDING 상태의 Product 찾고, 찾으면 isHomeFittingProduct() 로 홈피팅 상품인지 확인
+                        .orElseGet(() -> productRepository.findByIdAndProductState(productId, PENDING)
+                                .filter(p -> isHomeFittingProduct(p, member))
+                                .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING)));
+
 
                 // 주문 상태를 ORDERED 로 변경 : 다른 사람이 구매 신청할 수 없게 하기 위함
                 product.changeProductState(PENDING);
@@ -85,9 +95,6 @@ public class OrderService {
                         .ifPresent(homeFitting -> homeFitting.changeState(PURCHASED));
 
         }
-
-        // 토큰으로 멤버 찾기
-        Member member = jwtProvider.getMemberByRawToken(token);
 
         // 주문, 주문 상태 저장
         Order order = Order.builder()

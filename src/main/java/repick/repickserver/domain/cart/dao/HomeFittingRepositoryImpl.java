@@ -24,4 +24,15 @@ public class HomeFittingRepositoryImpl implements HomeFittingRepositoryCustom {
                         .and(cartProduct.product.id.eq(productId)))
                 .fetchOne());
     }
+
+    @Override
+    public Boolean existsByMemberAndProduct(Long memberId, Long productId) {
+        return jpaQueryFactory.select(homeFitting)
+                .from(homeFitting)
+                .leftJoin(cartProduct)
+                .on(homeFitting.cartProduct.id.eq(cartProduct.id))
+                .where(cartProduct.cart.member.id.eq(memberId)
+                        .and(cartProduct.product.id.eq(productId)))
+                .fetchOne() != null;
+    }
 }
