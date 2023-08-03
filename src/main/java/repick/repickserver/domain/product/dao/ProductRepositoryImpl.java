@@ -16,18 +16,18 @@ import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.QGetProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
-import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.cart.domain.QCartProduct.cartProduct;
 import static repick.repickserver.domain.cart.domain.QHomeFitting.homeFitting;
-import static repick.repickserver.domain.cart.domain.QOrderState.orderState;
 import static repick.repickserver.domain.product.domain.QProduct.product;
 import static repick.repickserver.domain.product.domain.QProductCategory.productCategory;
 import static repick.repickserver.domain.product.domain.QProductImage.productImage;
+import static repick.repickserver.global.error.exception.ErrorCode.INVALID_REQUEST_ERROR;
 
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
@@ -165,7 +165,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(homeFitting)
                 .on(homeFitting.cartProduct.id.eq(cartProduct.id))
                 .where(cartProduct.cart.id.eq(cartId),
-                        product.productState.eq(ProductState.SELLING),
+                        product.productState.eq(ProductState.PENDING),
                         productImage.isMainImage.eq(true),
                         cartProduct.cartProductState.eq(HOME_FITTING_REQUESTED))
                 .fetch()
@@ -194,7 +194,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(homeFitting)
                 .on(homeFitting.cartProduct.id.eq(cartProduct.id))
                 .where(homeFittingStateEq(homeFittingState),
-                        product.productState.eq(ProductState.SELLING),
+                        product.productState.eq(ProductState.PENDING),
                         productImage.isMainImage.eq(true),
                         cartProduct.cartProductState.eq(HOME_FITTING_REQUESTED))
                 .fetch()
