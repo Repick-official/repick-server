@@ -10,6 +10,8 @@ import repick.repickserver.domain.cart.dto.OrderRequest;
 import repick.repickserver.domain.cart.dto.OrderResponse;
 import repick.repickserver.domain.cart.dto.OrderStateResponse;
 import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
+import repick.repickserver.domain.cart.mapper.OrderMapper;
+import repick.repickserver.domain.cart.validator.HomeFittingValidator;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
@@ -30,7 +32,6 @@ import java.util.stream.Collectors;
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
 import static repick.repickserver.domain.cart.domain.HomeFittingState.PURCHASED;
-import static repick.repickserver.domain.cart.domain.OrderCurrentState.UNPAID;
 import static repick.repickserver.domain.ordernumber.domain.OrderType.ORDER;
 import static repick.repickserver.domain.product.domain.ProductState.*;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
@@ -54,10 +55,8 @@ public class OrderService {
     private final SmsSender smsSender;
     private final SmsProperties smsProperties;
     private final SlackMapper slackMapper;
-
-    private Boolean isHomeFittingProduct(Product product, Member member) {
-        return homeFittingRepository.existsByMemberAndProduct(member.getId(), product.getId());
-    }
+    private final HomeFittingValidator homeFittingValidator;
+    private final OrderMapper orderMapper;
 
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
@@ -76,12 +75,8 @@ public class OrderService {
 
         for (Long productId : orderRequest.getProductIds()) {
                 // 요청한 상품의 품절/삭제 여부 확인 후 상태 변경 (입금 대기중일 때 다른 사람에게 판매되면 안되기 때문)
-                Product product = productRepository.findByIdAndProductState(productId, SELLING)
-                        // 만약 못 찾았을 경우 PENDING 상태의 Product 찾고, 찾으면 isHomeFittingProduct() 로 홈피팅 상품인지 확인
-                        .orElseGet(() -> productRepository.findByIdAndProductState(productId, PENDING)
-                                .filter(p -> isHomeFittingProduct(p, member))
-                                .orElseThrow(() -> new CustomException(PRODUCT_NOT_SELLING)));
-
+                // 만약 못 찾았을 경우 PENDING 상태의 Product 찾고, 찾으면 isHomeFittingProduct() 로 홈피팅 상품인지 확인
+                Product product = homeFittingValidator.validateSellingProduct(member, productId);
 
                 // 주문 상태를 ORDERED 로 변경 : 다른 사람이 구매 신청할 수 없게 하기 위함
                 product.changeProductState(PENDING);
@@ -97,21 +92,11 @@ public class OrderService {
         }
 
         // 주문, 주문 상태 저장
-        Order order = Order.builder()
-                .member(member)
-                .personName(orderRequest.getPersonName())
-                .phoneNumber(orderRequest.getPhoneNumber())
-                .address(orderRequest.getAddress())
-                .requestDetail(orderRequest.getRequestDetail())
-                .orderNumber(orderNumber)
-                .build();
+        Order order = orderMapper.toOrder(member, orderRequest, orderNumber);
 
         Order savedOrder = orderRepository.save(order);
 
-        OrderState orderState = OrderState.builder()
-                .order(order)
-                .orderCurrentState(UNPAID)
-                .build();
+        OrderState orderState = orderMapper.toOrderState(order);
 
         OrderState savedOrderState = orderStateRepository.save(orderState);
 
@@ -136,7 +121,7 @@ public class OrderService {
         }
 
 
-        /**
+        /*
          * 주문 알림 문자 발송
          * 주문 내역, 무통장입금 계좌번호, 입금 기한 안내
          */
@@ -161,11 +146,7 @@ public class OrderService {
             throw new CustomException(SMS_SEND_FAILED);
         }
 
-        return OrderResponse.builder()
-                .order(savedOrder)
-                .orderState(savedOrderState)
-                .orderProducts(orderProducts)
-                .build();
+        return orderMapper.toOrderResponse(savedOrder, savedOrderState, orderProducts);
     }
 
     public OrderStateResponse updateOrderState(UpdateOrderStateRequest request) {
@@ -185,17 +166,13 @@ public class OrderService {
                 throw new CustomException(PRODUCT_NOT_PENDING);
 
             // 만약 Product의 State가 SELLING이라면 SOLD_OUT으로 변경
-            // (정산 신청한 상태가 변경되는 것을 방지
+            // (정산 신청한 상태가 변경되는 것을 방지)
             if (orderProduct.getProduct().getProductState() == PENDING) {
                 orderProduct.getProduct().changeProductState(SOLD_OUT);
             }
         });
 
-        return OrderStateResponse.builder()
-                .order(order)
-                .orderStateId(savedOrderState.getId())
-                .orderCurrentState(savedOrderState.getOrderCurrentState())
-                .build();
+        return orderMapper.toOrderStateResponse(order, savedOrderState);
     }
 
     public List<OrderStateResponse> getOrderStates(String orderState) {
