@@ -1,5 +1,6 @@
 package repick.repickserver.domain.product.application;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +36,19 @@ public class ProductService {
     private final ProductCategoryRepository productCategoryRepository;
     private final OrderNumberService orderNumberService;
     private final SellOrderRepository sellOrderRepository;
+    private final ObjectMapper objectMapper;
 
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
-                                                   RegisterProductRequest request, List<Long> categoryIds) {
+                                                   String requestString, List<Long> categoryIds) {
+
+        RegisterProductRequest request;
+        try {
+            request = objectMapper.readValue(requestString, RegisterProductRequest.class);
+        } catch (Exception e) {
+            throw new CustomException(REQUEST_BODY_INVALID);
+        }
+
+
         // sellOrderNumber로 SellOrder 가져오고 없으면 에러
         Optional<SellOrder> sellOrder = sellOrderRepository.findByOrderNumber(request.getSellOrderNumber());
         if (sellOrder.isEmpty()) {

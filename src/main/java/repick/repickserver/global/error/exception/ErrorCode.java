@@ -44,6 +44,7 @@ public enum ErrorCode {
     ORDER_PHONE_NUMBER_NOT_FOUND(400, "O010", "주문자 전화번호를 입력해주세요."),
 
     // Product
+    REQUEST_BODY_INVALID(400, "P001", "요청 바디가 잘못되었습니다."),
     IMAGE_FILE_MISSING(400, "P001", "상품의 사진 파일을 입력해주세요."),
     S3_UPLOAD_FAIL(500, "P002", "S3 업로드에 실패했습니다."),
     S3_FILE_CONVERT_FAIL(500, "P003", "S3 업로드를 위한 파일 변환에 실패했습니다."),

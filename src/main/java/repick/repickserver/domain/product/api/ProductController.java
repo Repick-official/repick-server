@@ -3,16 +3,20 @@ package repick.repickserver.domain.product.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import repick.repickserver.domain.product.application.CategoryService;
 import repick.repickserver.domain.product.application.ProductService;
-import repick.repickserver.domain.product.dto.*;
+import repick.repickserver.domain.product.dto.FileVo;
+import repick.repickserver.domain.product.dto.GetCategoryResponse;
+import repick.repickserver.domain.product.dto.GetProductResponse;
+import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
-import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 import java.util.List;
+
+import static repick.repickserver.global.error.exception.ErrorCode.INVALID_PRICE_SORT_TYPE;
 
 @RestController
 @RequestMapping("/products")
@@ -22,13 +26,11 @@ public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    @PostMapping("/register")
-    public ResponseEntity<RegisterProductResponse> registerProduct(@RequestPart("mainImageFile") MultipartFile mainImageFile,
-                                                                   @RequestPart("detailImageFiles") List<MultipartFile> detailImageFiles,
-                                                                   @RequestPart RegisterProductRequest request,
-                                                                   @RequestPart List<Long> categoryIds) {
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RegisterProductResponse> registerProduct(@ModelAttribute FileVo fileVo) {
         return ResponseEntity.ok()
-                .body(productService.registerProduct(mainImageFile, detailImageFiles, request, categoryIds));
+                .body(productService.registerProduct(fileVo.getMainImageFile(), fileVo.getDetailImageFiles(),
+                        fileVo.getRequest(), fileVo.getCategoryIds()));
     }
 
     @GetMapping("/category")
