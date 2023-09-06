@@ -31,4 +31,11 @@ public class OrderState extends BaseTimeEntity {
         this.order = order;
         this.orderCurrentState = orderCurrentState;
     }
+
+    public static OrderState from(Order order, OrderCurrentState orderCurrentState) {
+        return OrderState.builder()
+                .order(order)
+                .orderCurrentState(orderCurrentState)
+                .build();
+    }
 }

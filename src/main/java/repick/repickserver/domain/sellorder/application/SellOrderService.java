@@ -9,7 +9,7 @@ import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.domain.SellOrderState;
 import repick.repickserver.domain.sellorder.domain.SellState;
 import repick.repickserver.domain.sellorder.dto.*;
-import repick.repickserver.domain.sellorder.mapper.SellOrderMapper;
+import repick.repickserver.domain.sellorder.converter.SellOrderConverter;
 import repick.repickserver.domain.sellorder.validator.SellOrderValidator;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
@@ -46,7 +46,7 @@ public class SellOrderService {
     private final SlackNotifier slackNotifier;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
-    private final SellOrderMapper sellOrderMapper;
+    private final SellOrderConverter sellOrderConverter;
     private final SellOrderValidator sellOrderValidator;
     private final SlackMapper slackMapper;
 
@@ -59,7 +59,7 @@ public class SellOrderService {
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
         // sellOrder 생성
-        SellOrder sellOrder = sellOrderMapper.toSellOrder(request, orderNumber, member);
+        SellOrder sellOrder = sellOrderConverter.toSellOrder(request, orderNumber, member);
 
         sellOrderRepository.save(sellOrder);
 
@@ -71,12 +71,12 @@ public class SellOrderService {
 
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
-        return sellOrderMapper.toSellOrderResponse(sellOrder);
+        return sellOrderConverter.toSellOrderResponse(sellOrder);
     }
 
     public List<SellOrderResponse> getAllSellOrders(String token) {
         return sellOrderRepository.getSellOrdersById(jwtProvider.getMemberByRawToken(token).getId()).stream()
-                .map(sellOrderMapper::toSellOrderResponse)
+                .map(sellOrderConverter::toSellOrderResponse)
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +85,7 @@ public class SellOrderService {
 
         return sellOrderRepository.getSellOrdersByIdAndState(jwtProvider.getMemberByRawToken(token).getId(), reqState).stream()
                 .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(sellOrderMapper::toSellOrderResponse)
+                .map(sellOrderConverter::toSellOrderResponse)
                 .collect(Collectors.toList());
     }
 
@@ -94,7 +94,7 @@ public class SellOrderService {
 
         return sellOrderRepository.getSellOrdersByState(reqState).stream()
                 .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(sellOrderMapper::toSellOrderResponse)
+                .map(sellOrderConverter::toSellOrderResponse)
                 .collect(Collectors.toList());
     }
 
@@ -108,7 +108,7 @@ public class SellOrderService {
                 .sellState(request.getSellState())
                 .build());
 
-        return sellOrderMapper.toSellOrderResponse(sellOrder);
+        return sellOrderConverter.toSellOrderResponse(sellOrder);
     }
 
     private List<GetProductResponse> handleProductList(List<Product> productList) {

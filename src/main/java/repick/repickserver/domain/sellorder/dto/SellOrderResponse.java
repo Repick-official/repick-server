@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
+import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.domain.SellState;
 
 import javax.persistence.Embedded;
@@ -38,5 +39,23 @@ public class SellOrderResponse {
     private SellState sellState;
     @Schema(description = "생성일", example = "2021-08-31T00:00:00")
     private LocalDateTime createdDate;
+
+    public static SellOrderResponse from(SellOrder sellOrder) {
+        return SellOrderResponse.builder()
+                .id(sellOrder.getId())
+                .name(sellOrder.getName())
+                .orderNumber(sellOrder.getOrderNumber())
+                .phoneNumber(sellOrder.getPhoneNumber())
+                .bank(sellOrder.getBank())
+                .bagQuantity(sellOrder.getBagQuantity())
+                .productQuantity(sellOrder.getProductQuantity())
+                .address(sellOrder.getAddress())
+                .requestDetail(sellOrder.getRequestDetail())
+                .returnDate(sellOrder.getReturnDate())
+                // sellOrderStates 중 가장 최근에 업데이트된 state 가져옴
+                .sellState(sellOrder.getSellOrderStates().get(sellOrder.getSellOrderStates().size() - 1).getSellState())
+                .createdDate(sellOrder.getCreatedDate())
+                .build();
+    }
 
 }

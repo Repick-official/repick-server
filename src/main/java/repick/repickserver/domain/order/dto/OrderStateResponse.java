@@ -33,4 +33,12 @@ public class OrderStateResponse {
         this.orderStateId = orderState.getId();
         this.orderCurrentState = orderState.getOrderCurrentState();
     }
+
+    public static OrderStateResponse from(Order order, OrderState orderState) {
+        return OrderStateResponse.builder()
+                .order(order)
+                .orderStateId(orderState.getId())
+                .orderCurrentState(orderState.getOrderCurrentState())
+                .build();
+    }
 }

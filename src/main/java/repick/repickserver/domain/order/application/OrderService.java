@@ -13,7 +13,7 @@ import repick.repickserver.domain.order.dto.OrderRequest;
 import repick.repickserver.domain.order.dto.OrderResponse;
 import repick.repickserver.domain.order.dto.OrderStateResponse;
 import repick.repickserver.domain.order.dto.UpdateOrderStateRequest;
-import repick.repickserver.domain.order.mapper.OrderMapper;
+import repick.repickserver.domain.order.converter.OrderConverter;
 import repick.repickserver.domain.homefitting.validator.HomeFittingValidator;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.order.dao.OrderProductRepository;
@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTING_REQUESTED;
 import static repick.repickserver.domain.cart.domain.CartProductState.ORDERED;
 import static repick.repickserver.domain.homefitting.domain.HomeFittingState.PURCHASED;
+import static repick.repickserver.domain.order.domain.OrderCurrentState.UNPAID;
 import static repick.repickserver.domain.ordernumber.domain.OrderType.ORDER;
 import static repick.repickserver.domain.product.domain.ProductState.*;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
@@ -66,7 +67,7 @@ public class OrderService {
     private final SmsProperties smsProperties;
     private final SlackMapper slackMapper;
     private final HomeFittingValidator homeFittingValidator;
-    private final OrderMapper orderMapper;
+    private final OrderConverter orderConverter;
 
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
@@ -102,11 +103,11 @@ public class OrderService {
         }
 
         // 주문, 주문 상태 저장
-        Order order = orderMapper.toOrder(member, orderRequest, orderNumber);
+        Order order = orderConverter.toOrder(member, orderRequest, orderNumber);
 
         Order savedOrder = orderRepository.save(order);
 
-        OrderState orderState = orderMapper.toOrderState(order);
+        OrderState orderState = orderConverter.toOrderState(order, UNPAID);
 
         OrderState savedOrderState = orderStateRepository.save(orderState);
 
@@ -156,7 +157,7 @@ public class OrderService {
             throw new CustomException(SMS_SEND_FAILED);
         }
 
-        return orderMapper.toOrderResponse(savedOrder, savedOrderState, orderProducts);
+        return orderConverter.toOrderResponse(savedOrder, savedOrderState, orderProducts);
     }
 
     public OrderStateResponse updateOrderState(UpdateOrderStateRequest request) {
@@ -182,7 +183,7 @@ public class OrderService {
             }
         });
 
-        return orderMapper.toOrderStateResponse(order, savedOrderState);
+        return orderConverter.toOrderStateResponse(order, savedOrderState);
     }
 
     public List<OrderStateResponse> getOrderStates(String orderState) {
