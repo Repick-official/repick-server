@@ -1,4 +1,4 @@
-package repick.repickserver.domain.sellorder.dao;
+package repick.repickserver.domain.sellorder.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

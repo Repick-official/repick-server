@@ -1,4 +1,4 @@
-package repick.repickserver.domain.member.dao;
+package repick.repickserver.domain.member.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;

@@ -2,7 +2,7 @@ package repick.repickserver.domain.sellorder.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.sellorder.dao.SellOrderRepository;
+import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 import repick.repickserver.global.error.exception.CustomException;

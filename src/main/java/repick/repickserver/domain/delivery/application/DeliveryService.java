@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import repick.repickserver.domain.delivery.dao.DeliveryRepository;
+import repick.repickserver.domain.delivery.repository.DeliveryRepository;
 import repick.repickserver.domain.delivery.domain.Delivery;
 import repick.repickserver.domain.delivery.dto.DeliveryRequest;
 import repick.repickserver.domain.delivery.dto.DeliveryResponse;

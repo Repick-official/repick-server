@@ -19,7 +19,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.domain.Cart;
-import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.repository.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.member.dto.SocialUserInfoDto;

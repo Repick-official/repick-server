@@ -1,4 +1,4 @@
-package repick.repickserver.domain.sellorder.dao;
+package repick.repickserver.domain.sellorder.repository;
 
 import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.domain.SellState;

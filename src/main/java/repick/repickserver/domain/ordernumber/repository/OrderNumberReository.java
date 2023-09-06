@@ -1,4 +1,4 @@
-package repick.repickserver.domain.ordernumber.dao;
+package repick.repickserver.domain.ordernumber.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import repick.repickserver.domain.ordernumber.domain.OrderNumber;

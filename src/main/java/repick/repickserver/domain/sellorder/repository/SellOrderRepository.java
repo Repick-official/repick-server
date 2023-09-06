@@ -1,4 +1,4 @@
-package repick.repickserver.domain.sellorder.dao;
+package repick.repickserver.domain.sellorder.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import repick.repickserver.domain.sellorder.domain.SellOrder;

@@ -9,7 +9,7 @@ import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRequest;
 import repick.repickserver.domain.sellorder.application.SellOrderService;
 import repick.repickserver.domain.sellorder.dto.SellOrderUpdateRequest;
 import repick.repickserver.domain.sellorder.dto.UpdateSettlementStateRequest;
-import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
+import repick.repickserver.domain.ordernumber.repository.OrderNumberReository;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.infra.slack.domain.WebHookType;
 import repick.repickserver.infra.slack.dto.SlackApiSubscribeDto;

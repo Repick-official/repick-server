@@ -1,4 +1,4 @@
-package repick.repickserver.domain.delivery.dao;
+package repick.repickserver.domain.delivery.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import repick.repickserver.domain.delivery.domain.Delivery;

@@ -3,7 +3,7 @@ package repick.repickserver.domain.delivery.validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.delivery.domain.Delivery;
-import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
+import repick.repickserver.domain.ordernumber.repository.OrderNumberReository;
 import repick.repickserver.global.error.exception.CustomException;
 
 import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;

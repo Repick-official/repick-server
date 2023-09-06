@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import repick.repickserver.domain.sellorder.dao.SellOrderRepository;
+import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.CategoryRepository;
