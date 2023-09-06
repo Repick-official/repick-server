@@ -12,14 +12,11 @@ import repick.repickserver.domain.delivery.dao.DeliveryRepository;
 import repick.repickserver.domain.delivery.domain.Delivery;
 import repick.repickserver.domain.delivery.dto.DeliveryRequest;
 import repick.repickserver.domain.delivery.dto.DeliveryResponse;
-import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
+import repick.repickserver.domain.delivery.validator.DeliveryValidator;
 import repick.repickserver.global.config.SweetTrackerProperties;
 import repick.repickserver.global.error.exception.CustomException;
 
 import javax.transaction.Transactional;
-
-import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
-import static repick.repickserver.global.error.exception.ErrorCode.WAYBILL_NUMBER_NOT_REGISTERED;
 
 @Service
 @Transactional
@@ -28,7 +25,7 @@ public class DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
     private final SweetTrackerProperties sweetTrackerProperties;
-    private final OrderNumberReository orderNumberReository;
+    private final DeliveryValidator deliveryValidator;
 
     /**
      * <h1>운송장 번호 등록</h1>
@@ -39,24 +36,13 @@ public class DeliveryService {
      */
     public DeliveryResponse postWaybillNumber(DeliveryRequest request) {
 
-        // 주문번호가 유효하지 않는 경우 예외처리
-        if (!orderNumberReository.existsByOrderNumber(request.getOrderNumber())) {
-            throw new CustomException(ORDER_NOT_FOUND);
-        }
+        deliveryValidator.validateOrderNumber(request.getOrderNumber());
 
-        Delivery delivery = Delivery.builder()
-                .code(request.getCode())
-                .waybillNumber(request.getWaybillNumber())
-                .orderNumber(request.getOrderNumber())
-                .build();
+        Delivery delivery = Delivery.from(request);
 
         deliveryRepository.save(delivery);
 
-        return DeliveryResponse.builder()
-                .code(delivery.getCode())
-                .waybillNumber(delivery.getWaybillNumber())
-                .orderNumber(delivery.getOrderNumber())
-                .build();
+        return DeliveryResponse.from(delivery);
     }
 
     /**
@@ -69,14 +55,9 @@ public class DeliveryService {
 
         Delivery delivery = deliveryRepository.findByOrderNumber(orderNumber);
 
-        // 운송장번호가 유효하지 않는 경우 예외처리
-        if (delivery == null) throw new CustomException(WAYBILL_NUMBER_NOT_REGISTERED);
+        deliveryValidator.validateWaybillNumber(delivery);
 
-        return DeliveryResponse.builder()
-                .code(delivery.getCode())
-                .waybillNumber(delivery.getWaybillNumber())
-                .orderNumber(delivery.getOrderNumber())
-                .build();
+        return DeliveryResponse.from(delivery);
     }
 
     /**
@@ -87,10 +68,16 @@ public class DeliveryService {
      * @author seochanhyeok
      */
     public String getWaybillStatus(String orderNumber) {
+
         Delivery delivery = deliveryRepository.findByOrderNumber(orderNumber);
 
-        // 운송장번호가 유효하지 않는 경우 예외처리
-        if (delivery == null) throw new CustomException(WAYBILL_NUMBER_NOT_REGISTERED);
+        deliveryValidator.validateWaybillNumber(delivery);
+
+        return callSweetTracker(delivery);
+
+    }
+
+    private String callSweetTracker(Delivery delivery) {
 
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(new HttpHeaders());
 
@@ -105,5 +92,6 @@ public class DeliveryService {
         );
 
         return response.getBody();
+
     }
 }

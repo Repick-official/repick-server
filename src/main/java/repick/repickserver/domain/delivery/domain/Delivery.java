@@ -3,6 +3,7 @@ package repick.repickserver.domain.delivery.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import repick.repickserver.domain.delivery.dto.DeliveryRequest;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.Entity;
@@ -36,6 +37,14 @@ public class Delivery extends BaseTimeEntity {
         this.code = code;
         this.waybillNumber = waybillNumber;
         this.orderNumber = orderNumber;
+    }
+
+    public static Delivery from(DeliveryRequest request) {
+        return Delivery.builder()
+                .code(request.getCode())
+                .waybillNumber(request.getWaybillNumber())
+                .orderNumber(request.getOrderNumber())
+                .build();
     }
 
 }
