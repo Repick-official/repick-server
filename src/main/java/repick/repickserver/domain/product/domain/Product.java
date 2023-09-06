@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import repick.repickserver.domain.model.BaseTimeEntity;
-import repick.repickserver.domain.order.domain.SellOrder;
+import repick.repickserver.domain.sellorder.domain.SellOrder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

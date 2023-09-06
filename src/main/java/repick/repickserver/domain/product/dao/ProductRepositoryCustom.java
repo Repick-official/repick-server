@@ -1,6 +1,6 @@
 package repick.repickserver.domain.product.dao;
 
-import repick.repickserver.domain.cart.dto.GetHomeFittingResponse;
+import repick.repickserver.domain.homefitting.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductState;

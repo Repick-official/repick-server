@@ -2,12 +2,12 @@ package repick.repickserver.infra.slack.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.cart.domain.OrderProduct;
-import repick.repickserver.domain.cart.dto.OrderRequest;
+import repick.repickserver.domain.order.domain.OrderProduct;
+import repick.repickserver.domain.order.dto.OrderRequest;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.SubscriberInfo;
 import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
-import repick.repickserver.domain.order.dto.SellOrderRequest;
+import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import java.util.List;
 

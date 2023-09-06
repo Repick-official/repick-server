@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
-import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
-import repick.repickserver.domain.order.dto.UpdateSettlementStateRequest;
+import repick.repickserver.domain.order.dto.UpdateOrderStateRequest;
+import repick.repickserver.domain.sellorder.dto.SellOrderUpdateRequest;
+import repick.repickserver.domain.sellorder.dto.UpdateSettlementStateRequest;
 import repick.repickserver.infra.slack.application.SlackApiService;
 import repick.repickserver.infra.slack.dto.SlackApiSubscribeDto;
 

@@ -2,13 +2,13 @@ package repick.repickserver.infra.slack.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.cart.application.OrderService;
-import repick.repickserver.domain.cart.dto.UpdateOrderStateRequest;
+import repick.repickserver.domain.order.application.OrderService;
+import repick.repickserver.domain.order.dto.UpdateOrderStateRequest;
 import repick.repickserver.domain.member.application.SubscriberInfoService;
 import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
-import repick.repickserver.domain.order.application.SellOrderService;
-import repick.repickserver.domain.order.dto.SellOrderUpdateRequest;
-import repick.repickserver.domain.order.dto.UpdateSettlementStateRequest;
+import repick.repickserver.domain.sellorder.application.SellOrderService;
+import repick.repickserver.domain.sellorder.dto.SellOrderUpdateRequest;
+import repick.repickserver.domain.sellorder.dto.UpdateSettlementStateRequest;
 import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.infra.slack.domain.WebHookType;
