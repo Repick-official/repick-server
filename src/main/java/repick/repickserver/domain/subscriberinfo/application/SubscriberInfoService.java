@@ -1,21 +1,19 @@
-package repick.repickserver.domain.member.application;
+package repick.repickserver.domain.subscriberinfo.application;
 
 import com.mysema.commons.lang.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
+import repick.repickserver.domain.subscriberinfo.repository.SubscriberInfoRepository;
 import repick.repickserver.domain.member.domain.Member;
-import repick.repickserver.domain.member.domain.SubscribeState;
-import repick.repickserver.domain.member.domain.SubscriberInfo;
-import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
-import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
-import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
-import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
-import repick.repickserver.domain.member.mapper.SubscriberInfoMapper;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
+import repick.repickserver.domain.subscriberinfo.dto.SubscribeHistoryResponse;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRegisterRequest;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRequest;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoResponse;
+import repick.repickserver.domain.subscriberinfo.mapper.SubscriberInfoMapper;
 import repick.repickserver.domain.member.validator.MemberValidator;
-import repick.repickserver.domain.ordernumber.application.OrderNumberService;
-import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
@@ -34,7 +32,6 @@ public class SubscriberInfoService {
 
     private final SubscriberInfoRepository subscriberInfoRepository;
     private final JwtProvider jwtProvider;
-    private final OrderNumberService orderNumberService;
     private final SlackNotifier slackNotifier;
     private final MemberValidator memberValidator;
     private final SubscriberInfoMapper subscriberInfoMapper;
@@ -77,13 +74,13 @@ public class SubscriberInfoService {
                 subscribeState.getFirst(),
                 subscribeState.getSecond());
 
-        return subscriberInfos.stream().map(subscriberInfoMapper::toSubscribeHistoryResponse)
+        return subscriberInfos.stream().map(SubscribeHistoryResponse::of)
                 .collect(Collectors.toList());
     }
 
     public List<SubscriberInfoResponse> getRequestedSubscriberInfos() {
         return subscriberInfoRepository.findValidRequests().stream()
-                .map(subscriberInfoMapper::toSubscriberInfoResponse)
+                .map(SubscriberInfoResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -94,7 +91,7 @@ public class SubscriberInfoService {
 
         subscriberInfoRepository.save(subscriberInfo);
 
-        return subscriberInfoMapper.toSubscriberInfoResponse(subscriberInfo);
+        return SubscriberInfoResponse.from(subscriberInfo);
     }
 
     public SubscriberInfoResponse add(SubscriberInfoRequest request) {
@@ -111,19 +108,13 @@ public class SubscriberInfoService {
         // 기본 회원정보 없는 사람들 차단
         memberValidator.check_info(member);
 
-        SubscriberInfo subscriberInfo = SubscriberInfo.builder()
-                .member(member) // 요청회원정보
-                .orderNumber(orderNumberService.generateOrderNumber(OrderType.SUBSCRIBE)) // 주문번호 생성
-                .expireDate(LocalDateTime.now().plusDays(7)) // 무통장입금의 경우 입금대기기간 1주일로 임의로 잡았음
-                .subscribeState(SubscribeState.APPROVED) // 상태는 요청 //FIXME : 테스트용으로 APPROVED로 설정함
-                .subscribeType(request.getSubscribeType()) // 구독타입
-                .build();
+        SubscriberInfo subscriberInfo = subscriberInfoMapper.toSubscriberInfo(request, member);
 
         subscriberInfoRepository.save(subscriberInfo);
 
         // Slack에 알림 보내기
         slackNotifier.sendSubscribeSlackNotification(slackMapper.toSubscribeSlackNoticeString(member, request, subscriberInfo));
 
-        return subscriberInfoMapper.toSubscriberInfoResponse(subscriberInfo, member);
+        return SubscriberInfoResponse.of(subscriberInfo, member);
     }
 }

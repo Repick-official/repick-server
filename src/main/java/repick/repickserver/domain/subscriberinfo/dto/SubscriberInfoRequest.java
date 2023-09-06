@@ -1,4 +1,4 @@
-package repick.repickserver.domain.member.dto;
+package repick.repickserver.domain.subscriberinfo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

@@ -1,13 +1,12 @@
-package repick.repickserver.domain.member.dto;
+package repick.repickserver.domain.subscriberinfo.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import repick.repickserver.domain.member.domain.SubscribeState;
-import repick.repickserver.domain.member.domain.SubscribeType;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeType;
+import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
 
 import java.time.LocalDateTime;
 
@@ -26,5 +25,15 @@ public class SubscribeHistoryResponse {
     private SubscribeState subscribeState;
     @Schema(description = "플랜 이름", example = "BASIC")
     private SubscribeType subscribeType;
+
+    public static SubscribeHistoryResponse of(SubscriberInfo subscriberInfo) {
+        return SubscribeHistoryResponse.builder()
+                .orderNumber(subscriberInfo.getOrderNumber())
+                .createdDate(subscriberInfo.getCreatedDate())
+                .expireDate(subscriberInfo.getExpireDate())
+                .subscribeState(subscriberInfo.getSubscribeState())
+                .subscribeType(subscriberInfo.getSubscribeType())
+                .build();
+    }
 
 }

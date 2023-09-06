@@ -1,16 +1,17 @@
-package repick.repickserver.domain.member.dao;
+package repick.repickserver.domain.subscriberinfo.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import repick.repickserver.domain.member.domain.SubscribeState;
-import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static repick.repickserver.domain.member.domain.QSubscriberInfo.subscriberInfo;
+import static repick.repickserver.domain.subscriberinfo.domain.QSubscriberInfo.subscriberInfo;
+
 
 @RequiredArgsConstructor
 @Repository

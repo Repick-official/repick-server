@@ -1,8 +1,8 @@
-package repick.repickserver.domain.member.dto;
+package repick.repickserver.domain.subscriberinfo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import repick.repickserver.domain.member.domain.SubscribeType;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeType;
 
 @Getter
 public class SubscriberInfoRegisterRequest {

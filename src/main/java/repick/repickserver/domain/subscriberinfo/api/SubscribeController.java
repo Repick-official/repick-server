@@ -1,15 +1,15 @@
-package repick.repickserver.domain.member.api;
+package repick.repickserver.domain.subscriberinfo.api;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import repick.repickserver.domain.member.application.SubscriberInfoService;
-import repick.repickserver.domain.member.dto.SubscribeHistoryResponse;
-import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
-import repick.repickserver.domain.member.dto.SubscriberInfoRequest;
-import repick.repickserver.domain.member.dto.SubscriberInfoResponse;
+import repick.repickserver.domain.subscriberinfo.application.SubscriberInfoService;
+import repick.repickserver.domain.subscriberinfo.dto.SubscribeHistoryResponse;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRegisterRequest;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRequest;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoResponse;
 import repick.repickserver.domain.member.validator.SubscribeValidator;
 import springfox.documentation.annotations.ApiIgnore;
 

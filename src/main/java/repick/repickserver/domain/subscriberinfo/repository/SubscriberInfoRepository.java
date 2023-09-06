@@ -1,8 +1,8 @@
-package repick.repickserver.domain.member.dao;
+package repick.repickserver.domain.subscriberinfo.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import repick.repickserver.domain.member.domain.SubscribeState;
-import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
 
 import javax.transaction.Transactional;
 

@@ -1,4 +1,4 @@
-package repick.repickserver.domain.member.domain;
+package repick.repickserver.domain.subscriberinfo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
+import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.BaseTimeEntity;
 
 import javax.persistence.*;

@@ -1,7 +1,7 @@
 package repick.repickserver.global;
 
 import com.mysema.commons.lang.Pair;
-import repick.repickserver.domain.member.domain.SubscribeState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
 import repick.repickserver.domain.sellorder.domain.SellState;
 import repick.repickserver.global.error.exception.CustomException;
 

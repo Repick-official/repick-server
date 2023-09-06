@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import repick.repickserver.domain.order.domain.OrderProduct;
 import repick.repickserver.domain.order.dto.OrderRequest;
 import repick.repickserver.domain.member.domain.Member;
-import repick.repickserver.domain.member.domain.SubscriberInfo;
-import repick.repickserver.domain.member.dto.SubscriberInfoRegisterRequest;
+import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
+import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import java.util.List;

@@ -1,7 +1,7 @@
-package repick.repickserver.domain.member.dao;
+package repick.repickserver.domain.subscriberinfo.repository;
 
-import repick.repickserver.domain.member.domain.SubscribeState;
-import repick.repickserver.domain.member.domain.SubscriberInfo;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
 
 import java.util.List;
 import java.util.Optional;
