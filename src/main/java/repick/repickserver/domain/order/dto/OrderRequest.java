@@ -2,9 +2,7 @@ package repick.repickserver.domain.order.dto;
 
 import lombok.Getter;
 import org.springframework.lang.Nullable;
-import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.Address;
-import repick.repickserver.domain.order.domain.Order;
 
 import javax.persistence.Embedded;
 import javax.validation.constraints.NotBlank;
@@ -29,15 +27,5 @@ public class OrderRequest {
     @Nullable
     private String requestDetail;
 
-    public static Order toOrder(Member member, OrderRequest orderRequest, String orderNumber) {
-        return Order.builder()
-                .member(member)
-                .personName(orderRequest.getPersonName())
-                .phoneNumber(orderRequest.getPhoneNumber())
-                .address(orderRequest.getAddress())
-                .requestDetail(orderRequest.getRequestDetail())
-                .orderNumber(orderNumber)
-                .build();
-    }
 
 }

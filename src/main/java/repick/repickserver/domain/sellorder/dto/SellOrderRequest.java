@@ -2,14 +2,11 @@ package repick.repickserver.domain.sellorder.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
-import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.domain.SellState;
 
 import javax.persistence.Embedded;
-import java.time.LocalDateTime;
 
 @Getter
 public class SellOrderRequest {
@@ -34,21 +31,5 @@ public class SellOrderRequest {
     private String returnDate;
     @Schema(description = "주문상태", example = "DELIVERED")
     private SellState sellState;
-
-    public static SellOrder toSellOrder(SellOrderRequest request, String orderNumber, Member member) {
-        return SellOrder.builder()
-                .name(request.getName())
-                .orderNumber(orderNumber)
-                .phoneNumber(request.getPhoneNumber())
-                .bank(request.getBank())
-                .bagQuantity(request.getBagQuantity())
-                .productQuantity(request.getProductQuantity())
-                .address(request.getAddress())
-                .requestDetail(request.getRequestDetail())
-                // returnDate는 'yyyy-MM-dd' 형식 문자열으로 들어옴
-                .returnDate(LocalDateTime.parse(request.getReturnDate() + "T00:00:00"))
-                .member(member)
-                .build();
-    }
 
 }

@@ -3,14 +3,6 @@ package repick.repickserver.domain.sellorder.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.member.domain.Member;
-import repick.repickserver.domain.sellorder.dao.SellOrderRepository;
-import repick.repickserver.domain.sellorder.dao.SellOrderStateRepository;
-import repick.repickserver.domain.sellorder.domain.SellOrder;
-import repick.repickserver.domain.sellorder.domain.SellOrderState;
-import repick.repickserver.domain.sellorder.domain.SellState;
-import repick.repickserver.domain.sellorder.dto.*;
-import repick.repickserver.domain.sellorder.converter.SellOrderConverter;
-import repick.repickserver.domain.sellorder.validator.SellOrderValidator;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
@@ -19,6 +11,13 @@ import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductImage;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
+import repick.repickserver.domain.sellorder.dao.SellOrderRepository;
+import repick.repickserver.domain.sellorder.dao.SellOrderStateRepository;
+import repick.repickserver.domain.sellorder.domain.SellOrder;
+import repick.repickserver.domain.sellorder.domain.SellOrderState;
+import repick.repickserver.domain.sellorder.domain.SellState;
+import repick.repickserver.domain.sellorder.dto.*;
+import repick.repickserver.domain.sellorder.validator.SellOrderValidator;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
@@ -46,21 +45,24 @@ public class SellOrderService {
     private final SlackNotifier slackNotifier;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
-    private final SellOrderConverter sellOrderConverter;
     private final SellOrderValidator sellOrderValidator;
     private final SlackMapper slackMapper;
 
     public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
+
+        // 멤버 정보 가져오기
         Member member = jwtProvider.getMemberByRawToken(token);
 
+        // 요청 정보 검사
         sellOrderValidator.validateSellOrder(request);
 
         // 주문번호 생성
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
         // sellOrder 생성
-        SellOrder sellOrder = sellOrderConverter.toSellOrder(request, orderNumber, member);
+        SellOrder sellOrder = SellOrder.of(request, orderNumber, member);
 
+        // sellOrder 저장
         sellOrderRepository.save(sellOrder);
 
         // sellOrderState 생성
@@ -69,23 +71,27 @@ public class SellOrderService {
                 .sellState(SellState.REQUESTED)
                 .build());
 
+        // 슬랙 알림 전송
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
-        return sellOrderConverter.toSellOrderResponse(sellOrder);
+        // Response 반환
+        return SellOrderResponse.from(sellOrder);
     }
 
     public List<SellOrderResponse> getAllSellOrders(String token) {
+        // 모두 가져오고 Response로 변환 후 반환
         return sellOrderRepository.getSellOrdersById(jwtProvider.getMemberByRawToken(token).getId()).stream()
-                .map(sellOrderConverter::toSellOrderResponse)
+                .map(SellOrderResponse::from)
                 .collect(Collectors.toList());
     }
 
     public List<SellOrderResponse> getSellOrders(String state, String token) {
+        // state 파싱
         SellState reqState = Parser.parseSellState(state);
 
-        return sellOrderRepository.getSellOrdersByIdAndState(jwtProvider.getMemberByRawToken(token).getId(), reqState).stream()
+        return sellOrderRepository.getSellOrdersByMemberIdAndState(jwtProvider.getMemberByRawToken(token).getId(), reqState).stream()
                 .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(sellOrderConverter::toSellOrderResponse)
+                .map(SellOrderResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -94,21 +100,22 @@ public class SellOrderService {
 
         return sellOrderRepository.getSellOrdersByState(reqState).stream()
                 .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(sellOrderConverter::toSellOrderResponse)
+                .map(SellOrderResponse::from)
                 .collect(Collectors.toList());
     }
 
-    public SellOrderResponse updateSellOrderState(SellOrderUpdateRequest request) {
-
-        SellOrder sellOrder = sellOrderRepository.findByOrderNumber(request.getOrderNumber())
+    private SellOrder findByOrderNumber(String orderNumber) {
+        return sellOrderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+    }
 
-        sellOrderStateRepository.save(SellOrderState.builder()
-                .sellOrder(sellOrder)
-                .sellState(request.getSellState())
-                .build());
-
-        return sellOrderConverter.toSellOrderResponse(sellOrder);
+    /** ADMIN
+     * 판매 주문 상태 업데이트
+     */
+    public SellOrderResponse updateSellOrderState(SellOrderUpdateRequest request) {
+        SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
+        sellOrderStateRepository.save(SellOrderState.of(sellOrder, request.getSellState()));
+        return SellOrderResponse.from(sellOrder);
     }
 
     private List<GetProductResponse> handleProductList(List<Product> productList) {

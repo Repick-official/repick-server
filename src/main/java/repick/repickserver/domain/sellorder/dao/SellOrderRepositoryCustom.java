@@ -9,7 +9,7 @@ public interface SellOrderRepositoryCustom {
 
     List<SellOrder> getSellOrdersById(Long id);
 
-    List<SellOrder> getSellOrdersByIdAndState(Long id, SellState state);
+    List<SellOrder> getSellOrdersByMemberIdAndState(Long memberId, SellState state);
 
     List<SellOrder> getSellOrdersByState(SellState state);
 }

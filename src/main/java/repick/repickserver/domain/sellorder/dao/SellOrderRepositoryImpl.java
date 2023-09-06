@@ -28,11 +28,11 @@ public class SellOrderRepositoryImpl implements SellOrderRepositoryCustom {
     }
 
     @Override
-    public List<SellOrder> getSellOrdersByIdAndState(Long id, SellState state) {
+    public List<SellOrder> getSellOrdersByMemberIdAndState(Long memberId, SellState state) {
         return jpaQueryFactory
             .selectFrom(sellOrder)
             // 멤버의 id로 판매 주문 조회
-            .where(sellOrder.member.id.eq(id)
+            .where(sellOrder.member.id.eq(memberId)
             // 판매 주문의 상태가 하나라도 매치하는 판매 주문 조회
             .and(sellOrder.sellOrderStates.any().sellState.eq(state)))
             .fetch();
