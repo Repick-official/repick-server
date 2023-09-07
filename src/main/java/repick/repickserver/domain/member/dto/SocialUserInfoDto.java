@@ -17,4 +17,19 @@ public class SocialUserInfoDto {
     @Schema(description = "리프레쉬 토큰")
     private String refreshToken;
 
+    public static SocialUserInfoDto of(Long id, String nickname, String email) {
+        return SocialUserInfoDto.builder()
+                .id(id)
+                .nickname(nickname)
+                .email(email)
+                .build();
+    }
+
+    public static SocialUserInfoDto of(Long id, String nickname) {
+        return SocialUserInfoDto.builder()
+                .id(id)
+                .nickname(nickname)
+                .build();
+    }
+
 }
