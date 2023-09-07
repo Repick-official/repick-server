@@ -54,31 +54,20 @@ public class SellOrderService {
 
     public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
 
-        // 멤버 정보 가져오기
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        // 요청 정보 검사
         sellOrderValidator.validateSellOrder(request);
 
-        // 주문번호 생성
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
-        // sellOrder 생성
         SellOrder sellOrder = SellOrder.of(request, orderNumber, member);
 
-        // sellOrder 저장
         sellOrderRepository.save(sellOrder);
 
-        // sellOrderState 생성
-        sellOrderStateRepository.save(SellOrderState.builder()
-                .sellOrder(sellOrder)
-                .sellState(SellState.REQUESTED)
-                .build());
+        sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.REQUESTED));
 
-        // 슬랙 알림 전송
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
-        // Response 반환
         return SellOrderResponse.from(sellOrder);
     }
 
