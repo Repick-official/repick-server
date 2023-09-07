@@ -11,13 +11,15 @@ import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductImage;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
-import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
-import repick.repickserver.domain.sellorder.repository.SellOrderStateRepository;
+import repick.repickserver.domain.product.validator.ProductValidator;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.domain.SellOrderState;
 import repick.repickserver.domain.sellorder.domain.SellState;
 import repick.repickserver.domain.sellorder.dto.*;
+import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
+import repick.repickserver.domain.sellorder.repository.SellOrderStateRepository;
 import repick.repickserver.domain.sellorder.validator.SellOrderValidator;
+import repick.repickserver.domain.sellorder.validator.SettlementRequestValidator;
 import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
@@ -27,10 +29,10 @@ import repick.repickserver.infra.slack.mapper.SlackMapper;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_COMPLETED;
+import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_REQUESTED;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
@@ -47,6 +49,8 @@ public class SellOrderService {
     private final ProductImageRepository productImageRepository;
     private final SellOrderValidator sellOrderValidator;
     private final SlackMapper slackMapper;
+    private final SettlementRequestValidator settlementRequestValidator;
+    private final ProductValidator productValidator;
 
     public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
 
@@ -124,14 +128,13 @@ public class SellOrderService {
         productList.forEach(product -> {
 
             // MainImage 찾기
-            Optional<ProductImage> productMainImage = productImageRepository.findByProductAndIsMainImage(product, true);
-            // MainImage 없으면 에러
-            if (productMainImage.isEmpty()) throw new CustomException(PRODUCT_IMAGE_NOT_FOUND);
+            ProductImage productMainImage = productImageRepository.findByProductAndIsMainImage(product, true)
+                    .orElseThrow(() -> new CustomException(PRODUCT_IMAGE_NOT_FOUND));
 
             getProductResponses.add(
                     GetProductResponse.builder()
                             .product(product)
-                            .mainProductImage(productMainImage.get())
+                            .mainProductImage(productMainImage)
                             .build()
             );
         });
@@ -162,55 +165,63 @@ public class SellOrderService {
 
     public List<GetProductResponse> getSettledProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.SETTLEMENT_REQUESTED, ProductState.SETTLEMENT_COMPLETED);
+        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), SETTLEMENT_REQUESTED, SETTLEMENT_COMPLETED);
 
         return handleProductList(productList);
     }
 
     public Boolean requestSettlement(String token, SettlementRequest settlementRequest) {
-        // productIds가 없을 경우 에러
-        if (settlementRequest.getProductIds() == null) throw new CustomException(INVALID_REQUEST_ERROR);
-        if (settlementRequest.getProductIds().size() == 0) throw new CustomException(INVALID_REQUEST_ERROR);
 
         Member member = jwtProvider.getMemberByRawToken(token);
-        AtomicLong totalPrice = new AtomicLong(0); // 총 가격을 저장하기 위한 AtomicLong
-        StringBuilder sb = new StringBuilder(); // 슬랙 메세지를 위한 StringBuilder
-        sb.append("정산 신청입니다.\n").append("신청 상품 정보들: \n");
 
-        settlementRequest.getProductIds().forEach(productId -> {
-            // 신청한 멤버와 request의 멤버가 맞는지 검사
-            Optional<Product> product = productRepository.findById(productId);
-            if (product.isEmpty()) throw new CustomException(PRODUCT_NOT_FOUND); // 상품이 없을 경우 에러
-            if (!product.get().getSellOrder().getMember().getId().equals(member.getId()))
-                throw new CustomException(ORDER_MEMBER_NOT_MATCH); // 신청한 멤버와 request의 멤버가 맞지 않을 경우 에러
-            if (product.get().getProductState() != ProductState.SOLD_OUT)
-                throw new CustomException(PRODUCT_NOT_SOLD_OUT); // 판매중인 상품이 아닐 경우 에러
+        settlementRequestValidator.validateSettlementRequest(settlementRequest);
 
-            // 정산 신청 상태로 변경
-            product.get().changeProductState(ProductState.SETTLEMENT_REQUESTED);
-            // 가격을 가져와 총 가격에 추가
-            totalPrice.addAndGet(product.get().getPrice());
-            // 슬랙 메세지에 상품 정보 추가
-            sb.append(product.get().getProductNumber()).append(" ").append(product.get().getPrice()).append("원\n");
-            sb.append(product.get().getSellOrder().getBank().getAccountNumber()).append(" ")
-                    .append(product.get().getSellOrder().getBank().getBankName()).append("\n");
-        });
+        List<Product> productList = productRepository.findAllByIdListAndMember(settlementRequest.getProductIds(), member);
 
-        sb.append("총 가격: ").append(totalPrice).append("원\n");
-        slackNotifier.sendExpenseSettlementSlackNotification(sb.toString());
+        productValidator.validateProductListByProductIds(productList, settlementRequest.getProductIds());
+
+        Long totalPrice = calculateTotalPriceAndUpdateProductState(productList);
+
+        sendSlackNotifier(productList, totalPrice);
+
         return true;
 
     }
 
+    private Long calculateTotalPriceAndUpdateProductState(List<Product> productList) {
+        Long totalPrice = 0L;
+
+        for (Product product : productList) {
+            settlementRequestValidator.validateSettlementRequestIsSoldOut(product);
+            product.changeProductState(SETTLEMENT_REQUESTED);
+            totalPrice += product.getPrice();
+        }
+
+        return totalPrice;
+    }
+
+    private void sendSlackNotifier(List<Product> productList, Long totalPrice) {
+        StringBuilder sb = new StringBuilder(); // 슬랙 메세지를 위한 StringBuilder
+        sb.append("정산 신청입니다.\n").append("신청 상품 정보들: \n");
+
+        productList.forEach(product -> {
+            // 슬랙 메세지에 상품 정보 추가
+            sb.append(product.getProductNumber()).append(" ").append(product.getPrice()).append("원\n");
+            sb.append(product.getSellOrder().getBank().getAccountNumber()).append(" ")
+                    .append(product.getSellOrder().getBank().getBankName()).append("\n");
+        });
+
+        sb.append("총 가격: ").append(totalPrice).append("원\n");
+        slackNotifier.sendExpenseSettlementSlackNotification(sb.toString());
+    }
+
     public Boolean updateSettlementState(UpdateSettlementStateRequest request) {
-        Optional<Product> product = productRepository.findByProductNumber(request.getProductNumber());
-        if (product.isEmpty()) throw new CustomException(PRODUCT_NOT_FOUND); // 상품이 없을 경우 에러
+        Product product = productRepository.findByProductNumber(request.getProductNumber())
+                .orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
-        if (product.get().getProductState() != ProductState.SETTLEMENT_REQUESTED)
-            throw new CustomException(PRODUCT_NOT_SETTLEMENT_REQUESTED); // 정산 신청 상태가 아닐 경우 에러
+        productValidator.validateProductIsSettlementRequested(product);
 
-        product.ifPresent(target ->
-                target.changeProductState(ProductState.SETTLEMENT_COMPLETED)); // 정산 완료로 변경
+        product.changeProductState(SETTLEMENT_COMPLETED);
 
         return true;
     }

@@ -2,6 +2,7 @@ package repick.repickserver.domain.product.dao;
 
 import repick.repickserver.domain.homefitting.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
+import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
@@ -28,6 +29,8 @@ public interface ProductRepositoryCustom {
     List<Product> findByMemberIdAndState(Long memberId, ProductState state);
 
     List<Product> findByMemberIdAndTwoStates(Long memberId, ProductState state1, ProductState state2);
+
+    List<Product> findAllByIdListAndMember(List<Long> idList, Member member);
 
     List<GetProductResponse> getSearchProductsByPrice(String keyword, Long cursorId, Long cursorPrice, int pageSize, String sortType);
 

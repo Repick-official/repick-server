@@ -11,6 +11,7 @@ import repick.repickserver.domain.homefitting.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.cart.dto.QGetMyPickResponse;
 import repick.repickserver.domain.homefitting.dto.QGetHomeFittingResponse;
+import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.product.domain.Product;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
@@ -251,6 +252,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(product.sellOrder.member.id.eq(memberId)
                         // product state가 state1과 state2와 같은 것들로 조회
                         .and(product.productState.eq(state1).or(product.productState.eq(state2))))
+                .fetch();
+    }
+
+    @Override
+    public List<Product> findAllByIdListAndMember(List<Long> idList, Member member) {
+        return jpaQueryFactory.selectFrom(product)
+                .where(product.id.in(idList)
+                .and(product.sellOrder.member.eq(member)))
                 .fetch();
     }
 
