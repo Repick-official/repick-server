@@ -43,6 +43,13 @@ public class SellOrderController {
                 .body(sellOrderService.getPublishedProduct(token));
     }
 
+    @Operation(summary = "옷장 정리 현황: 판매준비")
+    @GetMapping(value = "/history/preparing")
+    public ResponseEntity<List<GetProductResponse>> getPreparingSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.getPreparingProduct(token));
+    }
+
     @Operation(summary = "옷장 정리 현황: 판매중만", description = "옷장 정리 현황을 판매중만으로 조회합니다.")
     @GetMapping(value = "/history/selling")
     public ResponseEntity<List<GetProductResponse>> getSellingSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
