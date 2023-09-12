@@ -2,7 +2,7 @@ package repick.repickserver.domain.member.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.member.dao.SubscriberInfoRepository;
+import repick.repickserver.domain.subscriberinfo.repository.SubscriberInfoRepository;
 import repick.repickserver.global.jwt.JwtProvider;
 
 @Service @RequiredArgsConstructor

@@ -5,8 +5,11 @@ import lombok.Getter;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.sellorder.domain.SellState;
+import repick.repickserver.global.error.exception.CustomException;
 
 import javax.persistence.Embedded;
+
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Getter
 public class SellOrderRequest {
@@ -31,5 +34,16 @@ public class SellOrderRequest {
     private String returnDate;
     @Schema(description = "주문상태", example = "DELIVERED")
     private SellState sellState;
+
+    public static void validateSellOrder(SellOrderRequest request) {
+        if (request.getName() == null) throw new CustomException(ORDER_NAME_NOT_FOUND);
+        if (request.getAddress() == null
+                || request.getAddress().getMainAddress() == null
+                || request.getAddress().getDetailAddress() == null
+                || request.getAddress().getZipCode() == null) throw new CustomException(ORDER_ADDRESS_NOT_FOUND);
+        if (request.getBagQuantity() == null) throw new CustomException(ORDER_BAG_QUANTITY_NOT_FOUND);
+        if (request.getProductQuantity() == null) throw new CustomException(ORDER_PRODUCT_QUANTITY_NOT_FOUND);
+        if (request.getPhoneNumber() == null) throw new CustomException(ORDER_PHONE_NUMBER_NOT_FOUND);
+    }
 
 }

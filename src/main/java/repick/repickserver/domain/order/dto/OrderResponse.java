@@ -49,4 +49,12 @@ public class OrderResponse {
                 .map(orderProduct -> orderProduct.getProduct().getId())
                 .collect(Collectors.toList());
     }
+
+    public static OrderResponse from(Order order, OrderState orderState, List<OrderProduct> orderProducts) {
+        return OrderResponse.builder()
+                .order(order)
+                .orderState(orderState)
+                .orderProducts(orderProducts)
+                .build();
+    }
 }

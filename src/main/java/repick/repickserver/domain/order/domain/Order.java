@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.BaseTimeEntity;
+import repick.repickserver.domain.order.dto.OrderRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -55,5 +56,16 @@ public class Order extends BaseTimeEntity {
         this.address = address;
         this.requestDetail = requestDetail;
         this.orderNumber = orderNumber;
+    }
+
+    public static Order of(Member member, OrderRequest orderRequest, String orderNumber) {
+        return Order.builder()
+                .member(member)
+                .personName(orderRequest.getPersonName())
+                .phoneNumber(orderRequest.getPhoneNumber())
+                .address(orderRequest.getAddress())
+                .requestDetail(orderRequest.getRequestDetail())
+                .orderNumber(orderNumber)
+                .build();
     }
 }

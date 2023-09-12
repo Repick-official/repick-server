@@ -9,6 +9,7 @@ import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.model.BaseTimeEntity;
+import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Getter @Builder @AllArgsConstructor @NoArgsConstructor
+@Getter @AllArgsConstructor @NoArgsConstructor
 public class SellOrder extends BaseTimeEntity {
 
     @Id @GeneratedValue
@@ -62,5 +63,35 @@ public class SellOrder extends BaseTimeEntity {
 
     @ManyToOne
     private Member member;
+
+    @Builder
+    public SellOrder(String orderNumber, String name, String phoneNumber, Bank bank, Integer bagQuantity, Integer productQuantity, Address address, String requestDetail, LocalDateTime returnDate, Member member) {
+        this.orderNumber = orderNumber;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.bank = bank;
+        this.bagQuantity = bagQuantity;
+        this.productQuantity = productQuantity;
+        this.address = address;
+        this.requestDetail = requestDetail;
+        this.returnDate = returnDate;
+        this.member = member;
+    }
+
+    public static SellOrder of(SellOrderRequest request, String orderNumber, Member member) {
+        return SellOrder.builder()
+                .name(request.getName())
+                .orderNumber(orderNumber)
+                .phoneNumber(request.getPhoneNumber())
+                .bank(request.getBank())
+                .bagQuantity(request.getBagQuantity())
+                .productQuantity(request.getProductQuantity())
+                .address(request.getAddress())
+                .requestDetail(request.getRequestDetail())
+                // returnDate는 'yyyy-MM-dd' 형식 문자열으로 들어옴
+                .returnDate(LocalDateTime.parse(request.getReturnDate() + "T00:00:00"))
+                .member(member)
+                .build();
+    }
 
 }

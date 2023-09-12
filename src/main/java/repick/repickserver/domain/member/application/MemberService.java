@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.domain.Cart;
-import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.repository.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.dto.SignLoginRequest;
 import repick.repickserver.domain.member.dto.SignLoginResponse;

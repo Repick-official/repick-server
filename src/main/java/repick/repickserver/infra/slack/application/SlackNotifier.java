@@ -5,6 +5,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import repick.repickserver.global.config.WebHookProperties;
@@ -41,6 +42,7 @@ public class SlackNotifier {
         }
     }
 
+    @Async
     public void sendSlackNotification(WebHookType webHookType, String message) {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = createRequest(message);

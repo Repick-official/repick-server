@@ -3,7 +3,7 @@ package repick.repickserver.domain.ordernumber.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
-import repick.repickserver.domain.ordernumber.dao.OrderNumberReository;
+import repick.repickserver.domain.ordernumber.repository.OrderNumberReository;
 import repick.repickserver.domain.ordernumber.domain.OrderNumber;
 import repick.repickserver.global.error.exception.CustomException;
 

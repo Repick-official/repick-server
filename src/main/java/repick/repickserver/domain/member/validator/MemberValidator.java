@@ -3,7 +3,7 @@ package repick.repickserver.domain.member.validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.repository.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.global.error.exception.CustomException;
 

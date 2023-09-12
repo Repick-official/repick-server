@@ -19,7 +19,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import repick.repickserver.domain.cart.dao.CartRepository;
 import repick.repickserver.domain.cart.domain.Cart;
-import repick.repickserver.domain.member.dao.MemberRepository;
+import repick.repickserver.domain.member.repository.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.member.dto.SocialUserInfoDto;
@@ -112,7 +112,6 @@ public class KakaoUserService {
     private SocialUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
-        System.out.println("KakaoUserService.진입");
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
@@ -126,29 +125,25 @@ public class KakaoUserService {
                 String.class
         );
 
-        System.out.println("KakaoUserService.getKakaoUserInfo");
+        return handleKakaoResponse(response.getBody());
+    }
 
-        // responseBody에 있는 정보를 꺼냄
-        String responseBody = response.getBody();
+    private SocialUserInfoDto handleKakaoResponse(String responseBody) throws JsonProcessingException {
+
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         Long id = jsonNode.get("id").asLong();
-        if (jsonNode.get("kakao_account").get("email") == null) {
-            return SocialUserInfoDto.builder()
-                    .id(id)
-                    .nickname(jsonNode.get("properties").get("nickname").asText())
-                    .build();
-        }
-        String email = jsonNode.get("kakao_account").get("email").asText();
+
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
-        return SocialUserInfoDto.builder()
-                .id(id)
-                .email(email)
-                .nickname(nickname)
-                .build();
+        if (jsonNode.get("kakao_account").get("email") == null)
+            return SocialUserInfoDto.of(id, nickname);
+
+        String email = jsonNode.get("kakao_account").get("email").asText();
+        return SocialUserInfoDto.of(id, nickname, email);
+
     }
 
 
@@ -182,8 +177,6 @@ public class KakaoUserService {
                     .password(encodedPassword)
                     .role(Role.USER)
                     .build();
-
-            System.out.println("kakaoUser = " + kakaoUser.toString());
 
             memberRepository.save(kakaoUser);
 
