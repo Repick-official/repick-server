@@ -257,6 +257,8 @@ public class ProductService {
 
         product.changePrice(price);
 
+        product.changeProductState(SELLING);
+
         return true;
 
     }
