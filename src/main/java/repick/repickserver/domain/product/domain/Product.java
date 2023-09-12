@@ -72,4 +72,9 @@ public class Product extends BaseTimeEntity {
     public void changeProductState(ProductState productState) {
         this.productState = productState;
     }
+
+    public void changePrice(Long price) {
+        this.price = price;
+    }
+
 }
