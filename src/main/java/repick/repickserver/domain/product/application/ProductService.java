@@ -88,9 +88,7 @@ public class ProductService {
                 .name(request.getName())
                 .detail(request.getDetail())
                 .brand(request.getBrand())
-                .price(request.getPrice())
                 .size(request.getSize())
-                .discountRate(request.getDiscountRate())
                 .productNumber(productNumber)
                 .sellOrder(sellOrder.get())
                 .build();

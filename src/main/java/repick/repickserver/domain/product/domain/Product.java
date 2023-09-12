@@ -9,7 +9,6 @@ import repick.repickserver.domain.sellorder.domain.SellOrder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import static repick.repickserver.domain.product.domain.ProductState.PREPARING;
 import static repick.repickserver.domain.product.domain.ProductState.SELLING;
@@ -30,7 +29,6 @@ public class Product extends BaseTimeEntity {
 
     private String brand;
 
-    @NotNull
     private Long price;
 
     private String size;
