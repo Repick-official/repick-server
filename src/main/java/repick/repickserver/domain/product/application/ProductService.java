@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.product.validator.ProductValidator;
 import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
@@ -17,6 +19,8 @@ import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.RegisterProductRequest;
 import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
+import repick.repickserver.global.jwt.JwtProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +41,8 @@ public class ProductService {
     private final OrderNumberService orderNumberService;
     private final SellOrderRepository sellOrderRepository;
     private final ObjectMapper objectMapper;
+    private final JwtProvider jwtProvider;
+    private final ProductValidator productValidator;
 
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
                                                    String requestString, List<Long> categoryIds) {
@@ -82,9 +88,7 @@ public class ProductService {
                 .name(request.getName())
                 .detail(request.getDetail())
                 .brand(request.getBrand())
-                .price(request.getPrice())
                 .size(request.getSize())
-                .discountRate(request.getDiscountRate())
                 .productNumber(productNumber)
                 .sellOrder(sellOrder.get())
                 .build();
@@ -239,5 +243,21 @@ public class ProductService {
      */
     public List<GetProductResponse> getPageByKeywordSortByPrice(String keyword, Long cursorId, Long cursorPrice, int pageSize, String sortType) {
         return productRepository.getSearchProductsByPrice(keyword, cursorId, cursorPrice, pageSize, sortType);
+    }
+
+    public Boolean submitPrice(Long productId, Long price, String token) {
+
+        Member member = jwtProvider.getMemberByRawToken(token);
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
+
+        productValidator.validateProductByMemberId(product, member.getId());
+
+        product.changePrice(price);
+
+        product.changeProductState(SELLING);
+
+        return true;
+
     }
 }

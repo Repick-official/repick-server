@@ -138,6 +138,13 @@ public class SellOrderService {
         return handleProductList(productList);
     }
 
+    public List<GetProductResponse> getPreparingProduct(String token) {
+        Member member = jwtProvider.getMemberByRawToken(token);
+        List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.PREPARING);
+
+        return handleProductList(productList);
+    }
+
     public List<GetProductResponse> getSellingProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
         List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.SELLING, ProductState.PENDING);

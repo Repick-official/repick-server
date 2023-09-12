@@ -24,4 +24,10 @@ public class ProductValidator {
         if (product.getProductState() != SETTLEMENT_REQUESTED)
             throw new CustomException(PRODUCT_NOT_SETTLEMENT_REQUESTED);
     }
+
+    public void validateProductByMemberId(Product product, Long memberId) {
+        if (!product.getSellOrder().getMember().getId().equals(memberId)) {
+            throw new CustomException(ORDER_MEMBER_NOT_MATCH);
+        }
+    }
 }

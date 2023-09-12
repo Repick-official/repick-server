@@ -13,6 +13,7 @@ import repick.repickserver.domain.product.dto.GetCategoryResponse;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.global.error.exception.CustomException;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -114,5 +115,15 @@ public class ProductController {
 
         return ResponseEntity.ok()
                 .body(productService.getPageByKeywordSortByPrice(keyword, cursorId, cursorPrice, pageSize, sortType));
+    }
+
+    // 230912 : 추가됨
+    @Operation(summary = "상품 가격 입력")
+    @PostMapping("/submit-price")
+    public ResponseEntity<Boolean> submitPrice(@Parameter(description = "상품 id") @RequestParam Long productId,
+                                                          @Parameter(description = "상품 가격") @RequestParam Long price,
+                                                          @ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(productService.submitPrice(productId, price, token));
     }
 }

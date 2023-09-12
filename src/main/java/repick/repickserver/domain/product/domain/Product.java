@@ -9,8 +9,8 @@ import repick.repickserver.domain.sellorder.domain.SellOrder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
+import static repick.repickserver.domain.product.domain.ProductState.PREPARING;
 import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 
 @Entity
@@ -29,7 +29,6 @@ public class Product extends BaseTimeEntity {
 
     private String brand;
 
-    @NotNull
     private Long price;
 
     private String size;
@@ -53,7 +52,7 @@ public class Product extends BaseTimeEntity {
         this.price = price;
         this.size = size;
         this.discountRate = discountRate;
-        this.productState = SELLING;
+        this.productState = PREPARING; // 230912 : changed from SELLING to PREPARING
         this.productNumber = productNumber;
         this.sellOrder = sellOrder;
     }
@@ -72,4 +71,9 @@ public class Product extends BaseTimeEntity {
     public void changeProductState(ProductState productState) {
         this.productState = productState;
     }
+
+    public void changePrice(Long price) {
+        this.price = price;
+    }
+
 }
