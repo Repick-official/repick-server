@@ -95,6 +95,8 @@ dependencies {
 	implementation("com.querydsl:querydsl-apt")
 	// 서버 에러로그 슬랙 공유
 	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

@@ -1,8 +1,8 @@
 package repick.repickserver.global;
 
 import com.mysema.commons.lang.Pair;
-import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
 import repick.repickserver.domain.sellorder.domain.SellState;
+import repick.repickserver.domain.subscriberinfo.domain.SubscribeState;
 import repick.repickserver.global.error.exception.CustomException;
 
 import static repick.repickserver.global.error.exception.ErrorCode.PATH_NOT_RESOLVED;
@@ -62,5 +62,14 @@ public class Parser {
                 throw new CustomException("잘못된 주소 요청입니다.", PATH_NOT_RESOLVED);
         }
         return new Pair<>(subscribeState, isExpired);
+    }
+
+    public static String parseProductListToString(int quantity, String name) {
+
+        return "[리픽]\n\n" +
+                "안녕하세요, " + name + "님 :)\n" +
+                "현재 " + quantity + "건의 상품 등록이 완료되었습니다.\n" +
+                "상품 확인 후 상품 가격 입력을 완료해주시면 판매가 시작됩니다.\n" +
+                "감사합니다 ♥";
     }
 }

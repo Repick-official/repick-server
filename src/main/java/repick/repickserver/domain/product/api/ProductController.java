@@ -126,4 +126,9 @@ public class ProductController {
         return ResponseEntity.ok()
                 .body(productService.submitPrice(productId, price, token));
     }
+
+    @GetMapping("/test")
+    public void test() {
+        productService.test();
+    }
 }
