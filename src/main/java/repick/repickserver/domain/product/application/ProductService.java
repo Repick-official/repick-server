@@ -168,9 +168,7 @@ public class ProductService {
         sendSms(sellOrder.getPhoneNumber(), productList.size(), sellOrder.getName());
 
         // changeState foreach
-        productList.forEach(product -> {
-            product.changeProductState(ProductState.PREPARING);
-        });
+        productList.forEach(product -> product.changeProductState(ProductState.PREPARING));
 
     }
 

@@ -6,7 +6,6 @@ import lombok.Getter;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
-import repick.repickserver.domain.sellorder.domain.SellOrderState;
 import repick.repickserver.domain.sellorder.domain.SellState;
 
 import javax.persistence.Embedded;
