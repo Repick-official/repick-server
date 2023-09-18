@@ -41,6 +41,23 @@ public class SellOrderResponse {
     private LocalDateTime createdDate;
 
     public static SellOrderResponse from(SellOrder sellOrder) {
+
+        if (sellOrder.getSellOrderStates() == null || sellOrder.getSellOrderStates().isEmpty()) {
+            return SellOrderResponse.builder()
+                    .id(sellOrder.getId())
+                    .name(sellOrder.getName())
+                    .orderNumber(sellOrder.getOrderNumber())
+                    .phoneNumber(sellOrder.getPhoneNumber())
+                    .bank(sellOrder.getBank())
+                    .bagQuantity(sellOrder.getBagQuantity())
+                    .productQuantity(sellOrder.getProductQuantity())
+                    .address(sellOrder.getAddress())
+                    .requestDetail(sellOrder.getRequestDetail())
+                    .returnDate(sellOrder.getReturnDate())
+                    .createdDate(sellOrder.getCreatedDate())
+                    .build();
+        }
+
         return SellOrderResponse.builder()
                 .id(sellOrder.getId())
                 .name(sellOrder.getName())

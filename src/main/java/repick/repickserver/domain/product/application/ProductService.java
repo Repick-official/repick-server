@@ -2,13 +2,12 @@ package repick.repickserver.domain.product.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import repick.repickserver.domain.member.domain.Member;
-import repick.repickserver.domain.product.validator.ProductValidator;
-import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
-import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.CategoryRepository;
 import repick.repickserver.domain.product.dao.ProductCategoryRepository;
@@ -18,19 +17,29 @@ import repick.repickserver.domain.product.domain.*;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.dto.RegisterProductRequest;
 import repick.repickserver.domain.product.dto.RegisterProductResponse;
+import repick.repickserver.domain.product.validator.ProductValidator;
+import repick.repickserver.domain.sellorder.domain.SellOrder;
+import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
+import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
+import repick.repickserver.global.redis.service.RedisService;
+import repick.repickserver.infra.sms.SmsSender;
+import repick.repickserver.infra.sms.model.Message;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
-import static repick.repickserver.domain.product.domain.ProductState.*;
+import static repick.repickserver.global.util.formatPhoneNumber.removeHyphens;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final AwsS3Service awsS3Service;
@@ -43,6 +52,8 @@ public class ProductService {
     private final ObjectMapper objectMapper;
     private final JwtProvider jwtProvider;
     private final ProductValidator productValidator;
+    private final RedisService redisService;
+    private final SmsSender smsSender;
 
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
                                                    String requestString, List<Long> categoryIds) {
@@ -137,6 +148,42 @@ public class ProductService {
                 .detailProductImages(savedDetailProductImages)
                 .categoryInfoList(categoryInfoList)
                 .build();
+    }
+
+    public void test() {
+        redisService.InsertToRedis("18", "", 1L);
+    }
+
+    public void HandleProductSmsPendingExpiration(String key) {
+
+        List<Product> productList = productRepository.findByMemberIdAndState(Long.parseLong(key), ProductState.BEFORE_SMS);
+
+        if (productList.isEmpty()) {
+            log.error("문자 발송 실패 : expired key에 매치되는 상품이 없습니다: " + key);
+            return;
+        }
+
+        SellOrder sellOrder = productList.get(0).getSellOrder();
+
+        sendSms(sellOrder.getPhoneNumber(), productList.size(), sellOrder.getName());
+
+        // changeState foreach
+        productList.forEach(product -> product.changeProductState(ProductState.PREPARING));
+
+    }
+
+    @Async
+    public void sendSms(String phoneNumber, int quantity, String name) {
+        try {
+            smsSender.sendSms(Message.builder()
+                    .to(removeHyphens(phoneNumber))
+                    .content(Parser.parseProductListToString(quantity, name))
+                    .build());
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CustomException(SMS_SEND_FAILED);
+        }
     }
 
     private RegisterProductResponse.CategoryInfo mapCategoryToCategoryInfo(Category category) {

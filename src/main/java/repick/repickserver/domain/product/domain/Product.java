@@ -10,8 +10,7 @@ import repick.repickserver.domain.sellorder.domain.SellOrder;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import static repick.repickserver.domain.product.domain.ProductState.PREPARING;
-import static repick.repickserver.domain.product.domain.ProductState.SELLING;
+import static repick.repickserver.domain.product.domain.ProductState.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -52,7 +51,7 @@ public class Product extends BaseTimeEntity {
         this.price = price;
         this.size = size;
         this.discountRate = discountRate;
-        this.productState = PREPARING; // 230912 : changed from SELLING to PREPARING
+        this.productState = BEFORE_SMS;
         this.productNumber = productNumber;
         this.sellOrder = sellOrder;
     }

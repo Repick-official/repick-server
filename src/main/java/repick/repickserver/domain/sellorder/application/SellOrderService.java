@@ -140,7 +140,7 @@ public class SellOrderService {
 
     public List<GetProductResponse> getPreparingProduct(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.PREPARING);
+        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.PREPARING, ProductState.BEFORE_SMS);
 
         return handleProductList(productList);
     }
