@@ -129,6 +129,7 @@ public class ProductController {
 
     @GetMapping("/test")
     public void test() {
+        System.out.println("ProductController.test");
         productService.test();
     }
 }

@@ -151,12 +151,15 @@ public class ProductService {
     }
 
     public void test() {
-        redisService.InsertToRedis("18", "", 1L);
+        System.out.println("ProductService.test");
+        redisService.InsertToRedis("18", "1", 10L);
     }
 
     public void HandleProductSmsPendingExpiration(String key) {
 
         List<Product> productList = productRepository.findByMemberIdAndState(Long.parseLong(key), ProductState.BEFORE_SMS);
+
+        System.out.println("productList.size() = " + productList.size());
 
         if (productList.isEmpty()) {
             log.error("문자 발송 실패 : expired key에 매치되는 상품이 없습니다: " + key);
@@ -165,8 +168,10 @@ public class ProductService {
 
         SellOrder sellOrder = productList.get(0).getSellOrder();
 
+        System.out.println("sellOrder.getPhoneNumber() = " + sellOrder.getPhoneNumber());
+        System.out.println("ProductService.HandleProductSmsPendingExpiration");
         sendSms(sellOrder.getPhoneNumber(), productList.size(), sellOrder.getName());
-
+        System.out.println("ProductService.HandleProductSmsPendingExpiration");
         // changeState foreach
         productList.forEach(product -> product.changeProductState(ProductState.PREPARING));
 
