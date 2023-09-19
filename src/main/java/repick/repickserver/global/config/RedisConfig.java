@@ -21,12 +21,6 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-//        // disable CONFIG command
-//        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-//            .commandTimeout(java.time.Duration.ofSeconds(10))
-//            .shutdownTimeout(java.time.Duration.ZERO)
-//            .build();
-
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 

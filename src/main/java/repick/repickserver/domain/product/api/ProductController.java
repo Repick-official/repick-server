@@ -127,9 +127,4 @@ public class ProductController {
                 .body(productService.submitPrice(productId, price, token));
     }
 
-    @GetMapping("/test")
-    public void test() {
-        System.out.println("ProductController.test");
-        productService.test();
-    }
 }

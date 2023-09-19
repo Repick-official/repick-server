@@ -97,6 +97,8 @@ dependencies {
 	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// unknown enum constant When.MAYBE 경고 제거
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 tasks.named('test') {

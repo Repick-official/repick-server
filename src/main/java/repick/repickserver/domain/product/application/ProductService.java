@@ -150,11 +150,6 @@ public class ProductService {
                 .build();
     }
 
-    public void test() {
-        System.out.println("ProductService.test");
-        redisService.InsertToRedis("18", "1", 10L);
-    }
-
     public void HandleProductSmsPendingExpiration(String key) {
 
         List<Product> productList = productRepository.findByMemberIdAndState(Long.parseLong(key), ProductState.BEFORE_SMS);
@@ -168,10 +163,7 @@ public class ProductService {
 
         SellOrder sellOrder = productList.get(0).getSellOrder();
 
-        System.out.println("sellOrder.getPhoneNumber() = " + sellOrder.getPhoneNumber());
-        System.out.println("ProductService.HandleProductSmsPendingExpiration");
         sendSms(sellOrder.getPhoneNumber(), productList.size(), sellOrder.getName());
-        System.out.println("ProductService.HandleProductSmsPendingExpiration");
         // changeState foreach
         productList.forEach(product -> product.changeProductState(ProductState.PREPARING));
 

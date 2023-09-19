@@ -10,7 +10,6 @@ public class RedisService {
     private final StringRedisTemplate redisTemplate;
 
     public void InsertToRedis(String key, String value, Long expireTime) {
-        System.out.println("RedisService.InsertToRedis");
         redisTemplate.opsForValue().set(key, value);
         redisTemplate.expire(key, expireTime, java.util.concurrent.TimeUnit.SECONDS);
     }
