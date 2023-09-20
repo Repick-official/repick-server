@@ -311,6 +311,8 @@ public class ProductService {
     })
     public Boolean submitPrice(Long productId, Long price, String token) {
 
+        productValidator.validatePrice(price);
+
         Member member = jwtProvider.getMemberByRawToken(token);
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
