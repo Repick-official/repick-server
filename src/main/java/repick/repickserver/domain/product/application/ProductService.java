@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,12 +23,10 @@ import repick.repickserver.domain.product.dto.RegisterProductResponse;
 import repick.repickserver.domain.product.validator.ProductValidator;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
-import repick.repickserver.global.Parser;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.redis.service.RedisService;
-import repick.repickserver.infra.sms.SmsSender;
-import repick.repickserver.infra.sms.model.Message;
+import repick.repickserver.infra.sms.service.SmsService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
 
 import static repick.repickserver.domain.product.domain.ProductState.SELLING;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
-import static repick.repickserver.global.util.formatPhoneNumber.removeHyphens;
 
 @Service
 @Transactional
@@ -55,8 +52,8 @@ public class ProductService {
     private final ObjectMapper objectMapper;
     private final JwtProvider jwtProvider;
     private final ProductValidator productValidator;
+    private final SmsService smsService;
     private final RedisService redisService;
-    private final SmsSender smsSender;
 
     @Caching(evict = {
             @CacheEvict(value = "ProductMain", allEntries = true),
@@ -150,6 +147,8 @@ public class ProductService {
                 .map(this::mapCategoryToCategoryInfo)
                 .collect(Collectors.toList());
 
+        // key : 상품 등록 시간, value : 멤버 아이디
+        redisService.InsertKeyValueToRedisWithPattern("sms", savedProduct.getCreatedDate().toString(), savedProduct.getSellOrder().getMember().getId().toString());
 
         return RegisterProductResponse.builder()
                 .product(savedProduct)
@@ -159,38 +158,34 @@ public class ProductService {
                 .build();
     }
 
-    public void HandleProductSmsPendingExpiration(String key) {
+    @Scheduled(fixedRate = 1000 * 60 * 60) // 1시간마다 실행
+    public void detectBeforeSmsProducts() {
 
-        List<Product> productList = productRepository.findByMemberIdAndState(Long.parseLong(key), ProductState.BEFORE_SMS);
+        List<Long> memberIds = redisService.getMemberIdsFromKeys(redisService.getKeys("sms"));
 
-        System.out.println("productList.size() = " + productList.size());
+        memberIds.forEach(this::sendSmsToMember);
 
-        if (productList.isEmpty()) {
-            log.error("문자 발송 실패 : expired key에 매치되는 상품이 없습니다: " + key);
-            return;
-        }
+    }
+
+    private void sendSmsToMember(Long memberId) {
+
+        System.out.println("memberId = " + memberId);
+
+        List<Product> productList = productRepository.findByMemberIdAndState(memberId, ProductState.BEFORE_SMS);
+
+        if (productList.isEmpty()) return;
 
         SellOrder sellOrder = productList.get(0).getSellOrder();
 
-        sendSms(sellOrder.getPhoneNumber(), productList.size(), sellOrder.getName());
-        // changeState foreach
+        smsService.BeforeSmsProductSender(sellOrder.getPhoneNumber(), productList.size(), sellOrder.getName());
+
         productList.forEach(product -> product.changeProductState(ProductState.PREPARING));
 
     }
 
-    @Async
-    public void sendSms(String phoneNumber, int quantity, String name) {
-        try {
-            smsSender.sendSms(Message.builder()
-                    .to(removeHyphens(phoneNumber))
-                    .content(Parser.parseProductListToString(quantity, name))
-                    .build());
-        }
-        catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new CustomException(SMS_SEND_FAILED);
-        }
-    }
+
+
+
 
     private RegisterProductResponse.CategoryInfo mapCategoryToCategoryInfo(Category category) {
         Long parentId = category.getParentCategory() != null ? category.getParentCategory().getId() : null;
