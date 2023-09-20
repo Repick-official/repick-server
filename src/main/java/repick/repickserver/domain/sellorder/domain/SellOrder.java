@@ -78,7 +78,7 @@ public class SellOrder extends BaseTimeEntity {
         this.member = member;
     }
 
-    public static SellOrder of(SellOrderRequest request, String orderNumber, Member member) {
+    public static SellOrder of(SellOrderRequest request, String orderNumber, Member member, String returnDate) {
         return SellOrder.builder()
                 .name(request.getName())
                 .orderNumber(orderNumber)
@@ -88,8 +88,7 @@ public class SellOrder extends BaseTimeEntity {
                 .productQuantity(request.getProductQuantity())
                 .address(request.getAddress())
                 .requestDetail(request.getRequestDetail())
-                // returnDate는 'yyyy-MM-dd' 형식 문자열으로 들어옴
-                .returnDate(LocalDateTime.parse(request.getReturnDate() + "T00:00:00"))
+                .returnDate(LocalDateTime.parse(returnDate + "T00:00:00"))
                 .member(member)
                 .build();
     }

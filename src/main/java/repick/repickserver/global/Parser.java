@@ -72,4 +72,15 @@ public class Parser {
                 "상품 확인 후 상품 가격 입력을 완료해주시면 판매가 시작됩니다.\n" +
                 "감사합니다 ♥";
     }
+
+    public static String normalizeReturnDate(String returnDate) {
+        // returnDate 예시 : 20230831 || 2023-08-31
+        if (returnDate.length() == 8) {
+            returnDate = returnDate.substring(0, 4) + "-" + returnDate.substring(4, 6) + "-" + returnDate.substring(6);
+        }
+
+        // 반환 예시 : 2023-08-31
+        return returnDate;
+
+    }
 }

@@ -60,7 +60,9 @@ public class SellOrderService {
 
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
-        SellOrder sellOrder = SellOrder.of(request, orderNumber, member);
+        String returnDate = Parser.normalizeReturnDate(request.getReturnDate());
+
+        SellOrder sellOrder = SellOrder.of(request, orderNumber, member, returnDate);
 
         sellOrderRepository.save(sellOrder);
 
