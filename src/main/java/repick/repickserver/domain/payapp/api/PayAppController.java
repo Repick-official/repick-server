@@ -12,6 +12,7 @@ public class PayAppController {
 
     private final PayAppService payAppService;
 
+    // get product ID as path variable
     @GetMapping("price/{productId}")
     public PayAppResponse getPayAppUrl(@PathVariable("productId") Long productId) {
         return payAppService.getPayAppUrl(productId);
