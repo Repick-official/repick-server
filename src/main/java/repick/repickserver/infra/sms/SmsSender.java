@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import repick.repickserver.global.config.SmsProperties;
+import repick.repickserver.global.properties.SmsProperties;
 import repick.repickserver.infra.sms.model.Message;
 import repick.repickserver.infra.sms.model.SmsRequest;
 import repick.repickserver.infra.sms.model.SmsResponse;

@@ -9,7 +9,6 @@ import repick.repickserver.domain.order.dto.UpdateOrderStateRequest;
 import repick.repickserver.domain.sellorder.dto.SellOrderUpdateRequest;
 import repick.repickserver.domain.sellorder.dto.UpdateSettlementStateRequest;
 import repick.repickserver.infra.slack.application.SlackApiService;
-import repick.repickserver.infra.slack.dto.SlackApiSubscribeDto;
 
 @RestController
 @RequestMapping("/slack")
@@ -17,16 +16,6 @@ import repick.repickserver.infra.slack.dto.SlackApiSubscribeDto;
 public class SlackApiController {
 
     private final SlackApiService slackApiService;
-
-    @PostMapping(value = "/subscribe/add")
-    public void addSubscribeRequest(@RequestBody SlackApiSubscribeDto request) {
-        slackApiService.addSubscribeRequest(request);
-    }
-
-    @PostMapping(value = "/subscribe/deny")
-    public void denySubscribeRequest(@RequestBody SlackApiSubscribeDto request) {
-        slackApiService.denySubscribeRequest(request);
-    }
 
     @PostMapping(value = "/sell/update")
     public void updateSellRequest(@RequestBody SellOrderUpdateRequest request) {

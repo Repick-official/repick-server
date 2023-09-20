@@ -1,4 +1,4 @@
-package repick.repickserver.global.config;
+package repick.repickserver.global.properties;
 
 
 import lombok.Data;

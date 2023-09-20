@@ -13,7 +13,7 @@ import repick.repickserver.domain.delivery.domain.Delivery;
 import repick.repickserver.domain.delivery.dto.DeliveryRequest;
 import repick.repickserver.domain.delivery.dto.DeliveryResponse;
 import repick.repickserver.domain.delivery.validator.DeliveryValidator;
-import repick.repickserver.global.config.SweetTrackerProperties;
+import repick.repickserver.global.properties.SweetTrackerProperties;
 import repick.repickserver.global.error.exception.CustomException;
 
 import javax.transaction.Transactional;

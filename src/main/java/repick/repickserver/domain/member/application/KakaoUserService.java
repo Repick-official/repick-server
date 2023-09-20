@@ -23,7 +23,7 @@ import repick.repickserver.domain.member.repository.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.member.dto.SocialUserInfoDto;
-import repick.repickserver.global.config.OauthProperties;
+import repick.repickserver.global.properties.OauthProperties;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.global.jwt.UserDetailsImpl;
 

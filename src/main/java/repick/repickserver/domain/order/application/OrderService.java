@@ -28,7 +28,7 @@ import repick.repickserver.domain.order.dto.UpdateOrderStateRequest;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
-import repick.repickserver.global.config.SmsProperties;
+import repick.repickserver.global.properties.SmsProperties;
 import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;

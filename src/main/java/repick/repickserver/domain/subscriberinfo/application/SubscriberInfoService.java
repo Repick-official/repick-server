@@ -113,7 +113,7 @@ public class SubscriberInfoService {
         subscriberInfoRepository.save(subscriberInfo);
 
         // Slack에 알림 보내기
-        slackNotifier.sendSubscribeSlackNotification(slackMapper.toSubscribeSlackNoticeString(member, request, subscriberInfo));
+//        slackNotifier.sendSubscribeSlackNotification(slackMapper.toSubscribeSlackNoticeString(member, request, subscriberInfo));
 
         return SubscriberInfoResponse.of(subscriberInfo, member);
     }

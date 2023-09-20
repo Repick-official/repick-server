@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import repick.repickserver.domain.member.repository.MemberRepository;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.member.domain.Role;
-import repick.repickserver.global.config.JwtProperties;
+import repick.repickserver.global.properties.JwtProperties;
 import repick.repickserver.global.error.exception.CustomException;
 
 import javax.annotation.PostConstruct;

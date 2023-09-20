@@ -4,9 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.order.domain.OrderProduct;
 import repick.repickserver.domain.order.dto.OrderRequest;
-import repick.repickserver.domain.member.domain.Member;
-import repick.repickserver.domain.subscriberinfo.domain.SubscriberInfo;
-import repick.repickserver.domain.subscriberinfo.dto.SubscriberInfoRegisterRequest;
 import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import java.util.List;
@@ -29,15 +26,6 @@ public class SlackMapper {
                         .append(orderProduct.getProduct().getPrice()).append(" ")
                         .append(orderProduct.getProduct().getProductNumber()).append("\n"));
         return sb.toString();
-    }
-
-    public String toSubscribeSlackNoticeString(Member member, SubscriberInfoRegisterRequest request, SubscriberInfo subscriberInfo) {
-        return "구독 신청이 들어왔습니다." +
-                "\n이름: " + member.getName() +
-                "\n이메일: " + member.getEmail() +
-                "\n구독타입: " + request.getSubscribeType() +
-                "\n주문번호: " + subscriberInfo.getOrderNumber() +
-                "\n해커톤 시연 : 자동 승인합니다.";
     }
 
     public String toSellOrderSlackNoticeString(SellOrderRequest request, String orderNumber) {

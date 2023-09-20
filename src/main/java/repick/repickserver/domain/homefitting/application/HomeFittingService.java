@@ -93,9 +93,9 @@ public class HomeFittingService {
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.HOME_FITTING);
 
         // 슬랙 알림 메세지
-        slackNotifier.sendHomeFittingSlackNotification(
-                        "홈피팅 신청입니다.\n" +
-                        "주문번호: " + orderNumber + "\n");
+//        slackNotifier.sendHomeFittingSlackNotification(
+//                        "홈피팅 신청입니다.\n" +
+//                        "주문번호: " + orderNumber + "\n");
 
         return cartProducts.stream()
                 .map(cartProduct -> {
@@ -107,9 +107,9 @@ public class HomeFittingService {
                     homeFitting = homeFittingRepository.save(homeFitting);
 
                     // 슬랙 알림 메세지
-                    slackNotifier.sendHomeFittingSlackNotification(
-                                    "상품명: " + cartProduct.getProduct().getName() + "\n" +
-                                    "상품번호: " + cartProduct.getProduct().getProductNumber() + "\n");
+//                    slackNotifier.sendHomeFittingSlackNotification(
+//                                    "상품명: " + cartProduct.getProduct().getName() + "\n" +
+//                                    "상품번호: " + cartProduct.getProduct().getProductNumber() + "\n");
 
                     return new HomeFittingResponse(homeFitting);
                 })
