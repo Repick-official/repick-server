@@ -2,6 +2,8 @@ package repick.repickserver.domain.order.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repick.repickserver.domain.cart.dao.CartProductRepository;
@@ -68,6 +70,13 @@ public class OrderService {
     private final SlackMapper slackMapper;
     private final HomeFittingValidator homeFittingValidator;
 
+    @Caching(evict = {
+            @CacheEvict(value = "ProductMain", allEntries = true),
+            @CacheEvict(value = "ProductsLatest", allEntries = true),
+            @CacheEvict(value = "ProductsDesc", allEntries = true),
+            @CacheEvict(value = "ProductsAsc", allEntries = true),
+            @CacheEvict(value = "ProductsDetail", allEntries = true),
+    })
     public OrderResponse createOrder(OrderRequest orderRequest, String token) {
         String orderNumber = orderNumberService.generateOrderNumber(ORDER);
 

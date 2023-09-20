@@ -53,6 +53,7 @@ public class RegisterProductResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor @AllArgsConstructor
     public static class ImageFileInfo {
         private String imagePath;
         private String imageKey;

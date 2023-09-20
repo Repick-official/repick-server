@@ -3,6 +3,9 @@ package repick.repickserver.domain.product.application;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +58,12 @@ public class ProductService {
     private final RedisService redisService;
     private final SmsSender smsSender;
 
+    @Caching(evict = {
+            @CacheEvict(value = "ProductMain", allEntries = true),
+            @CacheEvict(value = "ProductsLatest", allEntries = true),
+            @CacheEvict(value = "ProductsDesc", allEntries = true),
+            @CacheEvict(value = "ProductsAsc", allEntries = true)
+    })
     public RegisterProductResponse registerProduct(MultipartFile mainImageFile, List<MultipartFile> detailImageFiles,
                                                    String requestString, List<Long> categoryIds) {
 
@@ -194,8 +203,8 @@ public class ProductService {
                 .build();
     }
 
+    @Cacheable(value = "ProductsMain", cacheManager = "cacheManager")
     public List<GetProductResponse> getMainPageProducts() {
-        // TODO: 일단은 상태가 '판매중'인 신상품 4개 추천
         List<Product> products = productRepository.findTop8ByProductStateOrderByIdDesc(SELLING);
         List<ProductImage> productImages = productImageRepository.findByProductInAndIsMainImage(products, true);
 
@@ -216,6 +225,7 @@ public class ProductService {
      * @return RegisterProductResponse 상품 상세 정보
      * @author seochanhyeok
      */
+    @Cacheable(value = "ProductsDetail", key = "#productId", cacheManager = "cacheManager")
     public RegisterProductResponse getProductDetail(Long productId) {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
@@ -251,6 +261,7 @@ public class ProductService {
      * 최신순으로 전체 또는 특정 카테고리의 상품 조회
      * No Offset Pagination (페이징 성능 향상)
      */
+    @Cacheable(value = "ProductsLatest", key = "#cursorId?.toString() + '-' + #categoryId?.toString() + '-' + #pageSize", cacheManager = "cacheManager")
     public List<GetProductResponse> getPageByProductRegistrationDate(Long cursorId, Long categoryId, int pageSize) {
         return productRepository.findPageByProductRegistrationDate(cursorId, categoryId, pageSize);
     }
@@ -259,6 +270,7 @@ public class ProductService {
      * 가격높은순으로 전체 또는 특정 카테고리의 상품 조회
      * No Offset Pagination (페이징 성능 향상)
      */
+    @Cacheable(value = "ProductsDesc", key = "#cursorId?.toString() + '-' + #cursorPrice.toString() + '-' + #pageSize", cacheManager = "cacheManager")
     public List<GetProductResponse> getPageByProductPriceDesc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
         return productRepository.findPageByProductPriceDesc(cursorId, cursorPrice, categoryId, pageSize);
     }
@@ -267,6 +279,7 @@ public class ProductService {
      * 가격낮은순으로 전체 또는 특정 카테고리의 상품 조회
      * No Offset Pagination (페이징 성능 향상)
      */
+    @Cacheable(value = "ProductsAsc", key = "#cursorId?.toString() + '-' + #cursorPrice.toString() + '-' + #pageSize", cacheManager = "cacheManager")
     public List<GetProductResponse> getPageByProductPriceAsc(Long cursorId, Long cursorPrice, Long categoryId, int pageSize) {
         return productRepository.findPageByProductPriceAsc(cursorId, cursorPrice, categoryId, pageSize);
     }
@@ -289,6 +302,13 @@ public class ProductService {
         return productRepository.getSearchProductsByPrice(keyword, cursorId, cursorPrice, pageSize, sortType);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "ProductMain", allEntries = true),
+            @CacheEvict(value = "ProductsLatest", allEntries = true),
+            @CacheEvict(value = "ProductsDesc", allEntries = true),
+            @CacheEvict(value = "ProductsAsc", allEntries = true),
+            @CacheEvict(value = "ProductsDetail", key = "#productId"),
+    })
     public Boolean submitPrice(Long productId, Long price, String token) {
 
         Member member = jwtProvider.getMemberByRawToken(token);
