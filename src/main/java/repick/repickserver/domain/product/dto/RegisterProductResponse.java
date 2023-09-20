@@ -62,6 +62,7 @@ public class RegisterProductResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor @AllArgsConstructor
     public static class CategoryInfo {
         private Long categoryId;
         private String categoryName;
