@@ -11,4 +11,10 @@
 
 </pre>
 
+
+
+# Server Architecture
+
+<img width="818" alt="Screen Shot 2023-09-21 at 2 19 00 PM" src="https://github.com/Repick-official/repick-server/assets/76674422/a29bd3f9-90e8-4724-8050-84ed91bfc58b">
+
 </div>
