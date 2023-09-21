@@ -15,6 +15,6 @@
 
 # Server Architecture
 
-<img width="818" alt="Screen Shot 2023-09-21 at 2 19 00 PM" src="https://github.com/Repick-official/repick-server/assets/76674422/a29bd3f9-90e8-4724-8050-84ed91bfc58b">
+<img width="1100" alt="image" src="https://github.com/Repick-official/repick-server/assets/76674422/362e1d14-ca9b-45b7-bf62-385c32a03435">
 
 </div>
