@@ -15,6 +15,6 @@
 
 # 🛠 Server Architecture
 
-<img width="1100" alt="image" src="https://github.com/Repick-official/repick-server/assets/76674422/362e1d14-ca9b-45b7-bf62-385c32a03435">
+<img width="839" alt="image" src="https://github.com/Repick-official/repick-server/assets/76674422/39dd70ed-d80b-4b2e-91c9-c6c0c37bffe1">
 
 </div>
