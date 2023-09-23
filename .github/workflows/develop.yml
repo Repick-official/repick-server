@@ -37,7 +37,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "prod" ]
+    branches: [ "develop" ]
 
 permissions:
   contents: read
@@ -66,7 +66,7 @@ jobs:
           touch ./application-database.yaml
           
           # GitHub-Actions 에서 설정한 값을 application-database.yaml 파일에 쓰기
-          echo "${{ secrets.DATABASE }}" >> ./application-database.yaml
+          echo "${{ secrets.DATABASE_DEVELOP }}" >> ./application-database.yaml
         shell: bash
 
       ## create application-aws.yaml
@@ -79,7 +79,7 @@ jobs:
           touch ./application-aws.yaml
 
           # GitHub-Actions 에서 설정한 값을 application-aws.yaml 파일에 쓰기
-          echo "${{ secrets.AMAZON_S3 }}" >> ./application-aws.yaml
+          echo "${{ secrets.AMAZON_S3_DEVELOP }}" >> ./application-aws.yaml
         shell: bash
 
       ## create application-security.yaml
@@ -92,7 +92,7 @@ jobs:
           touch ./application-security.yaml
 
           # GitHub-Actions 에서 설정한 값을 application-security.yaml 파일에 쓰기
-          echo "${{ secrets.SECURITY }}" >> ./application-security.yaml
+          echo "${{ secrets.SECURITY_DEVELOP }}" >> ./application-security.yaml
         shell: bash
 
       ## create application-aws.yaml
@@ -105,7 +105,7 @@ jobs:
           touch ./application-server.yaml
 
           # GitHub-Actions 에서 설정한 값을 application-server.yaml 파일에 쓰기
-          echo "${{ secrets.SERVER_YAML }}" >> ./application-server.yaml
+          echo "${{ secrets.SERVER_YAML_DEVELOP }}" >> ./application-server.yaml
         shell: bash
 
       ## gradle build
@@ -116,24 +116,24 @@ jobs:
       ## 웹 이미지 빌드 및 도커허브에 push
       - name: web docker build and push
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/repick-web .
-          docker push ${{ secrets.DOCKER_REPO }}/repick-web
-          docker build -f dockerfile-nginx -t repick/repick-nginx .
-          docker push repick/repick-nginx
+          docker login -u ${{ secrets.DOCKER_USERNAME_DEVELOP }} -p ${{ secrets.DOCKER_PASSWORD_DEVELOP }}
+          docker build -t ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-web-develop .
+          docker push ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-web-develop
+          docker build -f dockerfile-nginx -t ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-nginx-develop .
+          docker push ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-nginx-develop
 
       ## docker compose up
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.HOST_DEVELOP }}
           username: ubuntu
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.KEY_DEVELOP }}
           script: |
             cd /home/ubuntu/srv/ubuntu/
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
-            docker-compose up -d
+            sudo docker pull ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-web-develop
+            sudo docker pull ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-nginx-develop
+            docker-compose up -f docker-compose-develop.yaml -d
             docker image prune -f

@@ -1,0 +1,27 @@
+version: '3'
+services:
+
+  web:
+    container_name: web
+    image: repick/repick-web
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    tty: true
+    environment:
+      - TZ=Asia/Seoul
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: "repickLogGroup"
+        awslogs-region: "ap-northeast-2"
+        awslogs-stream: "repickLogStream"
+
+  nginx:
+    container_name: nginx
+    image: repick/repick-nginx
+    ports:
+      - 80:80
+    depends_on:
+      - web
