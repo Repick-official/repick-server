@@ -11,4 +11,10 @@
 
 </pre>
 
+
+
+# 🛠 Server Architecture
+
+![image](https://github.com/Repick-official/repick-server/assets/76674422/b02cb0f7-6859-44c2-a79d-54c23cc31081)
+
 </div>
