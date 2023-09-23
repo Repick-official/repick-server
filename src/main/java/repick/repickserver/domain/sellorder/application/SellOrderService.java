@@ -60,7 +60,7 @@ public class SellOrderService {
 
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
-        String returnDate = Parser.normalizeReturnDate(request.getReturnDate());
+        String returnDate = Parser.normalizeReturnDateWithHyphen(request.getReturnDate());
 
         SellOrder sellOrder = SellOrder.of(request, orderNumber, member, returnDate);
 
