@@ -33,7 +33,7 @@
 #      with:
 #        arguments: build
 
-name: Java CI with Gradle
+name: Deploy Development Server
 
 on:
   push:
