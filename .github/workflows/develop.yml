@@ -135,5 +135,5 @@ jobs:
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web-develop
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx-develop
-            docker-compose up -f docker-compose-develop.yaml -d
+            docker-compose -f docker-compose-develop.yaml up -d
             docker image prune -f
