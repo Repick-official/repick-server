@@ -9,6 +9,10 @@ application-database.yaml
 application-aws.yaml
 application-security.yaml
 application-server.yaml
+application-database-develop.yaml
+application-aws-develop.yaml
+application-security-develop.yaml
+application-server-develop.yaml
 
 ### STS ###
 .apt_generated

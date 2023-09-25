@@ -46,11 +46,14 @@ public class SwaggerConfig {
         Server local = new Server("local", "http://localhost:8080", "local server",
                 Collections.emptyList(), Collections.emptyList());
 
-        Server develop = new Server("develop", serverProperties.getServerAddress(), "develop server",
+        Server prod = new Server("prod", serverProperties.getServerAddress(), "production server",
+                Collections.emptyList(), Collections.emptyList());
+
+        Server develop = new Server("develop", serverProperties.getServerDevelopAddress(), "develop server",
                 Collections.emptyList(), Collections.emptyList());
 
         return new Docket(DocumentationType.OAS_30)
-                .servers(local, develop)
+                .servers(local, prod, develop)
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .securityContexts(Arrays.asList(securityContext()))
