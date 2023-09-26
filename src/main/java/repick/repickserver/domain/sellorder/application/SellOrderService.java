@@ -8,7 +8,6 @@ import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
 import repick.repickserver.domain.product.dao.ProductRepository;
 import repick.repickserver.domain.product.domain.Product;
-import repick.repickserver.domain.product.domain.ProductImage;
 import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.product.dto.GetProductResponse;
 import repick.repickserver.domain.product.validator.ProductValidator;
@@ -27,7 +26,6 @@ import repick.repickserver.infra.slack.application.SlackNotifier;
 import repick.repickserver.infra.slack.mapper.SlackMapper;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,59 +111,24 @@ public class SellOrderService {
         return SellOrderResponse.from(sellOrder);
     }
 
-    private List<GetProductResponse> handleProductList(List<Product> productList) {
-        List<GetProductResponse> getProductResponses = new ArrayList<>();
+    public List<GetProductResponse> getProductByProductState(String token, ProductState state1, ProductState state2) {
+        Member member = jwtProvider.getMemberByRawToken(token);
 
-        productList.forEach(product -> {
+        return productRepository.getProductResponseByMemberIdAndState(member.getId(), state1, state2);
 
-            // MainImage 찾기
-            ProductImage productMainImage = productImageRepository.findByProductAndIsMainImage(product, true)
-                    .orElseThrow(() -> new CustomException(PRODUCT_IMAGE_NOT_FOUND));
-
-            getProductResponses.add(
-                    GetProductResponse.builder()
-                            .product(product)
-                            .mainProductImage(productMainImage)
-                            .build()
-            );
-        });
-
-        return getProductResponses;
     }
 
-    public List<GetProductResponse> getPublishedProduct(String token) {
+    public List<GetProductResponse> getProductByProductState(String token, ProductState state) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberId(member.getId());
 
-        return handleProductList(productList);
+        return productRepository.getProductResponseByMemberIdAndState(member.getId(), state);
+
     }
 
-    public List<GetProductResponse> getPreparingProduct(String token) {
+    public List<GetProductResponse> getAllProductByMember(String token) {
         Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.PREPARING, ProductState.BEFORE_SMS);
 
-        return handleProductList(productList);
-    }
-
-    public List<GetProductResponse> getSellingProduct(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), ProductState.SELLING, ProductState.PENDING);
-
-        return handleProductList(productList);
-    }
-
-    public List<GetProductResponse> getSoldProduct(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndState(member.getId(), ProductState.SOLD_OUT);
-
-        return handleProductList(productList);
-    }
-
-    public List<GetProductResponse> getSettledProduct(String token) {
-        Member member = jwtProvider.getMemberByRawToken(token);
-        List<Product> productList = productRepository.findByMemberIdAndTwoStates(member.getId(), SETTLEMENT_REQUESTED, SETTLEMENT_COMPLETED);
-
-        return handleProductList(productList);
+        return productRepository.findByMemberId(member.getId());
     }
 
     public Boolean requestSettlement(String token, SettlementRequest settlementRequest) {

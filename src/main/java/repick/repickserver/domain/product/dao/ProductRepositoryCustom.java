@@ -24,11 +24,13 @@ public interface ProductRepositoryCustom {
 
     List<GetProductResponse> getSearchProducts(String keyword, Long cursorId, int pageSize);
 
-    List<Product> findByMemberId(Long memberId);
+    List<GetProductResponse> findByMemberId(Long memberId);
+
+    List<GetProductResponse> getProductResponseByMemberIdAndState(Long memberId, ProductState state);
+
+    List<GetProductResponse> getProductResponseByMemberIdAndState(Long memberId, ProductState state1, ProductState state2);
 
     List<Product> findByMemberIdAndState(Long memberId, ProductState state);
-
-    List<Product> findByMemberIdAndTwoStates(Long memberId, ProductState state1, ProductState state2);
 
     List<Product> findAllByIdListAndMember(List<Long> idList, Member member);
 
