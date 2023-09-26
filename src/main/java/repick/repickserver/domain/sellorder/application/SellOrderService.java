@@ -27,11 +27,11 @@ import repick.repickserver.infra.slack.mapper.SlackMapper;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_COMPLETED;
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_REQUESTED;
-import static repick.repickserver.global.error.exception.ErrorCode.*;
+import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
+import static repick.repickserver.global.error.exception.ErrorCode.PRODUCT_NOT_FOUND;
 
 @Service
 @Transactional
@@ -72,29 +72,22 @@ public class SellOrderService {
     }
 
     public List<SellOrderResponse> getAllSellOrders(String token) {
-        // 모두 가져오고 Response로 변환 후 반환
-        return sellOrderRepository.getSellOrdersById(jwtProvider.getMemberByRawToken(token).getId()).stream()
-                .map(SellOrderResponse::from)
-                .collect(Collectors.toList());
+        Member member = jwtProvider.getMemberByRawToken(token);
+        return sellOrderRepository.getSellOrderResponseById(member.getId());
     }
 
     public List<SellOrderResponse> getSellOrders(String state, String token) {
-        // state 파싱
+        Member member = jwtProvider.getMemberByRawToken(token);
+
         SellState reqState = Parser.parseSellState(state);
 
-        return sellOrderRepository.getSellOrdersByMemberIdAndState(jwtProvider.getMemberByRawToken(token).getId(), reqState).stream()
-                .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(SellOrderResponse::from)
-                .collect(Collectors.toList());
+        return sellOrderRepository.getSellOrdersByMemberIdAndState(member.getId(), reqState);
     }
 
     public List<SellOrderResponse> getAllSellOrdersAdmin(String state) {
         SellState reqState = Parser.parseSellState(state);
 
-        return sellOrderRepository.getSellOrdersByState(reqState).stream()
-                .filter(sellOrder -> sellOrderStateRepository.isLastBySellOrderId(sellOrder.getId(), reqState))
-                .map(SellOrderResponse::from)
-                .collect(Collectors.toList());
+        return sellOrderRepository.getSellOrdersByState(reqState);
     }
 
     private SellOrder findByOrderNumber(String orderNumber) {

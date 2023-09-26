@@ -1,8 +1,8 @@
 package repick.repickserver.domain.sellorder.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.sellorder.domain.SellOrder;
@@ -12,7 +12,6 @@ import javax.persistence.Embedded;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
 public class SellOrderResponse {
 
     @Schema(description = "DB 식별용 아이디", example = "1")
@@ -39,6 +38,39 @@ public class SellOrderResponse {
     private SellState sellState;
     @Schema(description = "생성일", example = "2021-08-31T00:00:00")
     private LocalDateTime createdDate;
+
+    @Builder
+    public SellOrderResponse(Long id, String orderNumber, String name, String phoneNumber, Integer bagQuantity, Integer productQuantity, Bank bank, Address address, String requestDetail, LocalDateTime returnDate, SellState sellState, LocalDateTime createdDate) {
+        this.id = id;
+        this.orderNumber = orderNumber;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.bagQuantity = bagQuantity;
+        this.productQuantity = productQuantity;
+        this.bank = bank;
+        this.address = address;
+        this.requestDetail = requestDetail;
+        this.returnDate = returnDate;
+        this.sellState = sellState;
+        this.createdDate = createdDate;
+    }
+
+    @Builder @QueryProjection
+    public SellOrderResponse(SellOrder sellOrder) {
+        this.id = sellOrder.getId();
+        this.orderNumber = sellOrder.getOrderNumber();
+        this.name = sellOrder.getName();
+        this.phoneNumber = sellOrder.getPhoneNumber();
+        this.bagQuantity = sellOrder.getBagQuantity();
+        this.productQuantity = sellOrder.getProductQuantity();
+        this.bank = sellOrder.getBank();
+        this.address = sellOrder.getAddress();
+        this.requestDetail = sellOrder.getRequestDetail();
+        this.returnDate = sellOrder.getReturnDate();
+        this.createdDate = sellOrder.getCreatedDate();
+        this.sellState = sellOrder.getSellOrderStates().size() > 0 ? sellOrder.getSellOrderStates().get(sellOrder.getSellOrderStates().size() - 1).getSellState() : SellState.REQUESTED;
+    }
+
 
     public static SellOrderResponse from(SellOrder sellOrder) {
 
