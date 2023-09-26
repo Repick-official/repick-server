@@ -10,6 +10,8 @@ import repick.repickserver.domain.sellorder.domain.SellOrder;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
+import java.util.List;
+
 import static repick.repickserver.domain.product.domain.ProductState.*;
 
 @Entity
@@ -38,6 +40,9 @@ public class Product extends BaseTimeEntity {
     private ProductState productState;
 
     private String productNumber;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductImage> productImages;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sell_order_id")
