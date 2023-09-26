@@ -1,15 +1,16 @@
 package repick.repickserver.domain.product.dao;
 
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import repick.repickserver.domain.homefitting.domain.HomeFittingState;
-import repick.repickserver.domain.homefitting.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.cart.dto.GetMyPickResponse;
 import repick.repickserver.domain.cart.dto.QGetMyPickResponse;
+import repick.repickserver.domain.homefitting.domain.HomeFittingState;
+import repick.repickserver.domain.homefitting.dto.GetHomeFittingResponse;
 import repick.repickserver.domain.homefitting.dto.QGetHomeFittingResponse;
 import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.product.domain.Product;
@@ -25,9 +26,11 @@ import static repick.repickserver.domain.cart.domain.CartProductState.HOME_FITTI
 import static repick.repickserver.domain.cart.domain.CartProductState.IN_CART;
 import static repick.repickserver.domain.cart.domain.QCartProduct.cartProduct;
 import static repick.repickserver.domain.homefitting.domain.QHomeFitting.homeFitting;
+import static repick.repickserver.domain.member.domain.QMember.member;
 import static repick.repickserver.domain.product.domain.QProduct.product;
 import static repick.repickserver.domain.product.domain.QProductCategory.productCategory;
 import static repick.repickserver.domain.product.domain.QProductImage.productImage;
+import static repick.repickserver.domain.sellorder.domain.QSellOrder.sellOrder;
 import static repick.repickserver.global.error.exception.ErrorCode.INVALID_REQUEST_ERROR;
 
 @RequiredArgsConstructor
@@ -229,29 +232,55 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<Product> findByMemberId(Long memberId) {
-        return jpaQueryFactory.selectFrom(product)
-                .where(product.sellOrder.member.id.eq(memberId))
+    public List<GetProductResponse> findByMemberId(Long memberId) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductResponse.class, product, productImage))
+                .from(product)
+                .innerJoin(product.sellOrder, sellOrder)
+                .innerJoin(sellOrder.member, member)
+                .leftJoin(product.productImages, productImage)
+                .on(productImage.isMainImage.isTrue())
+                .where(member.id.eq(memberId))
+                .fetch();
+
+    }
+
+    @Override
+    public List<GetProductResponse> getProductResponseByMemberIdAndState(Long memberId, ProductState state) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductResponse.class, product, productImage))
+                .from(product)
+                .innerJoin(product.sellOrder, sellOrder)
+                .innerJoin(sellOrder.member, member)
+                .leftJoin(product.productImages, productImage)
+                .on(productImage.isMainImage.isTrue())
+                .where(member.id.eq(memberId)
+                .and(product.productState.eq(state)))
+                .fetch();
+    }
+
+    @Override
+    public List<GetProductResponse> getProductResponseByMemberIdAndState(Long memberId, ProductState state1, ProductState state2) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductResponse.class, product, productImage))
+                .from(product)
+                .innerJoin(product.sellOrder, sellOrder)
+                .innerJoin(sellOrder.member, member)
+                .leftJoin(product.productImages, productImage)
+                .on(productImage.isMainImage.isTrue())
+                .where(member.id.eq(memberId)
+                .and(product.productState.eq(state1).or(product.productState.eq(state2))))
                 .fetch();
     }
 
     @Override
     public List<Product> findByMemberIdAndState(Long memberId, ProductState state) {
-        return jpaQueryFactory.selectFrom(product)
-                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
-                .where(product.sellOrder.member.id.eq(memberId)
-                        // product state가 state와 같은 것들로 조회
-                        .and(product.productState.eq(state)))
-                .fetch();
-    }
-
-    @Override
-    public List<Product> findByMemberIdAndTwoStates(Long memberId, ProductState state1, ProductState state2) {
-        return jpaQueryFactory.selectFrom(product)
-                // product의 sellorder의 memberId가 memberId와 같은 것만 조회
-                .where(product.sellOrder.member.id.eq(memberId)
-                        // product state가 state1과 state2와 같은 것들로 조회
-                        .and(product.productState.eq(state1).or(product.productState.eq(state2))))
+        return jpaQueryFactory
+                .selectFrom(product)
+                .innerJoin(product.sellOrder, sellOrder)
+                .innerJoin(sellOrder.member, member)
+                .where(member.id.eq(memberId)
+                .and(product.productState.eq(state)))
                 .fetch();
     }
 

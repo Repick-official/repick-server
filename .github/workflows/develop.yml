@@ -33,7 +33,7 @@
 #      with:
 #        arguments: build
 
-name: Java CI with Gradle
+name: Deploy Development Server
 
 on:
   push:
@@ -117,10 +117,10 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME_DEVELOP }} -p ${{ secrets.DOCKER_PASSWORD_DEVELOP }}
-          docker build -t ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-web-develop .
-          docker push ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-web-develop
-          docker build -f dockerfile-nginx -t ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-nginx-develop .
-          docker push ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-nginx-develop
+          docker build -t ${{ secrets.DOCKER_REPO }}/repick-web-develop .
+          docker push ${{ secrets.DOCKER_REPO }}/repick-web-develop
+          docker build -f dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/repick-nginx-develop .
+          docker push ${{ secrets.DOCKER_REPO }}/repick-nginx-develop
 
       ## docker compose up
       - name: executing remote ssh commands using password
@@ -133,7 +133,7 @@ jobs:
             cd /home/ubuntu/srv/ubuntu/
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-web-develop
-            sudo docker pull ${{ secrets.DOCKER_REPO_DEVELOP }}/repick-nginx-develop
-            docker-compose up -f docker-compose-develop.yaml -d
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web-develop
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx-develop
+            docker-compose -f docker-compose-develop.yaml up -d
             docker image prune -f

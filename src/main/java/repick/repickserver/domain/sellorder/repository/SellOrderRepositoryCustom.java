@@ -1,15 +1,15 @@
 package repick.repickserver.domain.sellorder.repository;
 
-import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.domain.SellState;
+import repick.repickserver.domain.sellorder.dto.SellOrderResponse;
 
 import java.util.List;
 
 public interface SellOrderRepositoryCustom {
 
-    List<SellOrder> getSellOrdersById(Long id);
+    List<SellOrderResponse> getSellOrderResponseById(Long id);
 
-    List<SellOrder> getSellOrdersByMemberIdAndState(Long memberId, SellState state);
+    List<SellOrderResponse> getSellOrdersByMemberIdAndState(Long memberId, SellState state);
 
-    List<SellOrder> getSellOrdersByState(SellState state);
+    List<SellOrderResponse> getSellOrdersByState(SellState state);
 }

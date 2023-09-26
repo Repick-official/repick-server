@@ -9,4 +9,5 @@ import org.springframework.stereotype.Component;
 @Data
 public class ServerProperties {
     private String serverAddress;
+    private String serverDevelopAddress;
 }

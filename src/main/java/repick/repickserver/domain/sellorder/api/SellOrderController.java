@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import repick.repickserver.domain.product.domain.ProductState;
 import repick.repickserver.domain.sellorder.application.SellOrderService;
 import repick.repickserver.domain.sellorder.dto.*;
 import repick.repickserver.domain.product.dto.GetProductResponse;
@@ -38,37 +39,37 @@ public class SellOrderController {
 
     @Operation(summary = "옷장 정리 현황: 전체보기", description = "옷장 정리 현황을 전체보기로 조회합니다.")
     @GetMapping(value = "/history/published")
-    public ResponseEntity<List<GetProductResponse>> getPublishedSellOrders(@ApiIgnore @RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<GetProductResponse>> getAllProductByMember(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(sellOrderService.getPublishedProduct(token));
+                .body(sellOrderService.getAllProductByMember(token));
     }
 
     @Operation(summary = "옷장 정리 현황: 판매준비")
     @GetMapping(value = "/history/preparing")
     public ResponseEntity<List<GetProductResponse>> getPreparingSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(sellOrderService.getPreparingProduct(token));
+                .body(sellOrderService.getProductByProductState(token, ProductState.BEFORE_SMS, ProductState.PREPARING));
     }
 
     @Operation(summary = "옷장 정리 현황: 판매중만", description = "옷장 정리 현황을 판매중만으로 조회합니다.")
     @GetMapping(value = "/history/selling")
     public ResponseEntity<List<GetProductResponse>> getSellingSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(sellOrderService.getSellingProduct(token));
+                .body(sellOrderService.getProductByProductState(token, ProductState.SELLING, ProductState.PENDING));
     }
 
     @Operation(summary = "옷장 정리 현황: 판매완료", description = "옷장 정리 현황을 판매완료만으로 조회합니다.")
     @GetMapping(value = "/history/sold")
     public ResponseEntity<List<GetProductResponse>> getSoldSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(sellOrderService.getSoldProduct(token));
+                .body(sellOrderService.getProductByProductState(token, ProductState.SOLD_OUT));
     }
 
     @Operation(summary = "옷장 정리 현황: 정산됨", description = "옷장 정리 현황을 정산됨만으로 조회합니다.")
     @GetMapping(value = "/history/settled")
     public ResponseEntity<List<GetProductResponse>> getSettledSellOrders (@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok()
-                .body(sellOrderService.getSettledProduct(token));
+                .body(sellOrderService.getProductByProductState(token, ProductState.SETTLEMENT_REQUESTED, ProductState.SETTLEMENT_COMPLETED));
     }
 
     @Operation(summary = "판매 주문 현황", description = "판매 주문 현황을 조회합니다.")
