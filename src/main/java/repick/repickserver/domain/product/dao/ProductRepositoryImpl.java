@@ -1,7 +1,6 @@
 package repick.repickserver.domain.product.dao;
 
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -234,7 +233,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductResponse> findByMemberId(Long memberId) {
         return jpaQueryFactory
-                .select(Projections.constructor(GetProductResponse.class, product, productImage))
+                .select(new QGetProductResponse(product, productImage))
                 .from(product)
                 .innerJoin(product.sellOrder, sellOrder)
                 .innerJoin(sellOrder.member, member)
@@ -248,7 +247,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductResponse> getProductResponseByMemberIdAndState(Long memberId, ProductState state) {
         return jpaQueryFactory
-                .select(Projections.constructor(GetProductResponse.class, product, productImage))
+                .select(new QGetProductResponse(product, productImage))
                 .from(product)
                 .innerJoin(product.sellOrder, sellOrder)
                 .innerJoin(sellOrder.member, member)
@@ -262,7 +261,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductResponse> getProductResponseByMemberIdAndState(Long memberId, ProductState state1, ProductState state2) {
         return jpaQueryFactory
-                .select(Projections.constructor(GetProductResponse.class, product, productImage))
+                .select(new QGetProductResponse(product, productImage))
                 .from(product)
                 .innerJoin(product.sellOrder, sellOrder)
                 .innerJoin(sellOrder.member, member)
