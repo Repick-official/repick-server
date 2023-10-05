@@ -87,5 +87,5 @@ jobs:
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web-develop
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx-develop
-            docker-compose -f docker-compose-develop.yaml --env-file ~/home/ubuntu/srv/ubuntu/.env up -d
+            docker-compose -f docker-compose-develop.yaml --env-file /home/ubuntu/srv/ubuntu/.env up -d
             docker image prune -f
