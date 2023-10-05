@@ -1,0 +1,15 @@
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-time: 86400000
+  refresh-token-expiration-time: 86400000
+oauth:
+  client-id: ${OAUTH_CLIENT_ID}
+  client-secret: ${OAUTH_CLIENT_SECRET}
+ncp:
+  sms:
+    access-key: ${NCP_ACCESS_KEY}
+    secret-key: ${NCP_SECRET_KEY}
+    service-id: ${NCP_SERVICE_ID}
+    send-from: ${NCP_SEND_FROM}
+    bank-name: ${NCP_BANK_NAME}
+    bank-account: ${NCP_BANK_ACCOUNT}

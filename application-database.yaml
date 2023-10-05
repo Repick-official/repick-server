@@ -1,0 +1,27 @@
+spring:
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+      default_batch_fetch_size: 100
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+  properties:
+    hibernate:
+      format-sql: true
+      dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
+  main:
+    allow-bean-definition-overriding: true
+  redis:
+    host: localhost
+    port: 6379
+
