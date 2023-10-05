@@ -5,14 +5,16 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 #application.properties
-application-database.yaml
-application-aws.yaml
-application-security.yaml
-application-server.yaml
-application-database-develop.yaml
-application-aws-develop.yaml
-application-security-develop.yaml
-application-server-develop.yaml
+#application-database.yaml
+#application-aws.yaml
+#application-security.yaml
+#application-server.yaml
+#application-database-develop.yaml
+#application-aws-develop.yaml
+#application-security-develop.yaml
+#application-server-develop.yaml
+.env
+dev.env
 
 ### STS ###
 .apt_generated

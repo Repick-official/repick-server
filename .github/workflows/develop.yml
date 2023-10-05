@@ -1,38 +1,3 @@
-## This workflow uses actions that are not certified by GitHub.
-## They are provided by a third-party and are governed by
-## separate terms of service, privacy policy, and support
-## documentation.
-## This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-## For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-#
-#name: Java CI with Gradle
-#
-#on:
-#  push:
-#    branches: [ "main" ]
-#  pull_request:
-#    branches: [ "main" ]
-#
-#permissions:
-#  contents: read
-#
-#jobs:
-#  build:
-#
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - uses: actions/checkout@v3
-#    - name: Set up JDK 11
-#      uses: actions/setup-java@v3
-#      with:
-#        java-version: '11'
-#        distribution: 'temurin'
-#    - name: Build with Gradle
-#      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#      with:
-#        arguments: build
-
 name: Deploy Development Server
 
 on:
@@ -55,58 +20,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-
-      ## create application-database.yaml
-      - name: make application-database.yaml
-        run: |
-          ## create application-database.yaml
-          cd ./src/main/resources
-          
-          # application-database.yaml 파일 생성
-          touch ./application-database.yaml
-          
-          # GitHub-Actions 에서 설정한 값을 application-database.yaml 파일에 쓰기
-          echo "${{ secrets.DATABASE_DEVELOP }}" >> ./application-database.yaml
-        shell: bash
-
-      ## create application-aws.yaml
-      - name: make application-aws.yaml
-        run: |
-          ## create application-aws.yaml
-          cd ./src/main/resources
-
-          # application-aws.yaml 파일 생성
-          touch ./application-aws.yaml
-
-          # GitHub-Actions 에서 설정한 값을 application-aws.yaml 파일에 쓰기
-          echo "${{ secrets.AMAZON_S3_DEVELOP }}" >> ./application-aws.yaml
-        shell: bash
-
-      ## create application-security.yaml
-      - name: make application-security.yaml
-        run: |
-          ## create application-security.yaml
-          cd ./src/main/resources
-
-          # application-security.yaml 파일 생성
-          touch ./application-security.yaml
-
-          # GitHub-Actions 에서 설정한 값을 application-security.yaml 파일에 쓰기
-          echo "${{ secrets.SECURITY_DEVELOP }}" >> ./application-security.yaml
-        shell: bash
-
-      ## create application-aws.yaml
-      - name: make application-server.yaml
-        run: |
-          ## create application-server.yaml
-          cd ./src/main/resources
-
-          # application-server.yaml 파일 생성
-          touch ./application-server.yaml
-
-          # GitHub-Actions 에서 설정한 값을 application-server.yaml 파일에 쓰기
-          echo "${{ secrets.SERVER_YAML_DEVELOP }}" >> ./application-server.yaml
-        shell: bash
 
       ## gradle build
       - name: Build with Gradle
@@ -131,9 +44,13 @@ jobs:
           key: ${{ secrets.KEY_DEVELOP }}
           script: |
             cd /home/ubuntu/srv/ubuntu/
+            
+            sudo touch .env
+            echo "${{ secrets.ENV_DEV_VARS }}" | sudo tee .env > /dev/null
+            
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web-develop
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx-develop
-            docker-compose -f docker-compose-develop.yaml up -d
+            docker-compose -f docker-compose-develop.yaml --env-file /home/ubuntu/srv/ubuntu/.env up -d
             docker image prune -f

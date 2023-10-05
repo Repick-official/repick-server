@@ -4,6 +4,8 @@ services:
   web:
     container_name: web
     image: repick/repick-web-develop
+    env_file:
+      - .env
     expose:
       - 8080
     ports:
