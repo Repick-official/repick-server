@@ -1,4 +1,7 @@
 spring:
+    config:
+        activate:
+            on-profile: common
     servlet:
         multipart:
             max-request-size: 30MB
