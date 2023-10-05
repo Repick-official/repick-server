@@ -1,4 +1,3 @@
-# common
 spring:
   servlet:
     multipart:
