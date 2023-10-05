@@ -1,7 +1,73 @@
 spring:
-    profiles:
-        include:
-            - database
-            - aws
-            - security
-            - server
+    servlet:
+        multipart:
+            max-request-size: 30MB
+            max-file-size: 30MB
+    jpa:
+        show-sql: true
+        generate-ddl: true
+        hibernate:
+            ddl-auto: update
+            default_batch_fetch_size: 100
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        hikari:
+            maximum-pool-size: 10
+    properties:
+        hibernate:
+            format-sql: true
+            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    mvc:
+        pathmatch:
+            matching-strategy: ant-path-matcher
+    main:
+        allow-bean-definition-overriding: true
+    redis:
+        host: ${REDIS_HOST}
+        port: 6379
+
+cloud:
+    aws:
+        credentials:
+            access-key: ${AWS_ACCESS_KEY}
+            secret-key: ${AWS_SECRET_KEY}
+        s3:
+            bucket: repick-s3-bucket
+        region:
+            static: ap-northeast-2
+        stack:
+            auto: false
+
+jwt:
+    secret: ${JWT_SECRET}
+    access-token-expiration-time: 86400000
+    refresh-token-expiration-time: 86400000
+oauth:
+    client-id: ${OAUTH_CLIENT_ID}
+    client-secret: ${OAUTH_CLIENT_SECRET}
+ncp:
+    sms:
+        access-key: ${NCP_ACCESS_KEY}
+        secret-key: ${NCP_SECRET_KEY}
+        service-id: ${NCP_SERVICE_ID}
+        send-from: ${NCP_SEND_FROM}
+        bank-name: ${NCP_BANK_NAME}
+        bank-account: ${NCP_BANK_ACCOUNT}
+server:
+    server-address: https://repick.seoul.kr
+    server-develop-address: https://repick-dev.store
+    servlet:
+        context-path: /api
+logging:
+    slack:
+        webhook-uri: ${SLACK_ERROR_WEBHOOK_URI}
+        config: classpath:logback-spring.xml
+webhook:
+    sell-order-uri: ${SLACK_SELL_ORDER_URI}
+    order-uri: ${SLACK_ORDER_URI}
+    expense-settlement-uri: ${SLACK_EXPENSE_SETTLEMENT_URI}
+sweet-tracker:
+    api-key: ${SWEET_TRACKER_API_KEY}
