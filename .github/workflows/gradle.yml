@@ -32,8 +32,8 @@ jobs:
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DOCKER_REPO }}/repick-web .
           docker push ${{ secrets.DOCKER_REPO }}/repick-web
-          docker build -f dockerfile-nginx -t repick/repick-nginx .
-          docker push repick/repick-nginx
+          docker build -f dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/repick-nginx .
+          docker push ${{ secrets.DOCKER_REPO }}/repick-nginx
 
       ## docker compose up
       - name: executing remote ssh commands using password
@@ -43,10 +43,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            cd /home/ubuntu/srv/ubuntu/
+            cd /home/ubuntu/repick/
+            
+            sudo touch .env
+            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
+            
+            sudo touch docker-compose.yaml
+            echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
+            
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx
-            docker-compose -f docker-compose.yaml --env-file /home/ubuntu/srv/ubuntu/.env up -d
+            docker-compose -f docker-compose.yaml --env-file /home/ubuntu/repick/.env up -d
             docker image prune -f
