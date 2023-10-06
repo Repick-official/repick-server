@@ -29,7 +29,7 @@ jobs:
       ## 웹 이미지 빌드 및 도커허브에 push
       - name: web docker build and push
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME_DEVELOP }} -p ${{ secrets.DOCKER_PASSWORD_DEVELOP }}
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DOCKER_REPO }}/repick-web-develop .
           docker push ${{ secrets.DOCKER_REPO }}/repick-web-develop
           docker build -f dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/repick-nginx-develop .
@@ -43,14 +43,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY_DEVELOP }}
           script: |
-            cd /home/ubuntu/srv/ubuntu/
+            cd /home/ubuntu/repick
             
             sudo touch .env
             echo "${{ secrets.ENV_DEV_VARS }}" | sudo tee .env > /dev/null
+            
+            sudo touch docker-compose.yaml
+            echo "${{ vars.DOCKER_COMPOSE_DEV }}" | sudo tee docker-compose.yaml > /dev/null
             
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-web-develop
             sudo docker pull ${{ secrets.DOCKER_REPO }}/repick-nginx-develop
-            docker-compose -f docker-compose-develop.yaml --env-file /home/ubuntu/srv/ubuntu/.env up -d
+            docker-compose -f docker-compose.yaml --env-file /home/ubuntu/repick/.env up -d
             docker image prune -f
