@@ -24,6 +24,7 @@ import repick.repickserver.global.error.exception.CustomException;
 import repick.repickserver.global.jwt.JwtProvider;
 import repick.repickserver.infra.slack.application.SlackNotifier;
 import repick.repickserver.infra.slack.mapper.SlackMapper;
+import repick.repickserver.infra.sms.service.SmsService;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -49,6 +50,7 @@ public class SellOrderService {
     private final SlackMapper slackMapper;
     private final SettlementRequestValidator settlementRequestValidator;
     private final ProductValidator productValidator;
+    private final SmsService smsService;
 
     public SellOrderResponse postSellOrder(SellOrderRequest request, String token) {
 
@@ -67,6 +69,10 @@ public class SellOrderService {
         sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.REQUESTED));
 
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
+
+        // 처음 옷장 정리를 신청한 사용자의 경우
+        if (!sellOrderRepository.existsById(member.getId()))
+            smsService.BagPendingSender(sellOrder.getName(), sellOrder.getPhoneNumber());
 
         return SellOrderResponse.from(sellOrder);
     }
