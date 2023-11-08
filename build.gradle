@@ -9,7 +9,7 @@ group = 'repick'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+	sourceCompatibility = '11'
 }
 
 // 기존 설정 주석처리
