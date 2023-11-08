@@ -31,4 +31,26 @@ public class SmsService {
             throw new CustomException(SMS_SEND_FAILED);
         }
     }
+
+    @Async
+    public void BagPendingSender(String name, String phoneNumber) {
+
+        String content = "[리픽]\n\n" +
+                "안녕하세요, " + name + "님 :)\n" +
+                "옷장 정리를 신청해주셔서 감사합니다.\n" +
+                "리픽백은 발송 후 수일 후 배송이 완료됩니다.\n" +
+                "감사합니다 ♥";
+
+        try {
+            smsSender.sendSms(Message.builder()
+                    .to(removeHyphens(phoneNumber))
+                    .content(content)
+                    .build());
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CustomException(SMS_SEND_FAILED);
+        }
+    }
+
 }

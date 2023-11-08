@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.order.domain.OrderProduct;
 import repick.repickserver.domain.order.dto.OrderRequest;
+import repick.repickserver.domain.sellorder.domain.SellOrder;
 import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import java.util.List;
@@ -41,4 +42,19 @@ public class SlackMapper {
                 "의류 수량: " + request.getProductQuantity() + "\n" +
                 "리픽백 수량: " + request.getBagQuantity();
     }
+
+    public String toSellOrderBagReadySlackNoticeString(SellOrder sellOrder) {
+        return "리픽백 배출이 완료되었습니다.\n" +
+                "주문번호: " + sellOrder.getOrderNumber() + "\n" +
+                "이름: " + sellOrder.getName() + "\n" +
+                "연락처: " + sellOrder.getPhoneNumber() + "\n" +
+                "주소: " + sellOrder.getAddress().getMainAddress() + "\n" +
+                "상세주소: " + sellOrder.getAddress().getDetailAddress() + "\n" +
+                "우편번호: " + sellOrder.getAddress().getZipCode() + "\n" +
+                "수거 시 희망사항: " + sellOrder.getRequestDetail() + "\n" +
+                "수거 희망일: " + sellOrder.getReturnDate() + "\n" +
+                "의류 수량: " + sellOrder.getProductQuantity() + "\n" +
+                "리픽백 수량: " + sellOrder.getBagQuantity();
+    }
+
 }

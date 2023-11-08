@@ -13,8 +13,7 @@ build/
 #application-aws-develop.yaml
 #application-security-develop.yaml
 #application-server-develop.yaml
-.env
-dev.env
+*.env
 
 ### STS ###
 .apt_generated
