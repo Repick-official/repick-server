@@ -107,6 +107,11 @@ public class SellOrderService {
     public SellOrderResponse updateSellOrderState(SellOrderUpdateRequest request) {
         SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
         sellOrderStateRepository.save(SellOrderState.of(sellOrder, request.getSellState()));
+
+        // 리픽백 배출 완료시 슬랙 알림
+        if (request.getSellState() == SellState.BAG_READY)
+            slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderBagReadySlackNoticeString(sellOrder));
+
         return SellOrderResponse.from(sellOrder);
     }
 
