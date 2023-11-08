@@ -71,7 +71,7 @@ public class SellOrderService {
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
         // 처음 옷장 정리를 신청한 사용자의 경우
-        if (!sellOrderRepository.existsById(member.getId()))
+        if (!sellOrderRepository.existsByMemberId(member.getId()))
             smsService.BagPendingSender(sellOrder.getName(), sellOrder.getPhoneNumber());
 
         return SellOrderResponse.from(sellOrder);

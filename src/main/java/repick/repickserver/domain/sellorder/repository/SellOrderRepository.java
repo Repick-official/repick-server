@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface SellOrderRepository extends JpaRepository<SellOrder, Long>, SellOrderRepositoryCustom {
     Optional<SellOrder> findByOrderNumber(String orderNumber);
     List<SellOrder> findAllByMemberId(Long memberId);
+    Boolean existsByMemberId(Long memberId);
 }
