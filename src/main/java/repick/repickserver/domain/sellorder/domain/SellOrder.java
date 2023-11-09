@@ -36,7 +36,7 @@ public class SellOrder extends BaseTimeEntity {
     private String phoneNumber;
 
     // 계좌 은행, 번호
-    @NotNull @Embedded
+    @Nullable @Embedded
     private Bank bank;
 
     // 리픽백 수량

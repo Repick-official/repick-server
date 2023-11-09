@@ -106,7 +106,7 @@ public class SellOrderController {
     @Operation(summary = "요청중인 판매 등록 리스트 조회", description = "요청중인 판매 등록 리스트를 조회합니다")
     @ApiImplicitParam(
             name = "state",
-            value = "신청 상태 (requested | canceled | delivered | published)",
+            value = "신청 상태 (requested | bag_ready | canceled | delivered | published)",
             required = true,
             dataType = "String",
             paramType = "path",
