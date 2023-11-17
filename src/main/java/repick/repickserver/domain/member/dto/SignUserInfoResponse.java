@@ -22,5 +22,6 @@ public class SignUserInfoResponse { // SignUpdateResponse 도 이걸로 대체
     private String phoneNumber;
     private Address address;
     private Bank bank;
+    private Boolean allowMarketingMessages;
 
 }
