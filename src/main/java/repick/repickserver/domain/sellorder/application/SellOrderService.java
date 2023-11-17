@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_COMPLETED;
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_REQUESTED;
+import static repick.repickserver.domain.sellorder.domain.SellState.REQUESTED;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
@@ -67,7 +68,7 @@ public class SellOrderService {
 
         sellOrderRepository.save(sellOrder);
 
-        sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.REQUESTED));
+        sellOrderStateRepository.save(SellOrderState.of(sellOrder, REQUESTED));
 
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
@@ -212,5 +213,13 @@ public class SellOrderService {
         product.changeProductState(SETTLEMENT_COMPLETED);
 
         return true;
+    }
+
+    public Long getBagRequestCount() {
+        return sellOrderRepository.countBySellState(REQUESTED);
+    }
+
+    public Long getSettlementRequestCount() {
+        return productRepository.countByProductState(SETTLEMENT_REQUESTED);
     }
 }

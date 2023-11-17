@@ -1,5 +1,6 @@
 package repick.repickserver.domain.sellorder.repository;
 
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +66,26 @@ public class SellOrderRepositoryImpl implements SellOrderRepositoryCustom {
                 ))
                 .where(sellOrderState.sellState.eq(state))
                 .fetch();
+    }
+
+    @Override
+    public Long countBySellState(SellState requestedState) {
+
+        // 각 order 별 가장 최신의 orderState id를 구함
+        SubQueryExpression<Long> maxIdSubQuery = JPAExpressions
+                .select(sellOrderState.id.max())
+                .from(sellOrderState)
+                .groupBy(sellOrderState.sellOrder.id);
+
+        return jpaQueryFactory
+                .select(sellOrder.count())
+                .from(sellOrder)
+                .leftJoin(sellOrderState)
+                .on(sellOrder.id.eq(sellOrderState.sellOrder.id))
+                .where(sellOrderState.id.in(maxIdSubQuery),
+                        sellOrderState.sellState.eq(requestedState))
+                .fetchOne();
+
     }
 
 }

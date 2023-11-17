@@ -22,9 +22,9 @@ public class OauthController {
     @Operation(summary = "카카오 로그인", description = "카카오 로그인으로 토큰을 쿠키로 응답받습니다.")
     @GetMapping("/oauth/kakao")
     public SocialUserInfoDto kakaoLogin(@Parameter(name = "code", description = "카카오 로그인을 위한 코드", required = true)
-                                            @RequestParam String code,
+                                        @RequestParam String code,
                                         @Parameter(name= "redirect_uri", description = "카카오 로그인을 위한 리다이렉트 uri", required = true)
-                                            @RequestParam String redirect_uri,
+                                        @RequestParam String redirect_uri,
                                         HttpServletResponse response) throws JsonProcessingException {
         System.out.println("code = " + code);
         return kakaoUserService.kakaoLogin(code, redirect_uri, response);

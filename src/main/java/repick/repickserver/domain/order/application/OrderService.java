@@ -201,4 +201,12 @@ public class OrderService {
         }
         return orderStates;
     }
+
+    public Long getOrderRequestCount() {
+        return orderStateRepository.countByOrderCurrentState("UNPAID");
+    }
+
+    public Long getDeliveringOrderCount() {
+        return orderStateRepository.countByOrderCurrentState("DELIVERING");
+    }
 }
