@@ -64,7 +64,7 @@ public class SignController {
     @Operation(summary = "전체 유저 조회하기 (최신순)")
     @GetMapping("/admin/latest")
     public ResponseEntity<List<SignUserInfoResponse>> getLatestUsers(@Parameter(description = "1번째 페이지 조회시 null," +
-            " 2번째 이상 페이지 조회시 직전 페이지의 마지막 product id") @RequestParam(required = false) Long cursorId,
+            " 2번째 이상 페이지 조회시 직전 페이지의 마지막 member id") @RequestParam(required = false) Long cursorId,
                                                                      @Parameter(description = "한 페이지에 가져올 유저 개수") @RequestParam int pageSize) {
         return ResponseEntity.ok()
                 .body(memberService.getUserInfoPage(cursorId, pageSize));
