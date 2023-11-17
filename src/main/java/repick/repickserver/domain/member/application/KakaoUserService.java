@@ -176,6 +176,8 @@ public class KakaoUserService {
                     .nickname(nickname)
                     .password(encodedPassword)
                     .role(Role.USER)
+                    // 광고 메세지 수신 동의 여부는 기본값 false
+                    .allowMarketingMessages(false)
                     .build();
 
             memberRepository.save(kakaoUser);

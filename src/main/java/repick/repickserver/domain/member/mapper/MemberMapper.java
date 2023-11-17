@@ -17,6 +17,9 @@ public class MemberMapper {
     private final PasswordEncoder passwordEncoder;
 
     public Member registerRequestToMember(SignUpdateRequest request) {
+
+        if (request.getAllowMarketingMessages() == null) request.setAllowMarketingMessages(false);
+
         return Member.builder()
                 .userId(UUID.randomUUID().toString())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -27,6 +30,7 @@ public class MemberMapper {
                 .address(request.getAddress())
                 .bank(request.getBank())
                 .role(Role.USER)
+                .allowMarketingMessages(request.getAllowMarketingMessages())
                 .build();
     }
 
@@ -46,14 +50,7 @@ public class MemberMapper {
 
     public SignUserInfoResponse toSignUserInfoResponse(Member member) {
         return SignUserInfoResponse.builder()
-                .name(member.getName())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .role(member.getRole())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .bank(member.getBank())
-                .build();
+                .member(member).build();
     }
 
     public Member mapRequestToMember(Member member, SignUpdateRequest request) {
@@ -66,6 +63,7 @@ public class MemberMapper {
         memberBuilder.phoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : member.getPhoneNumber());
         memberBuilder.address(request.getAddress() != null ? request.getAddress() : member.getAddress());
         memberBuilder.bank(request.getBank() != null ? request.getBank() : member.getBank());
+        memberBuilder.allowMarketingMessages(request.getAllowMarketingMessages() != null ? request.getAllowMarketingMessages() : member.getAllowMarketingMessages());
 
         return memberBuilder.build();
     }

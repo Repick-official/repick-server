@@ -22,4 +22,5 @@ public class SignUpdateRequest {
     private String phoneNumber;
     private Address address;
     private Bank bank;
+    private Boolean allowMarketingMessages;
 }

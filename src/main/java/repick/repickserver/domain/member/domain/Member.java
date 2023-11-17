@@ -34,6 +34,9 @@ public class Member extends BaseTimeEntity {
     private Address address;
     @Embedded
     private Bank bank;
+    private Boolean allowMarketingMessages;
+
+
 
     public void update(Member member) {
         this.email = member.getEmail();
@@ -43,6 +46,7 @@ public class Member extends BaseTimeEntity {
         this.phoneNumber = member.getPhoneNumber();
         this.address = member.getAddress();
         this.bank = member.getBank();
+        this.allowMarketingMessages = member.getAllowMarketingMessages();
     }
 
 
