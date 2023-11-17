@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Transactional
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
     Optional<Member> findByEmail(@Param("email") String email);
     Optional<Member> findByNickname(@Param("nickname") String nickname);
     Optional<Member> findByUserId(String userId);

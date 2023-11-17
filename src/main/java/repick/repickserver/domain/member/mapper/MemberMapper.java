@@ -50,15 +50,7 @@ public class MemberMapper {
 
     public SignUserInfoResponse toSignUserInfoResponse(Member member) {
         return SignUserInfoResponse.builder()
-                .name(member.getName())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .role(member.getRole())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .bank(member.getBank())
-                .allowMarketingMessages(member.getAllowMarketingMessages())
-                .build();
+                .member(member).build();
     }
 
     public Member mapRequestToMember(Member member, SignUpdateRequest request) {

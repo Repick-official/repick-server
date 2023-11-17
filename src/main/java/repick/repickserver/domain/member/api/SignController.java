@@ -2,6 +2,7 @@ package repick.repickserver.domain.member.api;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import repick.repickserver.domain.member.dto.SignUserInfoResponse;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/sign")
@@ -59,21 +61,12 @@ public class SignController {
                 .body(memberService.update(request, token));
     }
 
-    /*
-
-    !! DEPRECATED !!
-    개발용으로 더이상 사용하지 않는 메서드입니다.
-
-    @GetMapping("/user/get")
-    public ResponseEntity<SignResponse> getUser(@RequestParam String email) {
+    @Operation(summary = "전체 유저 조회하기 (최신순)")
+    @GetMapping("/admin/latest")
+    public ResponseEntity<List<SignUserInfoResponse>> getLatestUsers(@Parameter(description = "1번째 페이지 조회시 null," +
+            " 2번째 이상 페이지 조회시 직전 페이지의 마지막 product id") @RequestParam(required = false) Long cursorId,
+                                                                     @Parameter(description = "한 페이지에 가져올 유저 개수") @RequestParam int pageSize) {
         return ResponseEntity.ok()
-                .body(memberService.getMember(email));
+                .body(memberService.getUserInfoPage(cursorId, pageSize));
     }
-
-    @GetMapping("/admin/get")
-    public ResponseEntity<SignResponse> getUserForAdmin(@RequestParam String email) {
-        return ResponseEntity.ok()
-                .body(memberService.getMember(email));
-    }
-    */
 }

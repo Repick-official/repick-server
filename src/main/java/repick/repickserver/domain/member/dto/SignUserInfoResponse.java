@@ -1,15 +1,18 @@
 package repick.repickserver.domain.member.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import repick.repickserver.domain.member.domain.Member;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.member.domain.Role;
 import repick.repickserver.domain.model.Bank;
 
 
 @Getter
-@Builder @AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor
 public class SignUserInfoResponse { // SignUpdateResponse 도 이걸로 대체
+    private Long id;
     @Schema(description = "닉네임", example = "tester")
     private String nickname;
     @Schema(description = "실명", example = "김리픽")
@@ -23,5 +26,17 @@ public class SignUserInfoResponse { // SignUpdateResponse 도 이걸로 대체
     private Address address;
     private Bank bank;
     private Boolean allowMarketingMessages;
+
+    @Builder @QueryProjection
+    public SignUserInfoResponse(Member member) {
+        this.id = member.getId();
+        this.nickname = member.getNickname();
+        this.name = member.getName();
+        this.email = member.getEmail();
+        this.phoneNumber = member.getPhoneNumber();
+        this.address = member.getAddress();
+        this.bank = member.getBank();
+        this.allowMarketingMessages = member.getAllowMarketingMessages();
+    }
 
 }
