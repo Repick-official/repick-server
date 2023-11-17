@@ -42,6 +42,25 @@ public class OrderStateRepositoryImpl implements OrderStateRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public Long countByOrderCurrentState(String requestedState) {
+        // 각 order 별 가장 최신의 orderState id를 구함
+        SubQueryExpression<Long> maxIdSubQuery = JPAExpressions
+                .select(orderState.id.max())
+                .from(orderState)
+                .groupBy(orderState.order.id);
+
+        return jpaQueryFactory
+                .select(order.count())
+                .from(order)
+                .leftJoin(orderState)
+                .on(order.id.eq(orderState.order.id))
+                .where(orderState.id.in(maxIdSubQuery),
+                        eqOrderState(requestedState))
+                .fetchOne();
+
+    }
+
     BooleanExpression eqOrderState(String requestedOrderState) {
         if (requestedOrderState == null) {
             return null;

@@ -12,4 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     Boolean existsByIdAndProductState(Long id, ProductState productState);
     Optional<Product> findByIdAndProductState(Long id, ProductState productState);
     Optional<Product> findByProductNumber(String productNumber);
+    Long countByProductState(ProductState settlementRequested);
 }
