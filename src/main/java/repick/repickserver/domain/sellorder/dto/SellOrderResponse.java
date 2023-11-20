@@ -2,7 +2,8 @@ package repick.repickserver.domain.sellorder.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 import repick.repickserver.domain.model.Address;
 import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.sellorder.domain.SellOrder;

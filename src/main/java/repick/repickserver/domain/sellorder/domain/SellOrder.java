@@ -13,7 +13,6 @@ import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
