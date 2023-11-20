@@ -32,15 +32,13 @@ public class SellOrderResponse {
     private Address address;
     @Schema(description = "수거시 추가 요청사항", example = "사랑을 가득 담아주세요~")
     private String requestDetail;
-    @Schema(description = "수거 희망일자", example = "2021-08-31T00:00:00")
-    private LocalDateTime returnDate;
     @Schema(description = "주문상태", example = "DELIVERED")
     private SellState sellState;
     @Schema(description = "생성일", example = "2021-08-31T00:00:00")
     private LocalDateTime createdDate;
 
     @Builder
-    public SellOrderResponse(Long id, String orderNumber, String name, String phoneNumber, Integer bagQuantity, Integer productQuantity, Bank bank, Address address, String requestDetail, LocalDateTime returnDate, SellState sellState, LocalDateTime createdDate) {
+    public SellOrderResponse(Long id, String orderNumber, String name, String phoneNumber, Integer bagQuantity, Integer productQuantity, Bank bank, Address address, String requestDetail, SellState sellState, LocalDateTime createdDate) {
         this.id = id;
         this.orderNumber = orderNumber;
         this.name = name;
@@ -50,7 +48,6 @@ public class SellOrderResponse {
         this.bank = bank;
         this.address = address;
         this.requestDetail = requestDetail;
-        this.returnDate = returnDate;
         this.sellState = sellState;
         this.createdDate = createdDate;
     }
@@ -66,7 +63,6 @@ public class SellOrderResponse {
         this.bank = sellOrder.getBank();
         this.address = sellOrder.getAddress();
         this.requestDetail = sellOrder.getRequestDetail();
-        this.returnDate = sellOrder.getReturnDate();
         this.createdDate = sellOrder.getCreatedDate();
         this.sellState = sellOrder.getSellOrderStates().size() > 0 ? sellOrder.getSellOrderStates().get(sellOrder.getSellOrderStates().size() - 1).getSellState() : SellState.REQUESTED;
     }
@@ -85,7 +81,6 @@ public class SellOrderResponse {
                     .productQuantity(sellOrder.getProductQuantity())
                     .address(sellOrder.getAddress())
                     .requestDetail(sellOrder.getRequestDetail())
-                    .returnDate(sellOrder.getReturnDate())
                     .createdDate(sellOrder.getCreatedDate())
                     .build();
         }
@@ -100,7 +95,6 @@ public class SellOrderResponse {
                 .productQuantity(sellOrder.getProductQuantity())
                 .address(sellOrder.getAddress())
                 .requestDetail(sellOrder.getRequestDetail())
-                .returnDate(sellOrder.getReturnDate())
                 // sellOrderStates 중 가장 최근에 업데이트된 state 가져옴
                 .sellState(sellOrder.getSellOrderStates().get(sellOrder.getSellOrderStates().size() - 1).getSellState())
                 .createdDate(sellOrder.getCreatedDate())

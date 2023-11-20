@@ -30,8 +30,6 @@ public class SellOrderRequest {
     private Address address;
     @Schema(description = "수거시 추가 요청사항", example = "사랑을 가득 담아주세요~")
     private String requestDetail;
-    @Schema(description = "수거 희망일자", example = "2021-08-31")
-    private String returnDate;
     @Schema(description = "주문상태", example = "DELIVERED")
     private SellState sellState;
 

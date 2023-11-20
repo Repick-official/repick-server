@@ -73,14 +73,4 @@ public class Parser {
                 "감사합니다 ♥";
     }
 
-    public static String normalizeReturnDateWithHyphen(String returnDate) {
-        // returnDate 예시 : 20230831 || 2023-08-31
-        if (returnDate.length() == 8) {
-            returnDate = returnDate.substring(0, 4) + "-" + returnDate.substring(4, 6) + "-" + returnDate.substring(6);
-        }
-
-        // 반환 예시 : 2023-08-31
-        return returnDate;
-
-    }
 }

@@ -62,9 +62,7 @@ public class SellOrderService {
 
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
-        String returnDate = Parser.normalizeReturnDateWithHyphen(request.getReturnDate());
-
-        SellOrder sellOrder = SellOrder.of(request, orderNumber, member, returnDate);
+        SellOrder sellOrder = SellOrder.of(request, orderNumber, member);
 
         sellOrderRepository.save(sellOrder);
 
