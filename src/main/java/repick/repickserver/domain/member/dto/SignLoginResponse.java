@@ -22,6 +22,7 @@ public class SignLoginResponse {
     private String phoneNumber;
     private Address address;
     private Bank bank;
+    private Boolean allowMarketingMessages;
     @Schema(description = "엑세스 토큰")
     private String accessToken;
     @Schema(description = "리프레쉬 토큰")

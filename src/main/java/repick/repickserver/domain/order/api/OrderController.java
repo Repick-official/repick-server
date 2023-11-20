@@ -60,4 +60,18 @@ public class OrderController {
         return ResponseEntity.ok()
                 .body(orderService.getOrderStates(orderState));
     }
+
+    @Operation(summary = "신규 주문 건 수")
+    @GetMapping(value = "/admin/order-request-count")
+    public ResponseEntity<Long> getOrderRequestCount() {
+        return ResponseEntity.ok()
+                .body(orderService.getOrderRequestCount());
+    }
+
+    @Operation(summary = "배송중 주문 건 수")
+    @GetMapping(value = "/admin/delivering-order-count")
+    public ResponseEntity<Long> getDeliveringOrderCount() {
+        return ResponseEntity.ok()
+                .body(orderService.getDeliveringOrderCount());
+    }
 }

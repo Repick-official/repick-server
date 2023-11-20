@@ -20,6 +20,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
+import java.util.List;
+
 import static repick.repickserver.global.error.exception.ErrorCode.MEMBER_NOT_FOUND;
 import static repick.repickserver.global.error.exception.ErrorCode.TOKEN_EXPIRED;
 
@@ -99,4 +101,7 @@ public class MemberService {
         return jwtProvider.createAccessToken(new UserDetailsImpl(member));
     }
 
+    public List<SignUserInfoResponse> getUserInfoPage(Long cursorId, int pageSize) {
+        return memberRepository.findPage(cursorId, pageSize);
+    }
 }

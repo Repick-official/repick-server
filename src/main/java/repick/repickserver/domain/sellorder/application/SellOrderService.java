@@ -3,6 +3,7 @@ package repick.repickserver.domain.sellorder.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import repick.repickserver.domain.member.domain.Member;
+import repick.repickserver.domain.model.Bank;
 import repick.repickserver.domain.ordernumber.application.OrderNumberService;
 import repick.repickserver.domain.ordernumber.domain.OrderType;
 import repick.repickserver.domain.product.dao.ProductImageRepository;
@@ -28,11 +29,12 @@ import repick.repickserver.infra.sms.service.SmsService;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_COMPLETED;
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_REQUESTED;
-import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
-import static repick.repickserver.global.error.exception.ErrorCode.PRODUCT_NOT_FOUND;
+import static repick.repickserver.domain.sellorder.domain.SellState.REQUESTED;
+import static repick.repickserver.global.error.exception.ErrorCode.*;
 
 @Service
 @Transactional
@@ -60,13 +62,11 @@ public class SellOrderService {
 
         String orderNumber = orderNumberService.generateOrderNumber(OrderType.SELL_ORDER);
 
-        String returnDate = Parser.normalizeReturnDateWithHyphen(request.getReturnDate());
-
-        SellOrder sellOrder = SellOrder.of(request, orderNumber, member, returnDate);
+        SellOrder sellOrder = SellOrder.of(request, orderNumber, member);
 
         sellOrderRepository.save(sellOrder);
 
-        sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.REQUESTED));
+        sellOrderStateRepository.save(SellOrderState.of(sellOrder, REQUESTED));
 
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
@@ -147,7 +147,8 @@ public class SellOrderService {
 
         Long totalPrice = calculateTotalPriceAndUpdateProductState(productList);
 
-        sendSlackNotifier(productList, totalPrice);
+        if (settlementRequest.getBank() != null) sendSlackNotifier(productList, totalPrice, settlementRequest.getBank());
+        else sendSlackNotifier(productList, totalPrice, member);
 
         return true;
 
@@ -165,18 +166,39 @@ public class SellOrderService {
         return totalPrice;
     }
 
-    private void sendSlackNotifier(List<Product> productList, Long totalPrice) {
+    private void sendSlackNotifier(List<Product> productList, Long totalPrice, Member member) {
+        StringBuilder sb = new StringBuilder(); // 슬랙 메세지를 위한 StringBuilder
+        sb.append("정산 신청입니다.\n").append("신청 상품 정보들: \n");
+
+        AtomicReference<Bank> bankRef = new AtomicReference<>(null);
+
+        productList.forEach(product -> {
+            // 슬랙 메세지에 상품 정보 추가
+            sb.append(product.getProductNumber()).append(" ").append(product.getPrice()).append("원\n");
+            if (product.getSellOrder().getBank() != null) bankRef.set(product.getSellOrder().getBank());
+
+        });
+
+        Bank bank = bankRef.get(); // SellOrder의 계좌 정보를 우선으로 가져옴
+        if (bank == null) bank = member.getBank(); // SellOrder의 계좌 정보가 없으면 Member의 계좌 정보를 가져옴
+        if (bank == null) throw new CustomException(BANK_INFO_NOT_FOUND);
+
+        sb.append("총 가격: ").append(totalPrice).append("원\n");
+        sb.append(bank.getAccountNumber()).append(" ").append(bank.getBankName()).append("\n");
+        slackNotifier.sendExpenseSettlementSlackNotification(sb.toString());
+    }
+
+    private void sendSlackNotifier(List<Product> productList, Long totalPrice, Bank bank) {
         StringBuilder sb = new StringBuilder(); // 슬랙 메세지를 위한 StringBuilder
         sb.append("정산 신청입니다.\n").append("신청 상품 정보들: \n");
 
         productList.forEach(product -> {
             // 슬랙 메세지에 상품 정보 추가
             sb.append(product.getProductNumber()).append(" ").append(product.getPrice()).append("원\n");
-            sb.append(product.getSellOrder().getBank().getAccountNumber()).append(" ")
-                    .append(product.getSellOrder().getBank().getBankName()).append("\n");
         });
 
         sb.append("총 가격: ").append(totalPrice).append("원\n");
+        sb.append(bank.getAccountNumber()).append(" ").append(bank.getBankName()).append("\n");
         slackNotifier.sendExpenseSettlementSlackNotification(sb.toString());
     }
 
@@ -189,5 +211,13 @@ public class SellOrderService {
         product.changeProductState(SETTLEMENT_COMPLETED);
 
         return true;
+    }
+
+    public Long getBagRequestCount() {
+        return sellOrderRepository.countBySellState(REQUESTED);
+    }
+
+    public Long getSettlementRequestCount() {
+        return productRepository.countByProductState(SETTLEMENT_REQUESTED);
     }
 }

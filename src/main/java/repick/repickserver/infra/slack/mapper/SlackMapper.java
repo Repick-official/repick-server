@@ -38,7 +38,6 @@ public class SlackMapper {
                 "상세주소: " + request.getAddress().getDetailAddress() + "\n" +
                 "우편번호: " + request.getAddress().getZipCode() + "\n" +
                 "수거 시 희망사항: " + request.getRequestDetail() + "\n" +
-                "수거 희망일: " + request.getReturnDate() + "\n" +
                 "의류 수량: " + request.getProductQuantity() + "\n" +
                 "리픽백 수량: " + request.getBagQuantity();
     }
@@ -52,7 +51,6 @@ public class SlackMapper {
                 "상세주소: " + sellOrder.getAddress().getDetailAddress() + "\n" +
                 "우편번호: " + sellOrder.getAddress().getZipCode() + "\n" +
                 "수거 시 희망사항: " + sellOrder.getRequestDetail() + "\n" +
-                "수거 희망일: " + sellOrder.getReturnDate() + "\n" +
                 "의류 수량: " + sellOrder.getProductQuantity() + "\n" +
                 "리픽백 수량: " + sellOrder.getBagQuantity();
     }

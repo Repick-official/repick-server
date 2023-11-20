@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface OrderStateRepositoryCustom {
     List<OrderStateResponse> getOrderStates(String requestedOrderState);
+
+    Long countByOrderCurrentState(String requestedState);
 }

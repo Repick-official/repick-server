@@ -12,4 +12,6 @@ public interface SellOrderRepositoryCustom {
     List<SellOrderResponse> getSellOrdersByMemberIdAndState(Long memberId, SellState state);
 
     List<SellOrderResponse> getSellOrdersByState(SellState state);
+
+    Long countBySellState(SellState requestedState);
 }

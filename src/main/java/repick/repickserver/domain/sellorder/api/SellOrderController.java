@@ -83,7 +83,7 @@ public class SellOrderController {
     @GetMapping(value = "/history/requests/{state}")
     @ApiImplicitParam(
             name = "state",
-            value = "신청 상태 (requested | canceled | delivered | published)",
+            value = "신청 상태 (requested | bag_pending | bag_ready | canceled | delivered | published)",
             required = true,
             dataType = "String",
             paramType = "path",
@@ -106,7 +106,7 @@ public class SellOrderController {
     @Operation(summary = "요청중인 판매 등록 리스트 조회", description = "요청중인 판매 등록 리스트를 조회합니다")
     @ApiImplicitParam(
             name = "state",
-            value = "신청 상태 (requested | canceled | delivered | published)",
+            value = "신청 상태 (requested | bag_pending | bag_ready | canceled | delivered | published)",
             required = true,
             dataType = "String",
             paramType = "path",
@@ -123,6 +123,20 @@ public class SellOrderController {
     public ResponseEntity<SellOrderResponse> updateSellOrder(@RequestBody SellOrderUpdateRequest request) {
         return ResponseEntity.ok()
                 .body(sellOrderService.updateSellOrderState(request));
+    }
+
+    @Operation(summary = "옷장 정리 신규 신청 건 수")
+    @GetMapping(value = "/admin/bag-request-count")
+    public ResponseEntity<Long> getBagRequestCount() {
+        return ResponseEntity.ok()
+                .body(sellOrderService.getBagRequestCount());
+    }
+
+    @Operation(summary = "정산 대기 건 수")
+    @GetMapping(value = "/admin/settlement-request-count")
+    public ResponseEntity<Long> getSettlementRequestCount() {
+        return ResponseEntity.ok()
+                .body(sellOrderService.getSettlementRequestCount());
     }
 
 }

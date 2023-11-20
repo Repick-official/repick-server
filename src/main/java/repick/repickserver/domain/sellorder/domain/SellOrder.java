@@ -13,7 +13,6 @@ import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -36,7 +35,7 @@ public class SellOrder extends BaseTimeEntity {
     private String phoneNumber;
 
     // 계좌 은행, 번호
-    @NotNull @Embedded
+    @Nullable @Embedded
     private Bank bank;
 
     // 리픽백 수량
@@ -54,18 +53,11 @@ public class SellOrder extends BaseTimeEntity {
     @Nullable
     private String requestDetail;
 
-    /*
-    * 원하는 수거 날짜 시간
-    * null : "시간은 딱히 상관없어요" 체크한 경우
-     */
-    @Nullable
-    private LocalDateTime returnDate;
-
     @ManyToOne
     private Member member;
 
     @Builder
-    public SellOrder(String orderNumber, String name, String phoneNumber, Bank bank, Integer bagQuantity, Integer productQuantity, Address address, String requestDetail, LocalDateTime returnDate, Member member) {
+    public SellOrder(String orderNumber, String name, String phoneNumber, Bank bank, Integer bagQuantity, Integer productQuantity, Address address, String requestDetail, Member member) {
         this.orderNumber = orderNumber;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -74,11 +66,10 @@ public class SellOrder extends BaseTimeEntity {
         this.productQuantity = productQuantity;
         this.address = address;
         this.requestDetail = requestDetail;
-        this.returnDate = returnDate;
         this.member = member;
     }
 
-    public static SellOrder of(SellOrderRequest request, String orderNumber, Member member, String returnDate) {
+    public static SellOrder of(SellOrderRequest request, String orderNumber, Member member) {
         return SellOrder.builder()
                 .name(request.getName())
                 .orderNumber(orderNumber)
@@ -88,7 +79,6 @@ public class SellOrder extends BaseTimeEntity {
                 .productQuantity(request.getProductQuantity())
                 .address(request.getAddress())
                 .requestDetail(request.getRequestDetail())
-                .returnDate(LocalDateTime.parse(returnDate + "T00:00:00"))
                 .member(member)
                 .build();
     }

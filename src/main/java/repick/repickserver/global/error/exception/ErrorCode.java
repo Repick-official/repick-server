@@ -29,6 +29,7 @@ public enum ErrorCode {
     EMAIL_NOT_FOUND(400, "M005", "존재하지 않는 이메일입니다."),
     EMAIL_ALREADY_EXISTS(400, "M005", "이미 존재하는 이메일입니다."),
     NICKNAME_ALREADY_EXISTS(400, "M006", "이미 존재하는 닉네임입니다."),
+    BANK_INFO_NOT_FOUND(400, "M007", "계좌 정보가 없습니다."),
 
     // Order
     ORDER_FAIL(400, "O001", "주문에 실패했습니다."),
