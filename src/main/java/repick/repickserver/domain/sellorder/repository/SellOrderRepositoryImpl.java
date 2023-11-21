@@ -88,4 +88,22 @@ public class SellOrderRepositoryImpl implements SellOrderRepositoryCustom {
 
     }
 
+    @Override
+    public Boolean existsBySellOrderIdAndSellState(Long sellOrderId, SellState state) {
+        // 각 order 별 가장 최신의 orderState id를 구함
+        SubQueryExpression<Long> maxIdSubQuery = JPAExpressions
+                .select(sellOrderState.id.max())
+                .from(sellOrderState)
+                .groupBy(sellOrderState.sellOrder.id);
+
+        return jpaQueryFactory
+                .select(sellOrderState.id)
+                .from(sellOrderState)
+                .where(sellOrderState.id.in(maxIdSubQuery),
+                        sellOrderState.sellState.eq(state),
+                        sellOrderState.sellOrder.id.eq(sellOrderId))
+                .fetchOne() != null;
+
+    }
+
 }

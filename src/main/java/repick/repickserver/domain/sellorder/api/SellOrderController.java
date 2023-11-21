@@ -125,6 +125,15 @@ public class SellOrderController {
                 .body(sellOrderService.updateSellOrderState(request));
     }
 
+    @Operation(summary = "리픽백 배출됨 상태로 변경")
+    @PostMapping(value = "/bag-ready")
+    public ResponseEntity<Boolean> updateSellOrderToBagReady(
+                                                @ApiIgnore @RequestHeader("Authorization") String token,
+                                                @RequestBody String orderNumber) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.updateSellOrderStateToBagReady(token, orderNumber));
+    }
+
     @Operation(summary = "옷장 정리 신규 신청 건 수")
     @GetMapping(value = "/admin/bag-request-count")
     public ResponseEntity<Long> getBagRequestCount() {
