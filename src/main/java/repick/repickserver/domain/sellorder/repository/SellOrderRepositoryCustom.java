@@ -14,4 +14,6 @@ public interface SellOrderRepositoryCustom {
     List<SellOrderResponse> getSellOrdersByState(SellState state);
 
     Long countBySellState(SellState requestedState);
+
+    Boolean existsBySellOrderIdAndSellState(Long sellOrderId, SellState state);
 }

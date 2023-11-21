@@ -7,8 +7,8 @@ import repick.repickserver.domain.sellorder.dto.SellOrderRequest;
 import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
 import repick.repickserver.global.error.exception.CustomException;
 
+import static repick.repickserver.domain.sellorder.domain.SellState.BAG_PENDING;
 import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
-import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NUMBER_NOT_FOUND;
 
 @Component @RequiredArgsConstructor
 public class SellOrderValidator {
@@ -19,9 +19,13 @@ public class SellOrderValidator {
         SellOrderRequest.validateSellOrder(request);
     }
 
-    public void validateSellOrderByOrderNumber(String orderNumber) {
-        if (orderNumber == null) throw new CustomException(ORDER_NUMBER_NOT_FOUND);
-        SellOrder sellOrder = sellOrderRepository.findByOrderNumber(orderNumber)
-                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+    public void validateSellOrderMatchesMemberId(SellOrder sellOrder, Long memberId) {
+        if (!sellOrder.getMember().getId().equals(memberId)) throw new CustomException(ORDER_NOT_FOUND);
+    }
+
+    public void validateIsSellOrderStateBagPending(SellOrder sellOrder) {
+        if (!sellOrderRepository.existsBySellOrderIdAndSellState(sellOrder.getId(), BAG_PENDING)) {
+            throw new CustomException(ORDER_NOT_FOUND);
+        }
     }
 }

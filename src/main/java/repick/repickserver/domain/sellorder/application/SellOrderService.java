@@ -220,4 +220,16 @@ public class SellOrderService {
     public Long getSettlementRequestCount() {
         return productRepository.countByProductState(SETTLEMENT_REQUESTED);
     }
+
+    public Boolean updateSellOrderStateToBagReady(String token, String orderNumber) {
+
+        Member member = jwtProvider.getMemberByRawToken(token);
+
+        SellOrder sellOrder = findByOrderNumber(orderNumber);
+        sellOrderValidator.validateIsSellOrderStateBagPending(sellOrder);
+        sellOrderValidator.validateSellOrderMatchesMemberId(sellOrder, member.getId());
+
+        sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.BAG_READY));
+        return true;
+    }
 }
