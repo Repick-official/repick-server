@@ -221,11 +221,11 @@ public class SellOrderService {
         return productRepository.countByProductState(SETTLEMENT_REQUESTED);
     }
 
-    public Boolean updateSellOrderStateToBagReady(String token, String orderNumber) {
+    public Boolean updateSellOrderStateToBagReady(String token, SellOrderUpdateRequest request) {
 
         Member member = jwtProvider.getMemberByRawToken(token);
 
-        SellOrder sellOrder = findByOrderNumber(orderNumber);
+        SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
         sellOrderValidator.validateIsSellOrderStateBagPending(sellOrder);
         sellOrderValidator.validateSellOrderMatchesMemberId(sellOrder, member.getId());
 
