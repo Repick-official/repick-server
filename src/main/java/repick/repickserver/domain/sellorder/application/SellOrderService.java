@@ -68,6 +68,8 @@ public class SellOrderService {
 
         sellOrderStateRepository.save(SellOrderState.of(sellOrder, REQUESTED));
 
+        smsService.sendSellOrderSms(sellOrder.getPhoneNumber());
+
         slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderSlackNoticeString(request, orderNumber));
 
         // 처음 옷장 정리를 신청한 사용자의 경우
