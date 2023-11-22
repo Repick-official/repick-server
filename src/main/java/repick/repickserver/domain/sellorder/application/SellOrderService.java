@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_COMPLETED;
 import static repick.repickserver.domain.product.domain.ProductState.SETTLEMENT_REQUESTED;
+import static repick.repickserver.domain.sellorder.domain.SellState.CANCELLED;
 import static repick.repickserver.domain.sellorder.domain.SellState.REQUESTED;
 import static repick.repickserver.global.error.exception.ErrorCode.*;
 
@@ -233,5 +234,18 @@ public class SellOrderService {
 
         sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.BAG_READY));
         return true;
+    }
+
+    public Boolean cancelSellOrder(String token, SellOrderUpdateRequest request) {
+
+        Member member = jwtProvider.getMemberByRawToken(token);
+
+        SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
+        sellOrderValidator.validateIsSellOrderStateRequested(sellOrder);
+        sellOrderValidator.validateSellOrderMatchesMemberId(sellOrder, member.getId());
+        
+        sellOrderStateRepository.save(SellOrderState.of(sellOrder, CANCELLED));
+        return true;
+
     }
 }
