@@ -243,6 +243,8 @@ public class SellOrderService {
         SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
         sellOrderValidator.validateIsSellOrderStateRequested(sellOrder);
         sellOrderValidator.validateSellOrderMatchesMemberId(sellOrder, member.getId());
+
+        slackNotifier.sendSellOrderSlackNotification(slackMapper.toSellOrderCancelSlackNoticeString(sellOrder));
         
         sellOrderStateRepository.save(SellOrderState.of(sellOrder, CANCELLED));
         return true;

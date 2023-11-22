@@ -55,4 +55,7 @@ public class SlackMapper {
                 "리픽백 수량: " + sellOrder.getBagQuantity();
     }
 
+    public String toSellOrderCancelSlackNoticeString(SellOrder sellOrder) {
+        return "옷장 정리 주문 신청 취소 : " + sellOrder.getOrderNumber();
+    }
 }
