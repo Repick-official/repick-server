@@ -8,6 +8,7 @@ import repick.repickserver.domain.sellorder.repository.SellOrderRepository;
 import repick.repickserver.global.error.exception.CustomException;
 
 import static repick.repickserver.domain.sellorder.domain.SellState.BAG_PENDING;
+import static repick.repickserver.domain.sellorder.domain.SellState.REQUESTED;
 import static repick.repickserver.global.error.exception.ErrorCode.ORDER_NOT_FOUND;
 
 @Component @RequiredArgsConstructor
@@ -25,6 +26,12 @@ public class SellOrderValidator {
 
     public void validateIsSellOrderStateBagPending(SellOrder sellOrder) {
         if (!sellOrderRepository.existsBySellOrderIdAndSellState(sellOrder.getId(), BAG_PENDING)) {
+            throw new CustomException(ORDER_NOT_FOUND);
+        }
+    }
+
+    public void validateIsSellOrderStateRequested(SellOrder sellOrder) {
+        if (!sellOrderRepository.existsBySellOrderIdAndSellState(sellOrder.getId(), REQUESTED)) {
             throw new CustomException(ORDER_NOT_FOUND);
         }
     }

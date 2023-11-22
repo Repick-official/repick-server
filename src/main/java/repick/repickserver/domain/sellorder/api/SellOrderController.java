@@ -134,6 +134,14 @@ public class SellOrderController {
                 .body(sellOrderService.updateSellOrderStateToBagReady(token, request));
     }
 
+    @Operation(summary = "옷장 정리 신청 취소")
+    @PostMapping(value = "/cancel")
+    public ResponseEntity<Boolean> cancelSellOrder(@ApiIgnore @RequestHeader("Authorization") String token,
+                                                   @RequestBody SellOrderUpdateRequest request) {
+        return ResponseEntity.ok()
+                .body(sellOrderService.cancelSellOrder(token, request));
+    }
+
     @Operation(summary = "옷장 정리 신규 신청 건 수")
     @GetMapping(value = "/admin/bag-request-count")
     public ResponseEntity<Long> getBagRequestCount() {
