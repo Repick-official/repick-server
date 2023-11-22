@@ -69,4 +69,11 @@ public class SignController {
         return ResponseEntity.ok()
                 .body(memberService.getUserInfoPage(cursorId, pageSize));
     }
+
+    @Operation(summary = "유저 권한 체크하기")
+    @GetMapping("/role")
+    public ResponseEntity<String> checkRole(@ApiIgnore @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok()
+                .body(memberService.checkRole(token));
+    }
 }

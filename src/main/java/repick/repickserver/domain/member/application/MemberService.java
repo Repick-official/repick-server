@@ -104,4 +104,8 @@ public class MemberService {
     public List<SignUserInfoResponse> getUserInfoPage(Long cursorId, int pageSize) {
         return memberRepository.findPage(cursorId, pageSize);
     }
+
+    public String checkRole(String token) {
+        return jwtProvider.getMemberByRawToken(token).getRole().toString();
+    }
 }
