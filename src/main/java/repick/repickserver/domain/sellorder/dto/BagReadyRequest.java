@@ -10,5 +10,5 @@ public class BagReadyRequest {
     private String orderNumber;
 
     @Schema(description = "실제 배출 수량", example = "1")
-    private int bagQuantity;
+    private Integer bagQuantity;
 }
