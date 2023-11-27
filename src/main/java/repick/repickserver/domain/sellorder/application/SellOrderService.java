@@ -230,11 +230,11 @@ public class SellOrderService {
 
         SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
 
-        // 실제 배출 수량으로 수정
-        sellOrder.updateBagQuantity(request.getBagQuantity());
-
         sellOrderValidator.validateIsSellOrderStateBagPending(sellOrder);
         sellOrderValidator.validateSellOrderMatchesMemberId(sellOrder, member.getId());
+
+        // 배출 수량 수정 요청 시 수정
+        if (request.getBagQuantity() != null) sellOrder.updateBagQuantity(request.getBagQuantity());
 
         sellOrderStateRepository.save(SellOrderState.of(sellOrder, SellState.BAG_READY));
         return true;
