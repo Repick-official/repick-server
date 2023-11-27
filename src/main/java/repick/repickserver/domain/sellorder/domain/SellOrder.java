@@ -83,4 +83,8 @@ public class SellOrder extends BaseTimeEntity {
                 .build();
     }
 
+    public void updateBagQuantity(int bagQuantity) {
+        this.bagQuantity = bagQuantity;
+    }
+
 }

@@ -224,11 +224,15 @@ public class SellOrderService {
         return productRepository.countByProductState(SETTLEMENT_REQUESTED);
     }
 
-    public Boolean updateSellOrderStateToBagReady(String token, SellOrderUpdateRequest request) {
+    public Boolean updateSellOrderStateToBagReady(String token, BagReadyRequest request) {
 
         Member member = jwtProvider.getMemberByRawToken(token);
 
         SellOrder sellOrder = findByOrderNumber(request.getOrderNumber());
+
+        // 실제 배출 수량으로 수정
+        sellOrder.updateBagQuantity(request.getBagQuantity());
+
         sellOrderValidator.validateIsSellOrderStateBagPending(sellOrder);
         sellOrderValidator.validateSellOrderMatchesMemberId(sellOrder, member.getId());
 
