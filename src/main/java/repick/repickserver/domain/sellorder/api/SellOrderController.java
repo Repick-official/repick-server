@@ -129,7 +129,7 @@ public class SellOrderController {
     @PostMapping(value = "/bag-ready")
     public ResponseEntity<Boolean> updateSellOrderToBagReady(
                                                 @ApiIgnore @RequestHeader("Authorization") String token,
-                                                @RequestBody SellOrderUpdateRequest request) {
+                                                @RequestBody BagReadyRequest request) {
         return ResponseEntity.ok()
                 .body(sellOrderService.updateSellOrderStateToBagReady(token, request));
     }
