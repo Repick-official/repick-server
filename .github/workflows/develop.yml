@@ -45,13 +45,10 @@ jobs:
           script: |
             cd /home/ubuntu/repick
             
-            curl -o docker-compose.yml https://raw.githubusercontent.com/Repick-official/repick-server/develop/docker-compose.yaml
-            
             sudo touch .env
             echo "${{ secrets.ENV_DEV_VARS }}" | sudo tee .env > /dev/null
             
-            sudo touch docker-compose.yaml
-            echo "${{ vars.DOCKER_COMPOSE_DEV }}" | sudo tee docker-compose.yaml > /dev/null
+            sudo curl -o docker-compose.yml https://raw.githubusercontent.com/Repick-official/repick-server/develop/docker-compose-develop.yaml
             
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
