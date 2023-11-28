@@ -45,6 +45,8 @@ jobs:
           script: |
             cd /home/ubuntu/repick
             
+            curl -o docker-compose.yml https://raw.githubusercontent.com/Repick-official/repick-server/develop/docker-compose.yaml
+            
             sudo touch .env
             echo "${{ secrets.ENV_DEV_VARS }}" | sudo tee .env > /dev/null
             
